@@ -76,11 +76,27 @@ a { color: inherit; text-decoration: none; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 22px 24px;
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
   transition: border-color .15s;
 }
 .pick-card:hover { border-color: var(--green); }
+
+/* Photo in pick cards */
+.pick-photo {
+  height: 155px; overflow: hidden; background: var(--green-lt); flex-shrink: 0;
+}
+.pick-photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .3s ease;
+}
+.pick-card:hover .pick-photo img { transform: scale(1.04); }
+
+/* Body of pick card (was previously the whole card content) */
+.pick-body {
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 12px; flex: 1;
+}
 
 .pick-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .pick-hood {
@@ -88,7 +104,10 @@ a { color: inherit; text-decoration: none; }
   color: var(--green);
 }
 .pick-price { font-size: 1.1rem; font-weight: 500; white-space: nowrap; }
-.pick-addr { font-size: 1rem; font-weight: 400; line-height: 1.3; }
+.pick-addr {
+  font-size: 1rem; font-weight: 400; line-height: 1.3;
+}
+.pick-addr a:hover { color: var(--green); }
 .pick-meta { font-size: 12px; color: var(--fg3); margin-top: 2px; }
 .pick-outdoor {
   font-size: 12px; color: var(--green); font-weight: 400;
@@ -101,32 +120,6 @@ a { color: inherit; text-decoration: none; }
   display: flex; gap: 8px; align-items: flex-start; line-height: 1.5;
 }
 .pick-reasons li::before { content: '—'; color: var(--fg3); flex-shrink: 0; }
-.pick-link {
-  margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border);
-  font-size: 12px; font-weight: 500; color: var(--fg3); display: flex; align-items: center; gap: 4px;
-}
-.pick-link:hover { color: var(--green); }
-
-/* ── MAP ── */
-.map-section { padding: 44px 0 0; }
-.map-section h2 { font-size:1.1rem; font-weight:500; margin-bottom:16px; }
-#map {
-  width: 100%; height: 420px; border-radius: var(--r);
-  border: 1px solid var(--border); overflow: hidden;
-}
-@media (max-width:600px) { #map { height: 300px; } }
-.map-hint { font-size:11px; color:var(--fg3); margin-top:8px; margin-bottom:36px; }
-
-/* ── FLOOR BADGE ── */
-.c-floor {
-  display:inline-flex; align-items:center; gap:5px;
-  font-size:11px; color:var(--fg2); font-weight:400;
-  background:var(--bg); border:1px solid var(--border);
-  border-radius:4px; padding:2px 8px; margin-top:4px;
-}
-
-/* ── DIVIDER ── */
-.divider { border: none; height: 1px; background: var(--border); margin: 0; }
 
 /* ── FILTER BAR ── */
 .filter-bar {
@@ -153,6 +146,27 @@ a { color: inherit; text-decoration: none; }
 }
 .tab.active .cnt { color: var(--green); }
 
+/* ── MAP ── */
+.map-section { padding: 44px 0 0; }
+.map-section h2 { font-size:1.1rem; font-weight:500; margin-bottom:16px; }
+#map {
+  width: 100%; height: 420px; border-radius: var(--r);
+  border: 1px solid var(--border); overflow: hidden;
+}
+@media (max-width:600px) { #map { height: 300px; } }
+.map-hint { font-size:11px; color:var(--fg3); margin-top:8px; margin-bottom:36px; }
+
+/* ── FLOOR BADGE ── */
+.c-floor {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--fg2); font-weight:400;
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:4px; padding:2px 8px; margin-top:4px;
+}
+
+/* ── DIVIDER ── */
+.divider { border: none; height: 1px; background: var(--border); margin: 0; }
+
 /* ── SORT ROW ── */
 .sort-row {
   display: flex; align-items: center; gap: 10px;
@@ -175,7 +189,7 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   border-radius: var(--r);
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 160px 1fr;
   overflow: hidden;
   transition: border-color .15s;
 }
@@ -190,7 +204,7 @@ a { color: inherit; text-decoration: none; }
 .col-photo {
   position: relative; background: var(--green-lt); overflow: hidden;
 }
-.col-photo a { display: block; height: 100%; min-height: 175px; }
+.col-photo a { display: block; height: 100%; min-height: 155px; }
 .col-photo img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   transition: transform .3s ease;
@@ -233,8 +247,8 @@ a { color: inherit; text-decoration: none; }
 
 /* Content column */
 .col-content {
-  padding: 20px 24px;
-  display: flex; flex-direction: column; gap: 12px;
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 9px;
   min-width: 0;
 }
 
@@ -252,7 +266,7 @@ a { color: inherit; text-decoration: none; }
 .c-type { font-size: 12px; color: var(--fg3); font-weight: 300; }
 
 .c-price {
-  font-size: 1.15rem; font-weight: 500;
+  font-size: 1.1rem; font-weight: 500;
   font-variant-numeric: tabular-nums;
   display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
 }
@@ -265,17 +279,18 @@ a { color: inherit; text-decoration: none; }
 
 .c-rule { height: 1px; background: var(--border); }
 
-.c-desc { font-size: 13px; color: var(--fg2); line-height: 1.65; }
+.c-desc { font-size: 12.5px; color: var(--fg2); line-height: 1.6; }
 
+/* Inline note rows: icon + LABEL · text on same line */
 .c-note {
-  display: flex; gap: 9px; align-items: flex-start;
-  font-size: 12.5px; color: var(--fg2); line-height: 1.6;
+  display: flex; gap: 7px; align-items: baseline;
+  font-size: 12px; color: var(--fg2); line-height: 1.5;
 }
-.c-note-icon { flex-shrink: 0; font-size: 13px; margin-top: 2px; }
+.c-note-icon { flex-shrink: 0; font-size: 12px; }
 .c-note-label {
-  display: block; font-size: 9px; font-weight: 600;
+  display: inline; font-size: 9px; font-weight: 600;
   letter-spacing: .08em; text-transform: uppercase;
-  color: var(--fg3); margin-bottom: 1px;
+  color: var(--fg3); margin-right: 3px;
 }
 
 /* ── FOOTER ── */
@@ -310,94 +325,98 @@ a { color: inherit; text-decoration: none; }
     <div class="picks-grid">
 
       <div class="pick-card">
-        <div class="pick-head">
-          <span class="pick-hood">Gran Madre</span>
-          <span class="pick-price">€ 269.000</span>
+        <div class="pick-photo">
+          <img src="https://pwm.im-cdn.it/image/1966338456/m-c.jpg" alt="Via Ferrante Aporti 6" loading="lazy">
         </div>
-        <div>
-          <div class="pick-addr">Via Ferrante Aporti 6</div>
-          <div class="pick-meta">Bilocale · edificio 2008 · arredato</div>
+        <div class="pick-body">
+          <div class="pick-head">
+            <span class="pick-hood">Gran Madre</span>
+            <span class="pick-price">€ 269.000</span>
+          </div>
+          <div>
+            <div class="pick-addr"><a href="https://www.immobiliare.it/annunci/130803894/" target="_blank" rel="noopener">Via Ferrante Aporti 6</a></div>
+            <div class="pick-meta">Bilocale · edificio 2008 · arredato</div>
+          </div>
+          <div class="pick-outdoor">🌳 Giardino privato + terrazzo</div>
+          <ul class="pick-reasons">
+            <li>Ai piedi della collina, zona quieta e verde</li>
+            <li>Portineria 24h e ascensore</li>
+            <li>Prezzo ribassato da € 289.000</li>
+          </ul>
         </div>
-        <div class="pick-outdoor">🌳 Giardino privato + terrazzo</div>
-        <ul class="pick-reasons">
-          <li>Ai piedi della collina, zona quieta e verde</li>
-          <li>Portineria 24h e ascensore</li>
-          <li>Prezzo ribassato da € 289.000</li>
-        </ul>
-        <a class="pick-link" href="https://www.immobiliare.it/annunci/130803894/" target="_blank" rel="noopener">Vedi annuncio →</a>
       </div>
 
       <div class="pick-card">
-        <div class="pick-head">
-          <span class="pick-hood">Cavoretto</span>
-          <span class="pick-price">€ 430.000</span>
+        <div class="pick-photo">
+          <img src="https://pwm.im-cdn.it/image/1946308940/m-c.jpg" alt="Strada delle Terrazze 56/12F" loading="lazy">
         </div>
-        <div>
-          <div class="pick-addr">Strada delle Terrazze 56/12F</div>
-          <div class="pick-meta">Quadrilocale · piscina e tennis nel complesso</div>
+        <div class="pick-body">
+          <div class="pick-head">
+            <span class="pick-hood">Cavoretto</span>
+            <span class="pick-price">€ 430.000</span>
+          </div>
+          <div>
+            <div class="pick-addr"><a href="https://www.immobiliare.it/annunci/129969450/" target="_blank" rel="noopener">Strada delle Terrazze 56/12F</a></div>
+            <div class="pick-meta">Quadrilocale · piscina e tennis nel complesso</div>
+          </div>
+          <div class="pick-outdoor">☀️ Terrazzo panoramico su Torino e Alpi</div>
+          <ul class="pick-reasons">
+            <li>Il quartiere più silenzioso e verde di Torino</li>
+            <li>Boschi intorno, zero traffico percepibile</li>
+            <li>Centro raggiungibile in 20 minuti in auto</li>
+          </ul>
         </div>
-        <div class="pick-outdoor">☀️ Terrazzo panoramico su Torino e Alpi</div>
-        <ul class="pick-reasons">
-          <li>Il quartiere più silenzioso e verde di Torino</li>
-          <li>Boschi intorno, zero traffico percepibile</li>
-          <li>Centro raggiungibile in 20 minuti in auto</li>
-        </ul>
-        <a class="pick-link" href="https://www.immobiliare.it/annunci/129969450/" target="_blank" rel="noopener">Vedi annuncio →</a>
       </div>
 
       <div class="pick-card">
-        <div class="pick-head">
-          <span class="pick-hood">Vanchiglietta</span>
-          <span class="pick-price">€ 590.000</span>
+        <div class="pick-photo">
+          <img src="https://images.wk-cdn.it/3e99947fdbfb713f8c3c1b173f42fc93a2f24e1e0b54d7afef5c34902dc256b3/webp/640x427.webp" alt="Via Giulia di Barolo 16" loading="lazy">
         </div>
-        <div>
-          <div class="pick-addr">Via Giulia di Barolo 16</div>
-          <div class="pick-meta">Quadrilocale · 144 m² · zona signorile</div>
+        <div class="pick-body">
+          <div class="pick-head">
+            <span class="pick-hood">Vanchiglietta</span>
+            <span class="pick-price">€ 590.000</span>
+          </div>
+          <div>
+            <div class="pick-addr"><a href="https://www.wikicasa.it/annuncio/30297150" target="_blank" rel="noopener">Via Giulia di Barolo 16</a></div>
+            <div class="pick-meta">Quadrilocale · 144 m² · zona signorile</div>
+          </div>
+          <div class="pick-outdoor">🌿 Terrazzo esclusivo + balcone</div>
+          <ul class="pick-reasons">
+            <li>Zona tranquilla e signorile, traffico ridotto</li>
+            <li>Passeggiata sul Po a 2 minuti a piedi</li>
+            <li>Piazza Vittorio a 10 minuti a piedi</li>
+          </ul>
         </div>
-        <div class="pick-outdoor">🌿 Terrazzo esclusivo + balcone</div>
-        <ul class="pick-reasons">
-          <li>Zona tranquilla e signorile, traffico ridotto</li>
-          <li>Passeggiata sul Po a 2 minuti a piedi</li>
-          <li>Piazza Vittorio a 10 minuti a piedi</li>
-        </ul>
-        <a class="pick-link" href="https://www.wikicasa.it/annuncio/30297150" target="_blank" rel="noopener">Vedi annuncio →</a>
       </div>
 
       <div class="pick-card">
-        <div class="pick-head">
-          <span class="pick-hood">San Salvario</span>
-          <span class="pick-price">€ 529.000</span>
+        <div class="pick-photo">
+          <img src="https://images.wk-cdn.it/cfd1604aa12cfc1aa34e6e8233e36be745fd1fc90c01ee95ed630a01ebdaaff6/webp/640x427.webp" alt="Corso Dante 109" loading="lazy">
         </div>
-        <div>
-          <div class="pick-addr">Corso Dante 109</div>
-          <div class="pick-meta">Trilocale · 110 m² · Valentino a 5 min</div>
+        <div class="pick-body">
+          <div class="pick-head">
+            <span class="pick-hood">San Salvario</span>
+            <span class="pick-price">€ 529.000</span>
+          </div>
+          <div>
+            <div class="pick-addr"><a href="https://www.wikicasa.it/annuncio/30995577" target="_blank" rel="noopener">Corso Dante 109</a></div>
+            <div class="pick-meta">Trilocale · 110 m² · Valentino a 5 min</div>
+          </div>
+          <div class="pick-outdoor">🌿 Doppio terrazzo · 40 m² totali</div>
+          <ul class="pick-reasons">
+            <li>Due terrazzi separati — est e ovest</li>
+            <li>Parco del Valentino (42 ha) a 5 minuti</li>
+            <li>Quartiere servito e tranquillo</li>
+          </ul>
         </div>
-        <div class="pick-outdoor">🌿 Doppio terrazzo · 40 m² totali</div>
-        <ul class="pick-reasons">
-          <li>Due terrazzi separati — est e ovest</li>
-          <li>Parco del Valentino (42 ha) a 5 minuti</li>
-          <li>Quartiere servito e tranquillo</li>
-        </ul>
-        <a class="pick-link" href="https://www.wikicasa.it/annuncio/30995577" target="_blank" rel="noopener">Vedi annuncio →</a>
       </div>
 
     </div>
   </div>
 </section>
 
-<!-- MAP -->
-<section class="map-section">
-  <div class="wrap">
-    <div class="section-eyebrow">Mappa</div>
-    <h2>Dove si trovano gli appartamenti</h2>
-    <div id="map"></div>
-    <p class="map-hint">Clicca un marker per vedere i dettagli dell'annuncio.</p>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- FILTER -->
+<!-- FILTER (above map) -->
 <div class="filter-bar">
   <div class="wrap">
     <div class="filter-scroll">
@@ -416,6 +435,18 @@ a { color: inherit; text-decoration: none; }
     </div>
   </div>
 </div>
+
+<!-- MAP -->
+<section class="map-section">
+  <div class="wrap">
+    <div class="section-eyebrow">Mappa</div>
+    <h2>Dove si trovano gli appartamenti</h2>
+    <div id="map"></div>
+    <p class="map-hint">Clicca un marker per vedere i dettagli dell'annuncio. I marker arancioni sono annunci di oggi.</p>
+  </div>
+</section>
+
+<hr class="divider">
 
 <div class="sort-row">
   <label for="sort-sel" style="color:var(--fg2);font-weight:400">Ordina</label>
@@ -464,7 +495,7 @@ const listings = [
   {id:'c5',hood:'Cavoretto',addr:'Strada Vicinale delle Terrazze 56 (Duplex)',floor:'Piano terra + 1° (duplex)',lat:45.0371,lng:7.7180,price:490000,type:'Duplex · 4 locali',m2:140,outdoor:'Terrazzo coperto',outdoorType:'terrazzo',outdoorNote:'Terrazzo coperto al piano terra. Stesso complesso con piscina, tennis e portineria.',naturaNote:'Cavoretto: boschi collinari, silenzio totale. Nota: spese condominiali € 750/mese.',desc:'Duplex di 140 m² su due livelli. Tre bagni, posto auto, cantina.',url:'https://www.idealista.it/immobile/35904288/',img:'https://img4.idealista.it/blur/WEB_DETAIL-M-L/0/id.pro.it.image.master/e8/3f/10/807233400.jpg',src:'idealista.it',top:false,published:'2026-10-02'}
 ];
 
-function fmt(n){ return '€ '+n.toLocaleString('it-IT'); }
+function fmt(n){ return '€ '+n.toLocaleString('it-IT'); }
 
 function card(l){
   const disc = l.oldPrice ? Math.round((1-l.price/l.oldPrice)*100) : 0;
@@ -498,11 +529,11 @@ function card(l){
     <p class="c-desc">${l.desc}</p>
     <div class="c-note">
       <span class="c-note-icon">☀️</span>
-      <div><span class="c-note-label">Spazio aperto</span>${l.outdoorNote}</div>
+      <div><span class="c-note-label">Spazio aperto · </span>${l.outdoorNote}</div>
     </div>
     <div class="c-note">
       <span class="c-note-icon">🌿</span>
-      <div><span class="c-note-label">Natura</span>${l.naturaNote}</div>
+      <div><span class="c-note-label">Natura · </span>${l.naturaNote}</div>
     </div>
   </div>
 </article>`;
@@ -562,15 +593,15 @@ function render(){
   document.getElementById('res-count').textContent = v.length+' annunci';
 }
 
-// Hood tab listeners (use data-hood selector to avoid matching time tabs)
+// Hood tab listeners
 document.querySelectorAll('[data-hood]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-hood]').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active'); hood=b.dataset.hood; counts(); render();
+  b.classList.add('active'); hood=b.dataset.hood; counts(); render(); renderMapMarkers();
 }));
 // Time tab listeners
 document.querySelectorAll('.tab-time').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.tab-time').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active'); time=b.dataset.time; counts(); render();
+  b.classList.add('active'); time=b.dataset.time; counts(); render(); renderMapMarkers();
 }));
 document.getElementById('sort-sel').addEventListener('change',e=>{sort=e.target.value;render();});
 
@@ -584,9 +615,22 @@ const hoodColor = {
   'Gran Madre':    '#6A4C7B',
   'Cavoretto':     '#7B724C',
 };
-function markerIcon(hood, isTop) {
-  const c = hoodColor[hood] || '#4C7B5A';
-  const size = isTop ? 14 : 11;
+const todayColor = '#E07B39';
+
+function markerIcon(l) {
+  const isToday = pubMs(l) >= todayMs;
+  const c = isToday ? todayColor : (hoodColor[l.hood] || '#4C7B5A');
+  const size = l.top ? 14 : 11;
+  if (isToday) {
+    const outer = size + 8;
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:${outer}px;height:${outer}px;border-radius:50%;background:rgba(224,123,57,.22);display:flex;align-items:center;justify-content:center"><div style="width:${size}px;height:${size}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div></div>`,
+      iconSize: [outer, outer],
+      iconAnchor: [outer/2, outer/2],
+      popupAnchor: [0, -(outer/2+4)]
+    });
+  }
   return L.divIcon({
     className: '',
     html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>`,
@@ -602,20 +646,44 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
-listings.forEach(l => {
-  if (!l.lat || !l.lng) return;
-  const disc = l.oldPrice ? ` <span style="color:#c0392b;font-size:11px">−${Math.round((1-l.price/l.oldPrice)*100)}%</span>` : '';
-  const popup = `
-    <div style="font-family:'Avenir Next','Avenir',sans-serif;font-size:13px;line-height:1.5;min-width:180px">
-      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:${hoodColor[l.hood]||'#4C7B5A'};margin-bottom:3px">${l.hood}</div>
-      <div style="font-weight:500;margin-bottom:2px">${l.addr}</div>
-      <div style="color:#6B6B68;font-size:12px">${l.type}${l.m2?' · '+l.m2+' m²':''}</div>
-      <div style="color:#6B6B68;font-size:12px">Piano: ${l.floor}</div>
-      <div style="font-size:15px;font-weight:500;margin:6px 0 4px">€ ${l.price.toLocaleString('it-IT')}${disc}</div>
-      <a href="${l.url}" target="_blank" rel="noopener" style="color:${hoodColor[l.hood]||'#4C7B5A'};font-size:12px;font-weight:500">Vedi annuncio →</a>
-    </div>`;
-  L.marker([l.lat, l.lng], { icon: markerIcon(l.hood, l.top) })
-   .addTo(map)
-   .bindPopup(popup, { maxWidth: 260 });
-});
+// Map legend
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = function() {
+  const div = L.DomUtil.create('div', '');
+  div.style.cssText = 'background:rgba(255,255,255,.92);padding:6px 10px;border-radius:6px;font-size:11px;font-family:Avenir Next,Avenir,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.2);line-height:1.8';
+  div.innerHTML =
+    '<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:#E07B39;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>Oggi</div>' +
+    '<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:#4C7B5A;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>Precedenti</div>';
+  return div;
+};
+legend.addTo(map);
+
+// Markers layer — rebuilt on every filter change
+const markersLayer = L.layerGroup().addTo(map);
+
+function renderMapMarkers() {
+  markersLayer.clearLayers();
+  const filtered = listings.filter(l => {
+    if (!l.lat || !l.lng) return false;
+    if (hood !== 'Tutti' && l.hood !== hood) return false;
+    return matchesTime(l);
+  });
+  filtered.forEach(l => {
+    const disc = l.oldPrice ? ` <span style="color:#c0392b;font-size:11px">−${Math.round((1-l.price/l.oldPrice)*100)}%</span>` : '';
+    const popup = `
+      <div style="font-family:'Avenir Next','Avenir',sans-serif;font-size:13px;line-height:1.5;min-width:180px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:${hoodColor[l.hood]||'#4C7B5A'};margin-bottom:3px">${l.hood}</div>
+        <div style="font-weight:500;margin-bottom:2px">${l.addr}</div>
+        <div style="color:#6B6B68;font-size:12px">${l.type}${l.m2?' · '+l.m2+' m²':''}</div>
+        <div style="color:#6B6B68;font-size:12px">Piano: ${l.floor}</div>
+        <div style="font-size:15px;font-weight:500;margin:6px 0 4px">€ ${l.price.toLocaleString('it-IT')}${disc}</div>
+        <a href="${l.url}" target="_blank" rel="noopener" style="color:${hoodColor[l.hood]||'#4C7B5A'};font-size:12px;font-weight:500">Vedi annuncio →</a>
+      </div>`;
+    L.marker([l.lat, l.lng], { icon: markerIcon(l) })
+     .addTo(markersLayer)
+     .bindPopup(popup, { maxWidth: 260 });
+  });
+}
+
+renderMapMarkers();
 </script>
