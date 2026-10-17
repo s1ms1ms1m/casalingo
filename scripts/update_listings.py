@@ -117,7 +117,10 @@ def inject_new_listings(html: str, new_listings: list[dict]) -> str:
 
 def call_claude(existing: list[dict]) -> list[dict]:
     """Ask Claude (via API) to find new listings."""
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    api_key = os.environ["ANTHROPIC_API_KEY"]
+    print(f"API key present: {'yes' if api_key else 'no'} (length: {len(api_key)})")
+
+    client = anthropic.Anthropic(api_key=api_key)
     today = datetime.date.today().isoformat()
 
     # Compact representation of existing listings for dedup
@@ -128,17 +131,29 @@ def call_claude(existing: list[dict]) -> list[dict]:
         today=today
     )
 
-    response = client.beta.messages.create(
-        betas=["web-search-2025-03-05"],
-        model="claude-opus-4-5",
-        max_tokens=4096,
-        tools=[{
-            "type": "web_search_20250305",
-            "name": "web_search",
-            "max_uses": 12
-        }],
-        messages=[{"role": "user", "content": prompt}]
-    )
+    print(f"Calling Anthropic API (anthropic SDK version: {anthropic.__version__})…")
+    try:
+        response = client.beta.messages.create(
+            betas=["web-search-2025-03-05"],
+            model="claude-opus-4-5",
+            max_tokens=4096,
+            tools=[{
+                "type": "web_search_20250305",
+                "name": "web_search",
+                "max_uses": 12
+            }],
+            messages=[{"role": "user", "content": prompt}]
+        )
+    except Exception as e:
+        print(f"ERROR calling Anthropic API: {type(e).__name__}: {e}", file=sys.stderr)
+        # Write a summary of the error to GitHub step summary
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a") as f:
+                f.write(f"### ❌ API Error\n```\n{type(e).__name__}: {e}\n```\n")
+        raise
+
+    print(f"API response received. Stop reason: {response.stop_reason}")
 
     # Extract the text block from the response
     text = ""
