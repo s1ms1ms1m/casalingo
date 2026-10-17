@@ -128,7 +128,8 @@ def call_claude(existing: list[dict]) -> list[dict]:
         today=today
     )
 
-    response = client.messages.create(
+    response = client.beta.messages.create(
+        betas=["web-search-2025-03-05"],
         model="claude-opus-4-5",
         max_tokens=4096,
         tools=[{
