@@ -11,6 +11,7 @@ import sys
 import json
 import datetime
 import anthropic
+import json5  # handles JS object syntax: unquoted keys, single-quoted strings
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
@@ -95,12 +96,10 @@ def extract_existing_listings(html: str) -> list[dict]:
     if not match:
         raise ValueError("Could not find 'const listings = [...]' in index.html")
     try:
-        # JS → JSON: strip trailing commas before ] or }
-        js_array = match.group(1)
-        js_array = re.sub(r',\s*([\]\}])', r'\1', js_array)
-        return json.loads(js_array)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Could not parse listings JSON: {e}")
+        # Use json5 to handle JS object syntax (unquoted keys, single quotes, trailing commas)
+        return json5.loads(match.group(1))
+    except Exception as e:
+        raise ValueError(f"Could not parse listings JS: {e}")
 
 
 def inject_new_listings(html: str, new_listings: list[dict]) -> str:
