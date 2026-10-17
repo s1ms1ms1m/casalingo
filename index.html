@@ -287,6 +287,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 12px; color: var(--fg2); line-height: 1.5;
 }
 .c-note-icon { flex-shrink: 0; font-size: 12px; }
+.c-published { font-size: 11px; color: var(--fg2); margin-top: 8px; opacity: .7; }
 .c-note-label {
   display: inline; font-size: 9px; font-weight: 600;
   letter-spacing: .08em; text-transform: uppercase;
@@ -497,6 +498,12 @@ const listings = [
 
 function fmt(n){ return '€ '+n.toLocaleString('it-IT'); }
 
+function fmtDate(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+}
 function card(l){
   const disc = l.oldPrice ? Math.round((1-l.price/l.oldPrice)*100) : 0;
   const dotCls = l.outdoorType==='giardino'?'giardino':l.outdoorType==='terrazzo'?'terrazzo':'balcone';
@@ -535,6 +542,7 @@ function card(l){
       <span class="c-note-icon">🌿</span>
       <div><span class="c-note-label">Natura · </span>${l.naturaNote}</div>
     </div>
+    ${l.published?`<div class="c-published">Rilevato il ${fmtDate(l.published)}</div>`:''}
   </div>
 </article>`;
 }
