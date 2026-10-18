@@ -76,7 +76,12 @@ Return a JSON array. Each object must have EXACTLY these fields:
 - outdoorType MUST be one of: "balcone" | "terrazzo" | "giardino"
 - src MUST be one of: "immobiliare.it" | "idealista.it" | "Wikicasa" | "casa.it"
 - price: integer, no € symbol
-- top: true ONLY for truly exceptional listings (silence + nature + great price)
+- top: set true when the listing scores well on AT LEAST 2 of these 4 criteria:
+    1. OUTDOOR QUALITY — has a terrazzo or giardino (not just a balcone)
+    2. NATURE PROXIMITY — within ~5 min walk of the Po riverfront, a hillside (collina/pre-collina), or a large park (Valentino, Michelotti, Lungo Dora)
+    3. PRICE VALUE — price/m² is notably below zone average (Vanchiglia ≤€3.500/m², San Salvario ≤€3.200/m², Gran Madre/Cavoretto ≤€3.800/m²); if m² unknown, price is at least 10% below comparable listings
+    4. QUIET SETTING — not fronting a major traffic artery (no Corso Vittorio Emanuele, Corso Francia, Corso Regina, Corso Giulio Cesare); residential street or courtyard
+  Default to false when unsure.
 - img: use real image URL if available, otherwise empty string ""
 - Neighbourhood coordinates (WGS84):
   Vanchiglia: 45.0706, 7.6944 | Vanchiglietta: 45.0680, 7.6970
