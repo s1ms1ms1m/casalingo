@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Torino · Spazi Aperti</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -305,6 +310,8 @@ a { color: inherit; text-decoration: none; }
 
 .empty { padding: 48px; text-align: center; font-size: 13px; color: var(--fg3); }
 </style>
+</head>
+<body>
 
 <!-- HEADER -->
 <header class="site-header">
@@ -701,3 +708,5 @@ renderMapMarkers();
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
 </script>
+</body>
+</html>
