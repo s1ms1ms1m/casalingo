@@ -71,12 +71,24 @@ a { color: inherit; text-decoration: none; }
 }
 .picks-sub { font-size: 13px; color: var(--fg2); margin-bottom: 28px; max-width: 54ch; }
 
+.picks[hidden] { display: none; }
 .picks-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(var(--pick-cols, 2), 1fr);
   gap: 10px;
 }
-@media (max-width: 620px) { .picks-grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .picks-grid { grid-template-columns: repeat(2, 1fr); } }
+/* Phone: one swipeable row with a peek of the next card, instead of a tall stack */
+@media (max-width: 620px) {
+  .picks { padding-bottom: 28px; }
+  .picks-grid {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%;
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin-inline: -28px; padding-inline: 28px; scroll-padding-inline: 28px;
+  }
+  .picks-grid::-webkit-scrollbar { display: none; }
+  .pick-card { scroll-snap-align: start; }
+}
 
 .pick-card {
   background: var(--surface);
@@ -90,8 +102,10 @@ a { color: inherit; text-decoration: none; }
 
 /* Photo in pick cards */
 .pick-photo {
-  height: 155px; overflow: hidden; background: var(--green-lt); flex-shrink: 0;
+  position: relative; height: 155px; overflow: hidden; background: var(--green-lt); flex-shrink: 0;
 }
+.pick-photo.no-img img { display: none; }
+.pick-photo.no-img .photo-empty { display: flex; }
 .pick-photo img {
   width: 100%; height: 100%; object-fit: cover; display: block;
   transition: transform .3s ease;
@@ -326,103 +340,13 @@ a { color: inherit; text-decoration: none; }
 </header>
 
 <!-- TOP PICKS -->
-<section class="picks">
+<section class="picks" id="picks" hidden>
   <div class="wrap">
     <div class="section-eyebrow">Selezione</div>
     <h2>Silenzio, natura e città a portata di mano</h2>
-    <p class="picks-sub">Quattro appartamenti con spazi aperti di qualità, in zone tranquille o verdi, raggiungibili dal centro in pochi minuti.</p>
+    <p class="picks-sub" id="picks-sub"></p>
 
-    <div class="picks-grid">
-
-      <div class="pick-card">
-        <div class="pick-photo">
-          <img src="https://pwm.im-cdn.it/image/1966338456/m-c.jpg" alt="Via Ferrante Aporti 6" loading="lazy">
-        </div>
-        <div class="pick-body">
-          <div class="pick-head">
-            <span class="pick-hood">Gran Madre</span>
-            <span class="pick-price">€ 269.000</span>
-          </div>
-          <div>
-            <div class="pick-addr"><a href="https://www.immobiliare.it/annunci/130803894/" target="_blank" rel="noopener">Via Ferrante Aporti 6</a></div>
-            <div class="pick-meta">Bilocale · edificio 2008 · arredato</div>
-          </div>
-          <div class="pick-outdoor">🌳 Giardino privato + terrazzo</div>
-          <ul class="pick-reasons">
-            <li>Ai piedi della collina, zona quieta e verde</li>
-            <li>Portineria 24h e ascensore</li>
-            <li>Prezzo ribassato da € 289.000</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="pick-card">
-        <div class="pick-photo">
-          <img src="https://pwm.im-cdn.it/image/1946308940/m-c.jpg" alt="Strada delle Terrazze 56/12F" loading="lazy">
-        </div>
-        <div class="pick-body">
-          <div class="pick-head">
-            <span class="pick-hood">Cavoretto</span>
-            <span class="pick-price">€ 430.000</span>
-          </div>
-          <div>
-            <div class="pick-addr"><a href="https://www.immobiliare.it/annunci/129969450/" target="_blank" rel="noopener">Strada delle Terrazze 56/12F</a></div>
-            <div class="pick-meta">Quadrilocale · piscina e tennis nel complesso</div>
-          </div>
-          <div class="pick-outdoor">☀️ Terrazzo panoramico su Torino e Alpi</div>
-          <ul class="pick-reasons">
-            <li>Il quartiere più silenzioso e verde di Torino</li>
-            <li>Boschi intorno, zero traffico percepibile</li>
-            <li>Centro raggiungibile in 20 minuti in auto</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="pick-card">
-        <div class="pick-photo">
-          <img src="https://images.wk-cdn.it/3e99947fdbfb713f8c3c1b173f42fc93a2f24e1e0b54d7afef5c34902dc256b3/webp/640x427.webp" alt="Via Giulia di Barolo 16" loading="lazy">
-        </div>
-        <div class="pick-body">
-          <div class="pick-head">
-            <span class="pick-hood">Vanchiglietta</span>
-            <span class="pick-price">€ 590.000</span>
-          </div>
-          <div>
-            <div class="pick-addr"><a href="https://www.wikicasa.it/annuncio/30297150" target="_blank" rel="noopener">Via Giulia di Barolo 16</a></div>
-            <div class="pick-meta">Quadrilocale · 144 m² · zona signorile</div>
-          </div>
-          <div class="pick-outdoor">🌿 Terrazzo esclusivo + balcone</div>
-          <ul class="pick-reasons">
-            <li>Zona tranquilla e signorile, traffico ridotto</li>
-            <li>Passeggiata sul Po a 2 minuti a piedi</li>
-            <li>Piazza Vittorio a 10 minuti a piedi</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="pick-card">
-        <div class="pick-photo">
-          <img src="https://images.wk-cdn.it/cfd1604aa12cfc1aa34e6e8233e36be745fd1fc90c01ee95ed630a01ebdaaff6/webp/640x427.webp" alt="Corso Dante 109" loading="lazy">
-        </div>
-        <div class="pick-body">
-          <div class="pick-head">
-            <span class="pick-hood">San Salvario</span>
-            <span class="pick-price">€ 529.000</span>
-          </div>
-          <div>
-            <div class="pick-addr"><a href="https://www.wikicasa.it/annuncio/30995577" target="_blank" rel="noopener">Corso Dante 109</a></div>
-            <div class="pick-meta">Trilocale · 110 m² · Valentino a 5 min</div>
-          </div>
-          <div class="pick-outdoor">🌿 Doppio terrazzo · 40 m² totali</div>
-          <ul class="pick-reasons">
-            <li>Due terrazzi separati — est e ovest</li>
-            <li>Parco del Valentino (42 ha) a 5 minuti</li>
-            <li>Quartiere servito e tranquillo</li>
-          </ul>
-        </div>
-      </div>
-
-    </div>
+    <div class="picks-grid" id="picks-grid"></div>
   </div>
 </section>
 
@@ -623,7 +547,47 @@ document.querySelectorAll('.tab-time').forEach(b=>b.addEventListener('click',()=
 }));
 document.getElementById('sort-sel').addEventListener('change',e=>{sort=e.target.value;render();});
 
-counts(); render();
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pickCard(l){
+  const icon = l.outdoorType==='giardino'?'🌳':l.outdoorType==='terrazzo'?'☀️':'🌬️';
+  const meta = [l.type, l.m2 ? l.m2+' m²' : ''].filter(Boolean).join(' · ');
+  const reasons = [l.naturaNote, l.floor ? (/^\d/.test(l.floor) ? 'Piano: ' : '')+l.floor : '',
+    l.oldPrice ? 'Prezzo ribassato da '+fmt(l.oldPrice) : ''].filter(Boolean);
+  return `<div class="pick-card">
+  <div class="pick-photo${l.img?'':' no-img'}">
+    ${l.img?`<img src="${esc(l.img)}" alt="${esc(l.addr)}" loading="lazy" onerror="this.parentNode.classList.add('no-img')">`:''}
+    <div class="photo-empty"><div class="icon">${icon}</div><div>${esc(l.hood)}</div></div>
+  </div>
+  <div class="pick-body">
+    <div class="pick-head">
+      <span class="pick-hood">${esc(l.hood)}</span>
+      <span class="pick-price">${fmt(l.price)}</span>
+    </div>
+    <div>
+      <div class="pick-addr"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.addr)}</a></div>
+      <div class="pick-meta">${esc(meta)}</div>
+    </div>
+    <div class="pick-outdoor">${icon} ${esc(l.outdoor)}</div>
+    <ul class="pick-reasons">${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+  </div>
+</div>`;
+}
+// Selezione: built from the `top` flag set by the daily update; newest first, max 4
+function renderPicks(){
+  const picks = listings.filter(l=>l.top)
+    .sort((a,b)=>pubMs(b)-pubMs(a)).slice(0,4);
+  const sec = document.getElementById('picks');
+  if(!picks.length){ sec.hidden = true; return; }
+  const words = ['','Un appartamento','Due appartamenti','Tre appartamenti','Quattro appartamenti'];
+  document.getElementById('picks-sub').textContent =
+    words[picks.length]+' selezionat'+(picks.length===1?'o':'i')+' tra gli annunci monitorati: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.';
+  const grid = document.getElementById('picks-grid');
+  grid.style.setProperty('--pick-cols', picks.length===3 ? 3 : Math.min(picks.length,2));
+  grid.innerHTML = picks.map(pickCard).join('');
+  sec.hidden = false;
+}
+
+counts(); render(); renderPicks();
 
 // ── MAP ──
 const hoodColor = {
