@@ -107,6 +107,14 @@ def extract_existing_listings(html: str) -> list[dict]:
         raise ValueError(f"Could not parse listings JS: {e}")
 
 
+def update_last_checked(html: str, date: str) -> str:
+    """Set the lastChecked date (runs every day, even with no new listings)."""
+    new_html, n = re.subn(r"const lastChecked\s*=\s*'[^']*';", f"const lastChecked = '{date}';", html, count=1)
+    if n == 0:
+        raise ValueError("Could not find 'const lastChecked' in index.html")
+    return new_html
+
+
 def inject_new_listings(html: str, new_listings: list[dict]) -> str:
     """Insert new listing objects at the top of the const listings array."""
     if not new_listings:
@@ -225,15 +233,21 @@ def main():
     new_listings = deduplicate(candidates, existing)
     print(f"After deduplication: {len(new_listings)} new listing(s).")
 
+    # Always stamp the check date, so the site shows the script ran
+    today = datetime.date.today().isoformat()
+    updated_html = update_last_checked(html, today)
+
     if not new_listings:
-        print("Nothing new — no changes made.")
-        # Signal to the workflow that nothing changed
+        print("Nothing new — only the last-checked date is updated.")
+        with open(INDEX_PATH, "w", encoding="utf-8") as f:
+            f.write(updated_html)
         with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
             f.write("new_count=0\n")
+            f.write("summary=no new listings\n")
         return
 
     # Update index.html
-    updated_html = inject_new_listings(html, new_listings)
+    updated_html = inject_new_listings(updated_html, new_listings)
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(updated_html)
 

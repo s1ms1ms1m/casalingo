@@ -33,17 +33,25 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/update_listings.py
 
-      - name: Commit and push if there are new listings
-        if: steps.search.outputs.new_count != '0'
+      - name: Commit and push (new listings and/or last-checked date)
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
           git add index.html
-          git commit -m "Add ${{ steps.search.outputs.new_count }} new listing(s) — $(date +%Y-%m-%d)
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          if [ "${{ steps.search.outputs.new_count }}" = "0" ]; then
+            MSG="Last checked $(date +%Y-%m-%d) — no new listings"
+          else
+            MSG="Add ${{ steps.search.outputs.new_count }} new listing(s) — $(date +%Y-%m-%d)
 
           ${{ steps.search.outputs.summary }}
 
           Co-Authored-By: Claude <noreply@anthropic.com>"
+          fi
+          git commit -m "$MSG"
           git push
 
       - name: Summary
