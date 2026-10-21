@@ -104,6 +104,10 @@ a { color: inherit; text-decoration: none; }
 .pick-photo {
   position: relative; height: 155px; overflow: hidden; background: var(--green-lt); flex-shrink: 0;
 }
+.picks-more { margin-top: 14px; padding: 8px 0; background: none; border: none; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 500; color: var(--green); }
+.picks-more[hidden] { display: none; }
+.sort-row { scroll-margin-top: 96px; }
 .pick-photo.no-img img { display: none; }
 .pick-photo.no-img .photo-empty { display: flex; }
 .pick-photo img {
@@ -347,6 +351,7 @@ a { color: inherit; text-decoration: none; }
     <p class="picks-sub" id="picks-sub"></p>
 
     <div class="picks-grid" id="picks-grid"></div>
+    <button class="picks-more" id="picks-more" type="button" hidden></button>
   </div>
 </section>
 
@@ -355,6 +360,7 @@ a { color: inherit; text-decoration: none; }
   <div class="wrap">
     <div class="filter-scroll">
       <button class="tab active" data-hood="Tutti">Tutti <span class="cnt" data-hc="Tutti">0</span></button>
+      <button class="tab" data-hood="Top" id="tab-top">★ Top <span class="cnt" data-hc="Top">0</span></button>
       <button class="tab" data-hood="Cavoretto">Cavoretto <span class="cnt" data-hc="Cavoretto">0</span></button>
       <button class="tab" data-hood="Gran Madre">Gran Madre <span class="cnt" data-hc="Gran Madre">0</span></button>
       <button class="tab" data-hood="Vanchiglietta">Vanchiglietta <span class="cnt" data-hc="Vanchiglietta">0</span></button>
@@ -497,14 +503,18 @@ function matchesTime(l){
   if(time==='Last month') return t >= monthMs;
   return true;
 }
+function matchesHood(l){
+  if(hood==='Tutti') return true;
+  if(hood==='Top')   return !!l.top;
+  return l.hood===hood;
+}
 function counts(){
-  ['Tutti','Cavoretto','Gran Madre','Vanchiglietta','Vanchiglia','San Salvario'].forEach(h=>{
-    const n = h==='Tutti'
-      ? listings.filter(l=>matchesTime(l)).length
-      : listings.filter(l=>l.hood===h && matchesTime(l)).length;
+  ['Tutti','Top','Cavoretto','Gran Madre','Vanchiglietta','Vanchiglia','San Salvario'].forEach(h=>{
+    const inTab = h==='Tutti' ? ()=>true : h==='Top' ? l=>l.top : l=>l.hood===h;
+    const n = listings.filter(l=>inTab(l) && matchesTime(l)).length;
     document.querySelectorAll('[data-hc="'+h+'"]').forEach(el=>el.textContent=n);
   });
-  const hoodFiltered = hood==='Tutti' ? listings : listings.filter(l=>l.hood===hood);
+  const hoodFiltered = listings.filter(matchesHood);
   ['Anytime','Today','Last week','Last month'].forEach(t=>{
     const n = t==='Anytime'
       ? hoodFiltered.length
@@ -519,7 +529,7 @@ function counts(){
   });
 }
 function visible(){
-  let r = hood==='Tutti'?[...listings]:listings.filter(l=>l.hood===hood);
+  let r = listings.filter(matchesHood);
   r = r.filter(matchesTime);
   if(sort==='top')        r.sort((a,b)=>b.top-a.top);
   else if(sort==='price-asc')  r.sort((a,b)=>a.price-b.price);
@@ -531,7 +541,7 @@ function render(){
   const v=visible();
   document.getElementById('cards-area').innerHTML = v.length
     ? v.map(card).join('')
-    : '<div class="empty">Nessun annuncio in questa zona.</div>';
+    : '<div class="empty">Nessun annuncio con questi filtri.</div>';
   document.getElementById('res-count').textContent = v.length+' annunci';
 }
 
@@ -577,6 +587,11 @@ function renderPicks(){
   const picks = listings.filter(l=>l.top)
     .sort((a,b)=>pubMs(b)-pubMs(a)).slice(0,4);
   const sec = document.getElementById('picks');
+  const totalTop = listings.filter(l=>l.top).length;
+  document.getElementById('tab-top').hidden = !totalTop;
+  const more = document.getElementById('picks-more');
+  more.hidden = totalTop <= picks.length;
+  more.textContent = 'Vedi tutti i '+totalTop+' top →';
   if(!picks.length){ sec.hidden = true; return; }
   const words = ['','Un appartamento','Due appartamenti','Tre appartamenti','Quattro appartamenti'];
   document.getElementById('picks-sub').textContent =
@@ -586,6 +601,11 @@ function renderPicks(){
   grid.innerHTML = picks.map(pickCard).join('');
   sec.hidden = false;
 }
+
+document.getElementById('picks-more').addEventListener('click',()=>{
+  document.getElementById('tab-top').click();
+  document.querySelector('.sort-row').scrollIntoView({behavior:'smooth'});
+});
 
 counts(); render(); renderPicks();
 
@@ -647,7 +667,7 @@ function renderMapMarkers() {
   markersLayer.clearLayers();
   const filtered = listings.filter(l => {
     if (!l.lat || !l.lng) return false;
-    if (hood !== 'Tutti' && l.hood !== hood) return false;
+    if (!matchesHood(l)) return false;
     return matchesTime(l);
   });
   filtered.forEach(l => {
