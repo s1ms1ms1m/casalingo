@@ -58,13 +58,6 @@ a { color: inherit; text-decoration: none; }
   padding: 4px 12px; border-radius: 20px; white-space: nowrap;
 }
 
-/* ── SECTION LABEL (map) ── */
-.section-eyebrow {
-  font-size: 10px; font-weight: 600; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--green);
-  margin-bottom: 10px;
-}
-
 /* note shown under the filters while "Top" is selected */
 .top-note { font-size: 12.5px; color: var(--fg2); padding: 0 28px 10px; max-width: 1060px; margin: 0 auto; }
 .top-note[hidden] { display: none; }
@@ -95,8 +88,17 @@ a { color: inherit; text-decoration: none; }
 .tab.active .cnt { color: var(--green); }
 
 /* ── MAP ── */
-.map-section { padding: 44px 0 0; }
-.map-section h2 { font-size:1.1rem; font-weight:500; margin-bottom:16px; }
+.map-details { max-width: 1060px; margin: 0 auto; padding-inline: 28px; }
+.map-details > summary {
+  display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;
+  padding: 14px 0; font-size: 13px; font-weight: 500; color: var(--green);
+}
+.map-details > summary::-webkit-details-marker { display: none; }
+.map-details > summary::before { content: '▸'; font-size: 10px; transition: transform .15s; }
+.map-details[open] > summary::before { transform: rotate(90deg); }
+.map-details .when-open { display: none; }
+.map-details[open] .when-open { display: inline; }
+.map-details[open] .when-closed { display: none; }
 #map {
   width: 100%; height: 420px; border-radius: var(--r);
   border: 1px solid var(--border); overflow: hidden;
@@ -325,14 +327,11 @@ a { color: inherit; text-decoration: none; }
 <p class="top-note" id="top-note">Selezione dei migliori: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.</p>
 
 <!-- MAP -->
-<section class="map-section">
-  <div class="wrap">
-    <div class="section-eyebrow">Mappa</div>
-    <h2>Dove si trovano gli appartamenti</h2>
-    <div id="map"></div>
-    <p class="map-hint">Clicca un marker per vedere i dettagli dell'annuncio. I marker arancioni sono annunci di oggi.</p>
-  </div>
-</section>
+<details class="map-details" id="map-details">
+  <summary><span class="when-closed">Mostra mappa</span><span class="when-open">Nascondi mappa</span></summary>
+  <div id="map"></div>
+  <p class="map-hint">Clicca un marker per vedere i dettagli dell'annuncio. I marker arancioni sono annunci di oggi.</p>
+</details>
 
 <hr class="divider">
 
@@ -593,6 +592,15 @@ function renderMapMarkers() {
 }
 
 renderMapMarkers();
+
+// The map starts collapsed: Leaflet must re-measure itself when it becomes visible
+const mapDetails = document.getElementById('map-details');
+let mapSized = false;
+mapDetails.addEventListener('toggle', () => {
+  if (!mapDetails.open) return;
+  map.invalidateSize();
+  if (!mapSized) { map.setView([45.058, 7.700], 12); mapSized = true; }
+});
 
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
