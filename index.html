@@ -221,7 +221,9 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 580px) {
   .listing-card { grid-template-columns: 1fr; }
-  .col-photo { min-height: 200px; }
+  .col-photo { height: 132px; min-height: 0; }
+  .col-photo a { min-height: 0; }
+  .col-content { padding: 14px 16px; gap: 6px; }
 }
 
 /* Photo column */
@@ -303,6 +305,27 @@ a { color: inherit; text-decoration: none; }
 
 .c-rule { height: 1px; background: var(--border); }
 
+/* Compact card pieces */
+.c-m2 { font-size: 12px; font-weight: 300; color: var(--fg2); font-variant-numeric: tabular-nums; }
+.c-facts { font-size: 12.5px; color: var(--fg2); line-height: 1.5; }
+.c-outdoor {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  font-size: 12px; color: var(--green); background: var(--green-lt);
+  padding: 4px 10px; border-radius: 5px;
+}
+.c-more > summary {
+  display: flex; align-items: center; gap: 6px; cursor: pointer; list-style: none;
+  padding: 12px 0; font-size: 12.5px; font-weight: 500; color: var(--green);
+}
+.c-more > summary::-webkit-details-marker { display: none; }
+.c-more > summary::before { content: '▸'; font-size: 10px; transition: transform .15s; }
+.c-more[open] > summary::before { transform: rotate(90deg); }
+.c-more[open] > summary { padding-bottom: 6px; }
+.c-more .c-desc { margin-bottom: 8px; }
+/* Wide screens: details are always open, so the toggle row is not needed */
+@media (min-width: 700px) { .c-more > summary { display: none; } }
+.c-more .c-note + .c-note { margin-top: 6px; }
+
 .c-desc { font-size: 12.5px; color: var(--fg2); line-height: 1.6; }
 
 /* Inline note rows: icon + LABEL · text on same line */
@@ -311,7 +334,8 @@ a { color: inherit; text-decoration: none; }
   font-size: 12px; color: var(--fg2); line-height: 1.5;
 }
 .c-note-icon { flex-shrink: 0; font-size: 12px; }
-.c-published { font-size: 11px; color: var(--fg2); margin-top: 8px; opacity: .7; }
+.c-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.c-published { font-size: 11px; color: var(--fg2); opacity: .7; white-space: nowrap; }
 .c-note-label {
   display: inline; font-size: 9px; font-weight: 600;
   letter-spacing: .08em; text-transform: uppercase;
@@ -449,6 +473,9 @@ function card(l){
   const dotCls = l.outdoorType==='giardino'?'giardino':l.outdoorType==='terrazzo'?'terrazzo':'balcone';
   const dotLbl = l.outdoorType==='giardino'?'Giardino':l.outdoorType==='terrazzo'?'Terrazzo':'Balcone';
   const icon   = l.outdoorType==='giardino'?'🌳':l.outdoorType==='terrazzo'?'☀️':'🌬️';
+  const perM2 = (l.m2 && l.price) ? Math.round(l.price/l.m2) : 0;
+  const facts = [l.type, l.m2 ? l.m2+' m²' : '', l.floor].filter(Boolean).join(' · ');
+  const wide = window.matchMedia('(min-width: 700px)').matches;   // details open by default on wide screens
   return `<article class="listing-card">
   <div class="col-photo">
     <a href="${l.url}" target="_blank" rel="noopener">
@@ -462,27 +489,32 @@ function card(l){
   </div>
   <div class="col-content">
     <div class="c-top">
-      <div class="c-hood">${l.hood}${l.top?' <span class="c-hood-top">Top</span>':''}</div>
+      <div class="c-meta">
+        <div class="c-hood">${l.hood}</div>
+        ${l.published?`<div class="c-published">Rilevato il ${fmtDate(l.published)}</div>`:''}
+      </div>
       <div class="c-addr"><a href="${l.url}" target="_blank" rel="noopener">${l.addr}</a></div>
-      <div class="c-type">${l.type}${l.m2?' · '+l.m2+' m²':''}</div>
-      <div class="c-floor">🏢 Piano: ${l.floor}</div>
     </div>
     <div class="c-price">
       ${disc?`<span class="c-old">${fmt(l.oldPrice)}</span>`:''}
       ${fmt(l.price)}
       ${disc?`<span class="c-drop">−${disc}%</span>`:''}
+      ${perM2?`<span class="c-m2">${fmt(perM2)}/m²</span>`:''}
     </div>
-    <div class="c-rule"></div>
-    <p class="c-desc">${l.desc}</p>
-    <div class="c-note">
-      <span class="c-note-icon">☀️</span>
-      <div><span class="c-note-label">Spazio aperto · </span>${l.outdoorNote}</div>
-    </div>
-    <div class="c-note">
-      <span class="c-note-icon">🌿</span>
-      <div><span class="c-note-label">Natura · </span>${l.naturaNote}</div>
-    </div>
-    ${l.published?`<div class="c-published">Rilevato il ${fmtDate(l.published)}</div>`:''}
+    <div class="c-facts">${facts}</div>
+    <div class="c-outdoor"><span>${icon}</span>${l.outdoor}</div>
+    <details class="c-more"${wide?' open':''}>
+      <summary>Dettagli</summary>
+      <p class="c-desc">${l.desc}</p>
+      <div class="c-note">
+        <span class="c-note-icon">☀️</span>
+        <div><span class="c-note-label">Spazio aperto · </span>${l.outdoorNote}</div>
+      </div>
+      <div class="c-note">
+        <span class="c-note-icon">🌿</span>
+        <div><span class="c-note-label">Natura · </span>${l.naturaNote}</div>
+      </div>
+    </details>
   </div>
 </article>`;
 }
