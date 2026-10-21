@@ -58,92 +58,9 @@ a { color: inherit; text-decoration: none; }
   padding: 4px 12px; border-radius: 20px; white-space: nowrap;
 }
 
-/* ── PICKS ── */
-.picks { padding: 44px 0 36px; }
-.section-eyebrow {
-  font-size: 10px; font-weight: 600; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--green);
-  margin-bottom: 10px;
-}
-.picks h2 {
-  font-size: 1.35rem; font-weight: 500; line-height: 1.25;
-  margin-bottom: 6px; text-wrap: balance;
-}
-.picks-sub { font-size: 13px; color: var(--fg2); margin-bottom: 28px; max-width: 54ch; }
-
-.picks[hidden] { display: none; }
-.picks-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--pick-cols, 2), 1fr);
-  gap: 10px;
-}
-@media (max-width: 900px) { .picks-grid { grid-template-columns: repeat(2, 1fr); } }
-/* Phone: one swipeable row with a peek of the next card, instead of a tall stack */
-@media (max-width: 620px) {
-  .picks { padding-bottom: 28px; }
-  .picks-grid {
-    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%;
-    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
-    margin-inline: -28px; padding-inline: 28px; scroll-padding-inline: 28px;
-  }
-  .picks-grid::-webkit-scrollbar { display: none; }
-  .pick-card { scroll-snap-align: start; }
-}
-
-.pick-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  transition: border-color .15s;
-}
-.pick-card:hover { border-color: var(--green); }
-
-/* Photo in pick cards */
-.pick-photo {
-  position: relative; height: 155px; overflow: hidden; background: var(--green-lt); flex-shrink: 0;
-}
-.picks-more { margin-top: 14px; padding: 8px 0; background: none; border: none; cursor: pointer;
-  font: inherit; font-size: 13px; font-weight: 500; color: var(--green); }
-.picks-more[hidden] { display: none; }
-.sort-row { scroll-margin-top: 96px; }
-.pick-photo.no-img img { display: none; }
-.pick-photo.no-img .photo-empty { display: flex; }
-.pick-photo img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform .3s ease;
-}
-.pick-card:hover .pick-photo img { transform: scale(1.04); }
-
-/* Body of pick card (was previously the whole card content) */
-.pick-body {
-  padding: 20px 24px;
-  display: flex; flex-direction: column; gap: 12px; flex: 1;
-}
-
-.pick-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.pick-hood {
-  font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--green);
-}
-.pick-price { font-size: 1.1rem; font-weight: 500; white-space: nowrap; }
-.pick-addr {
-  font-size: 1rem; font-weight: 400; line-height: 1.3;
-}
-.pick-addr a:hover { color: var(--green); }
-.pick-meta { font-size: 12px; color: var(--fg3); margin-top: 2px; }
-.pick-outdoor {
-  font-size: 12px; color: var(--green); font-weight: 400;
-  background: var(--green-lt); padding: 5px 10px; border-radius: 5px;
-  align-self: flex-start;
-}
-.pick-reasons { list-style: none; display: flex; flex-direction: column; gap: 5px; }
-.pick-reasons li {
-  font-size: 12.5px; color: var(--fg2);
-  display: flex; gap: 8px; align-items: flex-start; line-height: 1.5;
-}
-.pick-reasons li::before { content: '—'; color: var(--fg3); flex-shrink: 0; }
+/* note shown under the filters while "Top" is selected */
+.top-note { font-size: 12.5px; color: var(--fg2); padding: 0 28px 10px; max-width: 1060px; margin: 0 auto; }
+.top-note[hidden] { display: none; }
 
 /* ── FILTER BAR ── */
 .filter-bar {
@@ -171,8 +88,17 @@ a { color: inherit; text-decoration: none; }
 .tab.active .cnt { color: var(--green); }
 
 /* ── MAP ── */
-.map-section { padding: 44px 0 0; }
-.map-section h2 { font-size:1.1rem; font-weight:500; margin-bottom:16px; }
+.map-details { max-width: 1060px; margin: 0 auto; padding-inline: 28px; }
+.map-details > summary {
+  display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;
+  padding: 14px 0; font-size: 13px; font-weight: 500; color: var(--green);
+}
+.map-details > summary::-webkit-details-marker { display: none; }
+.map-details > summary::before { content: '▸'; font-size: 10px; transition: transform .15s; }
+.map-details[open] > summary::before { transform: rotate(90deg); }
+.map-details .when-open { display: none; }
+.map-details[open] .when-open { display: inline; }
+.map-details[open] .when-closed { display: none; }
 #map {
   width: 100%; height: 420px; border-radius: var(--r);
   border: 1px solid var(--border); overflow: hidden;
@@ -221,7 +147,9 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 580px) {
   .listing-card { grid-template-columns: 1fr; }
-  .col-photo { min-height: 200px; }
+  .col-photo { height: 132px; min-height: 0; }
+  .col-photo a { min-height: 0; }
+  .col-content { padding: 14px 16px; gap: 6px; }
 }
 
 /* Photo column */
@@ -303,6 +231,27 @@ a { color: inherit; text-decoration: none; }
 
 .c-rule { height: 1px; background: var(--border); }
 
+/* Compact card pieces */
+.c-m2 { font-size: 12px; font-weight: 300; color: var(--fg2); font-variant-numeric: tabular-nums; }
+.c-facts { font-size: 12.5px; color: var(--fg2); line-height: 1.5; }
+.c-outdoor {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  font-size: 12px; color: var(--green); background: var(--green-lt);
+  padding: 4px 10px; border-radius: 5px;
+}
+.c-more > summary {
+  display: flex; align-items: center; gap: 6px; cursor: pointer; list-style: none;
+  padding: 12px 0; font-size: 12.5px; font-weight: 500; color: var(--green);
+}
+.c-more > summary::-webkit-details-marker { display: none; }
+.c-more > summary::before { content: '▸'; font-size: 10px; transition: transform .15s; }
+.c-more[open] > summary::before { transform: rotate(90deg); }
+.c-more[open] > summary { padding-bottom: 6px; }
+.c-more .c-desc { margin-bottom: 8px; }
+/* Wide screens: details are always open, so the toggle row is not needed */
+@media (min-width: 700px) { .c-more > summary { display: none; } }
+.c-more .c-note + .c-note { margin-top: 6px; }
+
 .c-desc { font-size: 12.5px; color: var(--fg2); line-height: 1.6; }
 
 /* Inline note rows: icon + LABEL · text on same line */
@@ -311,7 +260,8 @@ a { color: inherit; text-decoration: none; }
   font-size: 12px; color: var(--fg2); line-height: 1.5;
 }
 .c-note-icon { flex-shrink: 0; font-size: 12px; }
-.c-published { font-size: 11px; color: var(--fg2); margin-top: 8px; opacity: .7; }
+.c-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.c-published { font-size: 11px; color: var(--fg2); opacity: .7; white-space: nowrap; }
 .c-note-label {
   display: inline; font-size: 9px; font-weight: 600;
   letter-spacing: .08em; text-transform: uppercase;
@@ -343,24 +293,12 @@ a { color: inherit; text-decoration: none; }
   </div>
 </header>
 
-<!-- TOP PICKS -->
-<section class="picks" id="picks" hidden>
-  <div class="wrap">
-    <div class="section-eyebrow">Selezione</div>
-    <h2>Silenzio, natura e città a portata di mano</h2>
-    <p class="picks-sub" id="picks-sub"></p>
-
-    <div class="picks-grid" id="picks-grid"></div>
-    <button class="picks-more" id="picks-more" type="button" hidden></button>
-  </div>
-</section>
-
-<!-- FILTER (above map) -->
+<!-- FILTER -->
 <div class="filter-bar">
   <div class="wrap">
     <div class="filter-scroll">
-      <button class="tab active" data-hood="Tutti">Tutti <span class="cnt" data-hc="Tutti">0</span></button>
-      <button class="tab" data-hood="Top" id="tab-top">★ Top <span class="cnt" data-hc="Top">0</span></button>
+      <button class="tab active" data-hood="Top" id="tab-top">★ Top <span class="cnt" data-hc="Top">0</span></button>
+      <button class="tab" data-hood="Tutti">Tutti <span class="cnt" data-hc="Tutti">0</span></button>
       <button class="tab" data-hood="Cavoretto">Cavoretto <span class="cnt" data-hc="Cavoretto">0</span></button>
       <button class="tab" data-hood="Gran Madre">Gran Madre <span class="cnt" data-hc="Gran Madre">0</span></button>
       <button class="tab" data-hood="Vanchiglietta">Vanchiglietta <span class="cnt" data-hc="Vanchiglietta">0</span></button>
@@ -376,18 +314,6 @@ a { color: inherit; text-decoration: none; }
   </div>
 </div>
 
-<!-- MAP -->
-<section class="map-section">
-  <div class="wrap">
-    <div class="section-eyebrow">Mappa</div>
-    <h2>Dove si trovano gli appartamenti</h2>
-    <div id="map"></div>
-    <p class="map-hint">Clicca un marker per vedere i dettagli dell'annuncio. I marker arancioni sono annunci di oggi.</p>
-  </div>
-</section>
-
-<hr class="divider">
-
 <div class="sort-row">
   <label for="sort-sel" style="color:var(--fg2);font-weight:400">Ordina</label>
   <select id="sort-sel">
@@ -398,6 +324,17 @@ a { color: inherit; text-decoration: none; }
   </select>
   <span id="res-count"></span>
 </div>
+<p class="top-note" id="top-note">Selezione dei migliori: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.</p>
+
+<!-- MAP -->
+<details class="map-details" id="map-details">
+  <summary><span class="when-closed">Mostra mappa</span><span class="when-open">Nascondi mappa</span></summary>
+  <div id="map"></div>
+  <p class="map-hint">Clicca un marker per vedere i dettagli dell'annuncio. I marker arancioni sono annunci di oggi.</p>
+</details>
+
+<hr class="divider">
+
 
 <!-- LISTINGS -->
 <div class="listings">
@@ -449,6 +386,9 @@ function card(l){
   const dotCls = l.outdoorType==='giardino'?'giardino':l.outdoorType==='terrazzo'?'terrazzo':'balcone';
   const dotLbl = l.outdoorType==='giardino'?'Giardino':l.outdoorType==='terrazzo'?'Terrazzo':'Balcone';
   const icon   = l.outdoorType==='giardino'?'🌳':l.outdoorType==='terrazzo'?'☀️':'🌬️';
+  const perM2 = (l.m2 && l.price) ? Math.round(l.price/l.m2) : 0;
+  const facts = [l.type, l.m2 ? l.m2+' m²' : '', l.floor].filter(Boolean).join(' · ');
+  const wide = window.matchMedia('(min-width: 700px)').matches;   // details open by default on wide screens
   return `<article class="listing-card">
   <div class="col-photo">
     <a href="${l.url}" target="_blank" rel="noopener">
@@ -462,27 +402,32 @@ function card(l){
   </div>
   <div class="col-content">
     <div class="c-top">
-      <div class="c-hood">${l.hood}${l.top?' <span class="c-hood-top">Top</span>':''}</div>
+      <div class="c-meta">
+        <div class="c-hood">${l.hood}</div>
+        ${l.published?`<div class="c-published">Rilevato il ${fmtDate(l.published)}</div>`:''}
+      </div>
       <div class="c-addr"><a href="${l.url}" target="_blank" rel="noopener">${l.addr}</a></div>
-      <div class="c-type">${l.type}${l.m2?' · '+l.m2+' m²':''}</div>
-      <div class="c-floor">🏢 Piano: ${l.floor}</div>
     </div>
     <div class="c-price">
       ${disc?`<span class="c-old">${fmt(l.oldPrice)}</span>`:''}
       ${fmt(l.price)}
       ${disc?`<span class="c-drop">−${disc}%</span>`:''}
+      ${perM2?`<span class="c-m2">${fmt(perM2)}/m²</span>`:''}
     </div>
-    <div class="c-rule"></div>
-    <p class="c-desc">${l.desc}</p>
-    <div class="c-note">
-      <span class="c-note-icon">☀️</span>
-      <div><span class="c-note-label">Spazio aperto · </span>${l.outdoorNote}</div>
-    </div>
-    <div class="c-note">
-      <span class="c-note-icon">🌿</span>
-      <div><span class="c-note-label">Natura · </span>${l.naturaNote}</div>
-    </div>
-    ${l.published?`<div class="c-published">Rilevato il ${fmtDate(l.published)}</div>`:''}
+    <div class="c-facts">${facts}</div>
+    <div class="c-outdoor"><span>${icon}</span>${l.outdoor}</div>
+    <details class="c-more"${wide?' open':''}>
+      <summary>Dettagli</summary>
+      <p class="c-desc">${l.desc}</p>
+      <div class="c-note">
+        <span class="c-note-icon">☀️</span>
+        <div><span class="c-note-label">Spazio aperto · </span>${l.outdoorNote}</div>
+      </div>
+      <div class="c-note">
+        <span class="c-note-icon">🌿</span>
+        <div><span class="c-note-label">Natura · </span>${l.naturaNote}</div>
+      </div>
+    </details>
   </div>
 </article>`;
 }
@@ -543,6 +488,7 @@ function render(){
     ? v.map(card).join('')
     : '<div class="empty">Nessun annuncio con questi filtri.</div>';
   document.getElementById('res-count').textContent = v.length+' annunci';
+  document.getElementById('top-note').hidden = hood!=='Top';
 }
 
 // Hood tab listeners
@@ -557,57 +503,15 @@ document.querySelectorAll('.tab-time').forEach(b=>b.addEventListener('click',()=
 }));
 document.getElementById('sort-sel').addEventListener('change',e=>{sort=e.target.value;render();});
 
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function pickCard(l){
-  const icon = l.outdoorType==='giardino'?'🌳':l.outdoorType==='terrazzo'?'☀️':'🌬️';
-  const meta = [l.type, l.m2 ? l.m2+' m²' : ''].filter(Boolean).join(' · ');
-  const reasons = [l.naturaNote, l.floor ? (/^\d/.test(l.floor) ? 'Piano: ' : '')+l.floor : '',
-    l.oldPrice ? 'Prezzo ribassato da '+fmt(l.oldPrice) : ''].filter(Boolean);
-  return `<div class="pick-card">
-  <div class="pick-photo${l.img?'':' no-img'}">
-    ${l.img?`<img src="${esc(l.img)}" alt="${esc(l.addr)}" loading="lazy" onerror="this.parentNode.classList.add('no-img')">`:''}
-    <div class="photo-empty"><div class="icon">${icon}</div><div>${esc(l.hood)}</div></div>
-  </div>
-  <div class="pick-body">
-    <div class="pick-head">
-      <span class="pick-hood">${esc(l.hood)}</span>
-      <span class="pick-price">${fmt(l.price)}</span>
-    </div>
-    <div>
-      <div class="pick-addr"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.addr)}</a></div>
-      <div class="pick-meta">${esc(meta)}</div>
-    </div>
-    <div class="pick-outdoor">${icon} ${esc(l.outdoor)}</div>
-    <ul class="pick-reasons">${reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
-  </div>
-</div>`;
-}
-// Selezione: built from the `top` flag set by the daily update; newest first, max 4
-function renderPicks(){
-  const picks = listings.filter(l=>l.top)
-    .sort((a,b)=>pubMs(b)-pubMs(a)).slice(0,4);
-  const sec = document.getElementById('picks');
-  const totalTop = listings.filter(l=>l.top).length;
-  document.getElementById('tab-top').hidden = !totalTop;
-  const more = document.getElementById('picks-more');
-  more.hidden = totalTop <= picks.length;
-  more.textContent = 'Vedi tutti i '+totalTop+' top →';
-  if(!picks.length){ sec.hidden = true; return; }
-  const words = ['','Un appartamento','Due appartamenti','Tre appartamenti','Quattro appartamenti'];
-  document.getElementById('picks-sub').textContent =
-    words[picks.length]+' selezionat'+(picks.length===1?'o':'i')+' tra gli annunci monitorati: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.';
-  const grid = document.getElementById('picks-grid');
-  grid.style.setProperty('--pick-cols', picks.length===3 ? 3 : Math.min(picks.length,2));
-  grid.innerHTML = picks.map(pickCard).join('');
-  sec.hidden = false;
+// Landing view is the Top filter (falls back to Tutti when nothing is flagged)
+function initFilters(){
+  const hasTop = listings.some(l=>l.top);
+  document.getElementById('tab-top').hidden = !hasTop;
+  hood = hasTop ? 'Top' : 'Tutti';
+  document.querySelectorAll('[data-hood]').forEach(x=>x.classList.toggle('active', x.dataset.hood===hood));
 }
 
-document.getElementById('picks-more').addEventListener('click',()=>{
-  document.getElementById('tab-top').click();
-  document.querySelector('.sort-row').scrollIntoView({behavior:'smooth'});
-});
-
-counts(); render(); renderPicks();
+initFilters(); counts(); render();
 
 // ── MAP ──
 const hoodColor = {
@@ -688,6 +592,17 @@ function renderMapMarkers() {
 }
 
 renderMapMarkers();
+
+// The map starts collapsed: Leaflet must re-measure itself when it becomes visible
+const mapDetails = document.getElementById('map-details');
+let mapSized = false;
+mapDetails.addEventListener('toggle', () => {
+  if (!mapDetails.open) return;
+  map.invalidateSize();
+  if (!mapSized) { map.setView([45.058, 7.700], 12); mapSized = true; }
+});
+// Wide screens have room for it: start with the map open
+if (window.matchMedia('(min-width: 900px)').matches) mapDetails.open = true;
 
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
