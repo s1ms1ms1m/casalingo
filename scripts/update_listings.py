@@ -10,6 +10,8 @@ import re
 import sys
 import json
 import datetime
+import urllib.request
+import urllib.error
 import anthropic
 import json5  # handles JS object syntax: unquoted keys, single-quoted strings
 
@@ -82,7 +84,9 @@ Return a JSON array. Each object must have EXACTLY these fields:
     3. PRICE VALUE — price/m² is notably below zone average (Vanchiglia ≤€3.500/m², San Salvario ≤€3.200/m², Gran Madre/Cavoretto ≤€3.800/m²); if m² unknown, price is at least 10% below comparable listings
     4. QUIET SETTING — not fronting a major traffic artery (no Corso Vittorio Emanuele, Corso Francia, Corso Regina, Corso Giulio Cesare); residential street or courtyard
   Default to false when unsure.
-- img: use real image URL if available, otherwise empty string ""
+- img: copy an image URL EXACTLY as it appears in a page you actually read (e.g. an <img> src or og:image).
+  NEVER construct, guess or complete an image URL. If you did not see one, use the empty string "".
+  The site shows a neutral placeholder for an empty img, which is far better than a broken link.
 - Neighbourhood coordinates (WGS84):
   Vanchiglia: 45.0706, 7.6944 | Vanchiglietta: 45.0680, 7.6970
   San Salvario: 45.0520, 7.6780 | Gran Madre: 45.0620, 7.7010
@@ -193,6 +197,40 @@ def call_claude(existing: list[dict]) -> list[dict]:
         return []
 
 
+def check_image_url(url: str, timeout: float = 8.0) -> str:
+    """Return url if it looks usable, else "".
+
+    Conservative on purpose: only drop an image on a DEFINITE failure
+    (malformed URL, 404/410, or a 200 that is not an image). Network errors,
+    timeouts and 401/403 (hotlink protection that may block the bot but not
+    visitors) keep the URL; the page shows a placeholder if the image fails.
+    """
+    url = (url or "").strip()
+    if not url:
+        return ""
+    if not re.match(r"^https://[^\s/]+/\S*$", url):
+        print(f"  image dropped (not an https URL): {url[:80]}")
+        return ""
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; CasalingoBot/1.0)", "Range": "bytes=0-0"}
+    try:
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            ctype = (r.headers.get("Content-Type") or "").lower()
+            if not ctype.startswith("image/"):
+                print(f"  image dropped (content-type {ctype!r}): {url[:80]}")
+                return ""
+            return url
+    except urllib.error.HTTPError as e:
+        if e.code in (404, 410):
+            print(f"  image dropped (HTTP {e.code}): {url[:80]}")
+            return ""
+        print(f"  image kept (HTTP {e.code}, cannot confirm): {url[:80]}")
+        return url
+    except Exception as e:
+        print(f"  image kept ({type(e).__name__}, cannot confirm): {url[:80]}")
+        return url
+
+
 def deduplicate(candidates: list[dict], existing: list[dict]) -> list[dict]:
     """Remove candidates already in the existing list (by url or addr)."""
     existing_urls = {l.get("url", "").strip().lower() for l in existing}
@@ -232,6 +270,10 @@ def main():
     # Deduplicate
     new_listings = deduplicate(candidates, existing)
     print(f"After deduplication: {len(new_listings)} new listing(s).")
+
+    # Guard against invented image URLs: an unusable one becomes "" (placeholder on the site)
+    for l in new_listings:
+        l["img"] = check_image_url(l.get("img", ""))
 
     # Always stamp the check date, so the site shows the script ran
     today = datetime.date.today().isoformat()

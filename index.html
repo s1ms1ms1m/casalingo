@@ -165,7 +165,7 @@ a { color: inherit; text-decoration: none; }
 .listing-card:hover .col-photo img { transform: scale(1.04); }
 
 .photo-tag {
-  position: absolute; bottom: 8px; left: 8px;
+  position: absolute; bottom: 8px; left: 8px; z-index: 1;
   background: rgba(255,255,255,.88);
   font-size: 11px; font-weight: 500;
   color: var(--fg); padding: 2px 7px; border-radius: 4px;
@@ -177,24 +177,26 @@ a { color: inherit; text-decoration: none; }
 .photo-tag-dot.balcone  { background: #6BA8D0; }
 
 .src-tag {
-  position: absolute; top: 8px; right: 8px;
+  position: absolute; top: 8px; right: 8px; z-index: 1;
   font-size: 11px; color: #fff;
   background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 3px;
 }
 .top-tag {
-  position: absolute; top: 8px; left: 8px;
+  position: absolute; top: 8px; left: 8px; z-index: 1;
   font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
   color: var(--green); background: #fff;
   padding: 2px 7px; border-radius: 4px;
 }
 
 .photo-empty {
-  position: absolute; inset: 0; display: none;
+  position: absolute; inset: 0; display: none; pointer-events: none;
   flex-direction: column; align-items: center; justify-content: center;
   background: var(--green-lt); color: var(--green);
-  gap: 6px; font-size: 12px; text-align: center; padding: 12px;
+  gap: 6px; font-size: 12px; text-align: center; padding: 12px; z-index: 0;
 }
-.photo-empty .icon { font-size: 1.8rem; }
+.photo-empty svg { width: 34px; height: 34px; opacity: .85; }
+.photo-empty .hood { font-weight: 600; letter-spacing: .04em; }
+.photo-empty .lbl { font-size: 12px; }
 .col-photo.no-img img { display: none; }
 .col-photo.no-img .photo-empty { display: flex; }
 
@@ -362,7 +364,7 @@ const listings = [
   {id:'v5',hood:'Vanchiglia',addr:'Via Eusebio Bava 45',floor:'2° piano · ascensore',lat:45.0717,lng:7.6958,price:345000,type:'Quadrilocale',m2:108,outdoor:'Balcone',outdoorType:'balcone',outdoorNote:'Balcone in una delle strade più caratteristiche di Vanchiglia.',naturaNote:'Il Lungo Dora è a circa 10 minuti a piedi.',desc:'Quadrilocale ristrutturato in una delle strade più caratteristiche di Vanchiglia.',url:'https://www.wikicasa.it/annuncio/30935142',img:'https://images.wk-cdn.it/ad898d03ab8275a7702dcd96ee1f134dc650c5a698360b3dfe7b45a5ab3b0731/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-10-06'},
   {id:'v6',hood:'Vanchiglia',addr:'Corso San Maurizio 71',floor:'5° piano · senza ascensore',lat:45.0695,lng:7.6916,price:249000,type:'Bilocale',m2:72,outdoor:'2 balconi',outdoorType:'balcone',outdoorNote:'Due balconi su Corso San Maurizio.',naturaNote:'A meno di 5 minuti a piedi dalle rive del Po.',desc:'Bilocale con doppio balcone su uno dei corsi più belli di Vanchiglia.',url:'https://www.wikicasa.it/annuncio/30722139',img:'https://images.wk-cdn.it/b418cf27cbe273f89cf712826a1000496c0634a6e98058290b3721b416616494/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-09-20'},
   {id:'v7',hood:'Vanchiglia',addr:'Via Vanchiglia 18',floor:'2° piano · senza ascensore',lat:45.0700,lng:7.6939,price:398000,type:'Quadrilocale',m2:142,outdoor:'2 balconi',outdoorType:'balcone',outdoorNote:'Due balconi: uno su strada, uno sulla corte interna tranquilla.',naturaNote:'Il Lungo Po con la pista ciclabile è raggiungibile a piedi in circa 5 minuti.',desc:'Quadrilocale di 142 m² ristrutturato nel 2026 con camino e doppio affaccio. Senza ascensore.',url:'https://www.immobiliare.it/annunci/131464854/',img:'https://pwm.im-cdn.it/image/2022010001/m-c.jpg',src:'immobiliare.it',top:false,published:'2026-10-12'},
-  {id:'v8',hood:'Vanchiglia',addr:'Via Santa Giulia 32',floor:'3° piano · senza ascensore',lat:45.0700,lng:7.6958,price:199000,type:'Trilocale',m2:70,outdoor:'2 balconi (vista Mole)',outdoorType:'balcone',outdoorNote:'Due balconi: uno con vista sulla Mole Antonelliana, uno su Via Santa Giulia.',naturaNote:'Il Lungo Po è raggiungibile a piedi in circa 10 minuti.',desc:'Trilocale da ristrutturare. Attualmente locato — disponibile dal settembre 2027. Senza ascensore.',url:'https://www.wikicasa.it/annuncio/30985764',img:'https://images.wk-cdn.it/a4c5def7ba21c5a2ff4e1ee7df1b0e6a2bb58e7e97d1234abc12d456ef789012/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-10-01'},
+  {id:'v8',hood:'Vanchiglia',addr:'Via Santa Giulia 32',floor:'3° piano · senza ascensore',lat:45.0700,lng:7.6958,price:199000,type:'Trilocale',m2:70,outdoor:'2 balconi (vista Mole)',outdoorType:'balcone',outdoorNote:'Due balconi: uno con vista sulla Mole Antonelliana, uno su Via Santa Giulia.',naturaNote:'Il Lungo Po è raggiungibile a piedi in circa 10 minuti.',desc:'Trilocale da ristrutturare. Attualmente locato — disponibile dal settembre 2027. Senza ascensore.',url:'https://www.wikicasa.it/annuncio/30985764',img:'https://images.wk-cdn.it/10070f73779bd9d8e04abe0d22910030032e78b38e25955db704dc8ddd5cfe1b/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-10-01'},
   {id:'v3',hood:'Vanchiglietta',addr:'Via Giulia di Barolo 16',floor:'2° piano · ascensore da verificare',lat:45.0672,lng:7.6977,price:590000,type:'Quadrilocale',m2:144,outdoor:'Terrazzo esclusivo + balcone',outdoorType:'terrazzo',outdoorNote:'Terrazzo privato esclusivo e balcone aggiuntivo.',naturaNote:'A due minuti a piedi dalle sponde del Po e dalla passeggiata alberata.',desc:'Appartamento di pregio in zona tranquilla e signorile, a due passi dal Po.',url:'https://www.wikicasa.it/annuncio/30297150',img:'https://images.wk-cdn.it/3e99947fdbfb713f8c3c1b173f42fc93a2f24e1e0b54d7afef5c34902dc256b3/webp/640x427.webp',src:'Wikicasa',top:true,published:'2026-10-07'},
   {id:'s1',hood:'San Salvario',addr:'Corso Dante 109',floor:'2° piano · ascensore',lat:45.0534,lng:7.6721,price:529000,type:'Trilocale',m2:110,outdoor:'Doppio terrazzo est/ovest',outdoorType:'terrazzo',outdoorNote:'Due terrazzi separati con orientamento est e ovest.',naturaNote:'Il Parco del Valentino — 42 ettari di verde lungo il Po — è raggiungibile in meno di 5 minuti a piedi.',desc:'Trilocale su Corso Dante, a 5 minuti a piedi dal Parco del Valentino.',url:'https://www.wikicasa.it/annuncio/30995577',img:'https://images.wk-cdn.it/cfd1604aa12cfc1aa34e6e8233e36be745fd1fc90c01ee95ed630a01ebdaaff6/webp/640x427.webp',src:'Wikicasa',top:true,published:'2026-09-25'},
   {id:'s2',hood:'San Salvario',addr:'Via Madama Cristina 142',floor:'2° piano · ascensore',lat:45.0548,lng:7.6713,price:369000,type:'Quadrilocale',m2:115,outdoor:'Balconi multipli',outdoorType:'balcone',outdoorNote:'Balconi su più lati dell\'appartamento.',naturaNote:'Limitrofo al Parco del Valentino; distanza a piedi circa 10 minuti.',desc:'Quattro locali con affacci multipli. Posizione centrale con ottimi collegamenti.',url:'https://www.wikicasa.it/annuncio/30568743',img:'https://images.wk-cdn.it/e148efd672e5a913bd73a8dc4503535c1ffc129c0fbae4edce1cf5c5864a40d0/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-09-18'},
@@ -394,15 +396,18 @@ function card(l){
   const facts = [l.type, l.m2 ? l.m2+' m²' : '', l.floor].filter(Boolean).join(' · ');
   const wide = window.matchMedia('(min-width: 700px)').matches;   // details open by default on wide screens
   return `<article class="listing-card">
-  <div class="col-photo">
-    <a href="${l.url}" target="_blank" rel="noopener">
-      <img src="${l.img}" alt="${l.addr}" loading="lazy"
-           onerror="this.closest('.col-photo').classList.add('no-img')">
+  <div class="col-photo${l.img ? '' : ' no-img'}">
+    <a href="${l.url}" target="_blank" rel="noopener" aria-label="Apri annuncio: ${l.addr}">
+      ${l.img ? `<img src="${l.img}" alt="${l.addr}" loading="lazy"
+           onerror="this.closest('.col-photo').classList.add('no-img')">` : ''}
     </a>
     <div class="photo-tag"><span class="photo-tag-dot ${dotCls}"></span>${dotLbl}</div>
     <div class="src-tag">${l.src}</div>
     ${l.top?'<div class="top-tag">Top pick</div>':''}
-    <div class="photo-empty"><div class="icon">${icon}</div><div>${l.hood}</div></div>
+    <div class="photo-empty" role="img" aria-label="Foto non disponibile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>
+      <div class="hood">${l.hood}</div><div class="lbl">Foto non disponibile</div>
+    </div>
   </div>
   <div class="col-content">
     <div class="c-top">
