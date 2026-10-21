@@ -276,6 +276,31 @@ a { color: inherit; text-decoration: none; }
 .site-footer a:hover { color: var(--green); }
 
 .empty { padding: 48px; text-align: center; font-size: 13px; color: var(--fg3); }
+/* ── MAP <-> LIST LINKS ── */
+.c-addr-row { display: flex; align-items: center; gap: 8px; }
+.c-addr-row .c-addr { flex: 1; min-width: 0; }
+.c-mapbtn {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer; flex-shrink: 0;
+  font: inherit; font-size: 12.5px; font-weight: 500; color: var(--green);
+  background: none; border: 0; padding: 0 2px; margin-left: auto;
+}
+.c-mapbtn svg { width: 14px; height: 14px; flex-shrink: 0; }
+.c-mapbtn:hover { text-decoration: underline; }
+/* 44px touch target on phones; negative margin keeps the row as tall as the text */
+@media (max-width: 700px) { .c-mapbtn { min-height: 44px; padding-inline: 6px; margin-block: -12px; } }
+.listing-card.is-focus { border-color: var(--green); box-shadow: 0 0 0 2px var(--green); }
+.pop-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.pop-list {
+  font: inherit; font-size: 12px; font-weight: 500; color: var(--green);
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+}
+.pop-list:hover { text-decoration: underline; }
+/* Touch screens: markers are small dots, give them a bigger invisible tap area */
+@media (pointer: coarse) {
+  .mk { position: relative; }
+  .mk::after { content: ''; position: absolute; inset: -10px; }
+}
+
 /* ── ACCESSIBILITY ── */
 :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 4px; }
 .tab:focus-visible { outline-offset: -3px; }
@@ -395,7 +420,7 @@ function card(l){
   const perM2 = (l.m2 && l.price) ? Math.round(l.price/l.m2) : 0;
   const facts = [l.type, l.m2 ? l.m2+' m²' : '', l.floor].filter(Boolean).join(' · ');
   const wide = window.matchMedia('(min-width: 700px)').matches;   // details open by default on wide screens
-  return `<article class="listing-card">
+  return `<article class="listing-card" id="card-${l.id}" tabindex="-1">
   <div class="col-photo${l.img ? '' : ' no-img'}">
     <a href="${l.url}" target="_blank" rel="noopener" aria-label="Apri annuncio: ${l.addr}">
       ${l.img ? `<img src="${l.img}" alt="${l.addr}" loading="lazy"
@@ -415,7 +440,10 @@ function card(l){
         <div class="c-hood">${l.hood}</div>
         ${l.published?`<div class="c-published">Rilevato il ${fmtDate(l.published)}</div>`:''}
       </div>
-      <div class="c-addr"><a href="${l.url}" target="_blank" rel="noopener">${l.addr}</a></div>
+      <div class="c-addr-row">
+        <div class="c-addr"><a href="${l.url}" target="_blank" rel="noopener">${l.addr}</a></div>
+        ${(l.lat && l.lng) ? `<button type="button" class="c-mapbtn" data-id="${l.id}" aria-label="Mostra ${l.addr} sulla mappa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Mappa</button>` : ''}
+      </div>
     </div>
     <div class="c-price">
       ${disc?`<span class="c-old">${fmt(l.oldPrice)}</span>`:''}
@@ -544,7 +572,7 @@ function markerIcon(l) {
     const outer = size + 8;
     return L.divIcon({
       className: '',
-      html: `<div style="width:${outer}px;height:${outer}px;border-radius:50%;background:rgba(224,123,57,.22);display:flex;align-items:center;justify-content:center"><div style="width:${size}px;height:${size}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div></div>`,
+      html: `<div style="width:${outer}px;height:${outer}px;border-radius:50%;background:rgba(224,123,57,.22);display:flex;align-items:center;justify-content:center"><div style="width:${size}px;height:${size}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)" class="mk"></div></div>`,
       iconSize: [outer, outer],
       iconAnchor: [outer/2, outer/2],
       popupAnchor: [0, -(outer/2+4)]
@@ -552,7 +580,7 @@ function markerIcon(l) {
   }
   return L.divIcon({
     className: '',
-    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>`,
+    html: `<div class="mk" style="width:${size}px;height:${size}px;border-radius:50%;background:${c};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>`,
     iconSize: [size, size],
     iconAnchor: [size/2, size/2],
     popupAnchor: [0, -(size/2+4)]
@@ -580,8 +608,10 @@ legend.addTo(map);
 // Markers layer — rebuilt on every filter change
 const markersLayer = L.layerGroup().addTo(map);
 
+let markerById = {};
 function renderMapMarkers() {
   markersLayer.clearLayers();
+  markerById = {};
   const filtered = listings.filter(l => {
     if (!l.lat || !l.lng) return false;
     if (!matchesHood(l)) return false;
@@ -596,9 +626,12 @@ function renderMapMarkers() {
         <div style="color:#6B6B68;font-size:12px">${l.type}${l.m2?' · '+l.m2+' m²':''}</div>
         <div style="color:#6B6B68;font-size:12px">Piano: ${l.floor}</div>
         <div style="font-size:15px;font-weight:500;margin:6px 0 4px">€ ${l.price.toLocaleString('it-IT')}${disc}</div>
-        <a href="${l.url}" target="_blank" rel="noopener" style="color:${hoodColor[l.hood]||'#4C7B5A'};font-size:12px;font-weight:500">Vedi annuncio →</a>
+        <div class="pop-actions">
+          <a href="${l.url}" target="_blank" rel="noopener" style="color:${hoodColor[l.hood]||'#4C7B5A'};font-size:12px;font-weight:500">Vedi annuncio →</a>
+          <button type="button" class="pop-list" data-id="${l.id}">Vedi scheda ↓</button>
+        </div>
       </div>`;
-    L.marker([l.lat, l.lng], { icon: markerIcon(l) })
+    markerById[l.id] = L.marker([l.lat, l.lng], { icon: markerIcon(l), title: l.addr })
      .addTo(markersLayer)
      .bindPopup(popup, { maxWidth: 260 });
   });
@@ -616,6 +649,47 @@ mapDetails.addEventListener('toggle', () => {
 });
 // Wide screens have room for it: start with the map open
 if (window.matchMedia('(min-width: 900px)').matches) mapDetails.open = true;
+
+// ── MAP <-> LIST LINKS ──
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+function scrollToEl(el){
+  const bar = document.querySelector('.filter-bar');
+  const top = el.getBoundingClientRect().top + window.scrollY - (bar ? bar.offsetHeight : 0) - 12;
+  window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+}
+// Marker popup -> its card in the list
+function showCard(id){
+  const el = document.getElementById('card-' + id);
+  if (!el) return;
+  map.closePopup();
+  scrollToEl(el);
+  el.focus({ preventScroll: true });
+  el.classList.add('is-focus');
+  setTimeout(() => el.classList.remove('is-focus'), 2500);
+}
+map.on('popupopen', e => {
+  const b = e.popup.getElement().querySelector('.pop-list');
+  if (b) b.addEventListener('click', () => showCard(b.dataset.id));
+});
+// Card -> its marker on the map (opens the map first if it is collapsed)
+function showOnMap(id){
+  const m = markerById[id];
+  if (!m) return;
+  const go = () => {
+    map.invalidateSize();
+    map.setView(m.getLatLng(), Math.max(map.getZoom(), 15), { animate: false });
+    scrollToEl(document.getElementById('map'));
+    m.openPopup();
+  };
+  if (!mapDetails.open) {
+    mapDetails.addEventListener('toggle', () => requestAnimationFrame(go), { once: true });
+    mapDetails.open = true;
+  } else go();
+}
+document.getElementById('cards-area').addEventListener('click', e => {
+  const b = e.target.closest('.c-mapbtn');
+  if (b) showOnMap(b.dataset.id);
+});
 
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
