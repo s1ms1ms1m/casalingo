@@ -601,6 +601,8 @@ mapDetails.addEventListener('toggle', () => {
   map.invalidateSize();
   if (!mapSized) { map.setView([45.058, 7.700], 12); mapSized = true; }
 });
+// Wide screens have room for it: start with the map open
+if (window.matchMedia('(min-width: 900px)').matches) mapDetails.open = true;
 
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
