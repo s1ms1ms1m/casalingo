@@ -694,12 +694,11 @@ document.getElementById('cards-area').addEventListener('click', e => {
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
 
-// Footer "Aggiornato <mese anno>" follows lastChecked (stamped daily by the update script)
+// Footer "Ultimo aggiornamento: gg/mm/aaaa" follows lastChecked (stamped daily by the update script)
 const footerUpdatedEl = document.getElementById('footer-updated');
-const monthsFull = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-const lcParts = /^(\d{4})-(\d{2})-\d{2}$/.exec(lastChecked || '');
-if (footerUpdatedEl && lcParts && monthsFull[+lcParts[2] - 1]) {
-  footerUpdatedEl.textContent = 'Aggiornato ' + monthsFull[+lcParts[2] - 1] + ' ' + lcParts[1] + ' · ';
+const lcParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lastChecked || '');
+if (footerUpdatedEl && lcParts && +lcParts[2] >= 1 && +lcParts[2] <= 12 && +lcParts[3] >= 1 && +lcParts[3] <= 31) {
+  footerUpdatedEl.textContent = 'Ultimo aggiornamento: ' + lcParts[3] + '/' + lcParts[2] + '/' + lcParts[1] + ' · ';
 }
 </script>
 </body>
