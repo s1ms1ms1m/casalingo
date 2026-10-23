@@ -31,7 +31,7 @@ jobs:
         # Uses a frozen fixture, so editing real listings can never break this.
         run: |
           python scripts/test_scoring.py
-          python scripts/test_linkcheck.py
+          python scripts/test_search.py
           python scripts/test_netlify_ignore.py
 
       - name: Search for new listings
@@ -48,8 +48,7 @@ jobs:
           SUMMARY: ${{ steps.search.outputs.summary }}
           PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
           PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
-          GONE_COUNT: ${{ steps.search.outputs.gone_count }}
-          LINK_SUMMARY: ${{ steps.search.outputs.link_summary }}
+          SEARCH_REPORT: ${{ steps.search.outputs.search_report }}
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
@@ -67,14 +66,11 @@ jobs:
           if [ "${PROMOTED_COUNT:-0}" != "0" ]; then
             SUBJECT="$SUBJECT; $PROMOTED_COUNT promoted to Top"
           fi
-          if [ "${GONE_COUNT:-0}" != "0" ]; then
-            SUBJECT="$SUBJECT; $GONE_COUNT no longer online"
-          fi
           {
             echo "$SUBJECT"
             if [ "$NEW_COUNT" != "0" ]; then echo; echo "$SUMMARY"; fi
             if [ "${PROMOTED_COUNT:-0}" != "0" ]; then echo; echo "Promoted to Top: $PROMOTED_SUMMARY"; fi
-            if [ -n "$LINK_SUMMARY" ]; then echo; echo "Link check: $LINK_SUMMARY"; fi
+            if [ -n "$SEARCH_REPORT" ]; then echo; echo "Search: $SEARCH_REPORT"; fi
             echo
             echo "Co-Authored-By: Claude <noreply@anthropic.com>"
           } > "$RUNNER_TEMP/commit-msg.txt"
@@ -87,7 +83,6 @@ jobs:
           SUMMARY: ${{ steps.search.outputs.summary }}
           PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
           PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
-          LINK_SUMMARY: ${{ steps.search.outputs.link_summary }}
         run: |
           if [ "$NEW_COUNT" = "0" ]; then
             echo "### ✅ No new listings today" >> "$GITHUB_STEP_SUMMARY"
@@ -99,11 +94,6 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "### ★ $PROMOTED_COUNT promoted to Top" >> "$GITHUB_STEP_SUMMARY"
             printf '%s\n' "$PROMOTED_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ -n "$LINK_SUMMARY" ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "### 🔗 Link check" >> "$GITHUB_STEP_SUMMARY"
-            printf '%s\n' "$LINK_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "🌐 [casalingo.netlify.app](https://casalingo.netlify.app)" >> "$GITHUB_STEP_SUMMARY"

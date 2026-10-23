@@ -130,7 +130,6 @@ assert "★ NEW" in rep and "🔒 ★" in rep and rep.count("\n") == 3 and "|str
 def run_main(path, returned, summary_file, out_file):
     with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", return_value=returned), \
          mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), \
-         mock.patch.object(ul.linkcheck, "check_all", return_value={}), \
          mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "x", "GITHUB_OUTPUT": out_file, "GITHUB_STEP_SUMMARY": summary_file}):
         ul.main()
     return dict(line.rstrip("\n").split("=", 1) for line in open(out_file))
@@ -161,6 +160,16 @@ try:
 except ValueError:
     pass
 assert open(path, "rb").read() == untouched, "file was modified despite failed verification"
+
+# new listings always enter as top:false, whatever the model says; only the fixed rule may promote them
+shutil.copy(FIXTURE, path); open(out, "w").close()
+weak_c = {**cand, "id": "w1", "addr": "Via Debole 9", "url": "https://example.test/w", "top": True, "hood": "Vanchiglia", "outdoorType": "balcone",
+          "outdoor": "Balcone", "outdoorNote": "Balcone.", "naturaNote": "Nessun parco vicino.", "desc": "Appartamento.", "price": 900000, "m2": 50}
+strong_c = {**cand, "id": "w2", "addr": "Via Forte 1", "url": "https://example.test/f", "top": True}           # scores 4 on the rule
+run_main(path, [weak_c, strong_c], summ, out)
+got = {l["id"]: l for l in parse(open(path, encoding="utf-8").read())}
+assert scoring.score(got["w1"]) < scoring.PROMOTE_MIN and got["w1"]["top"] is False, "model-flagged weak listing became Top"
+assert scoring.score(got["w2"]) >= scoring.PROMOTE_MIN and got["w2"]["top"] is True, "strong listing not promoted by the rule"
 
 # ── 10. outputs are forced to one line (no output injection from model text) ──
 with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": out}):

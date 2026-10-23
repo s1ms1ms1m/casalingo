@@ -21,12 +21,10 @@ Guarantees (all covered by scripts/test_scoring.py):
                verify_promotions() re-checks that nothing except the intended
                flags changed; the caller must abort (not write) if it raises.
 
-Threshold: PROMOTE_MIN = 3 of 4 for promotion. The 2-of-4 rubric in the search
-prompt is what the model uses for NEW listings; applied literally by keyword
-matching to the 19 listings it made 10 of them Top, which defeats a short
-"best picks" list. Known consequence: a listing the model flagged at 2 of 4
-(s1, Corso Dante) stays Top because flags are sticky, but this rule alone would
-not have flagged it. Change PROMOTE_MIN to tune.
+Threshold: PROMOTE_MIN = 3 of 4 for promotion. NEW listings always enter as top:false (the search prompt
+and update_listings.main() both force it), so this one rule decides Top for old and new listings alike; the
+model's own looser 2-of-4 judgement is not used. Known consequence: a listing flagged Top before this rule
+existed (s1, Corso Dante, 2 of 4) stays Top because flags are sticky. Change PROMOTE_MIN to tune.
 """
 import re
 
