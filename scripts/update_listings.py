@@ -13,7 +13,8 @@ import datetime
 import urllib.request
 import urllib.error
 import anthropic
-import json5  # handles JS object syntax: unquoted keys, single-quoted strings
+import json5
+import scoring  # handles JS object syntax: unquoted keys, single-quoted strings
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
@@ -279,32 +280,40 @@ def main():
     today = datetime.date.today().isoformat()
     updated_html = update_last_checked(html, today)
 
-    if not new_listings:
+    if new_listings:
+        updated_html = inject_new_listings(updated_html, new_listings)
+        print(f"Added {len(new_listings)} new listing(s):")
+        for l in new_listings:
+            print(f"  • {l.get('hood')} — {l.get('addr')} — €{l.get('price'):,} ({l.get('type')})")
+    else:
         print("Nothing new — only the last-checked date is updated.")
-        with open(INDEX_PATH, "w", encoding="utf-8") as f:
-            f.write(updated_html)
-        with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
-            f.write("new_count=0\n")
-            f.write("summary=no new listings\n")
-        return
 
-    # Update index.html
-    updated_html = inject_new_listings(updated_html, new_listings)
+    # Re-score every listing (old and new) with the fixed Top rules.
+    # Top flags are sticky: this only ever turns false -> true.
+    updated_html, promoted = scoring.promote_top(updated_html, extract_existing_listings(updated_html))
+    if promoted:
+        print(f"Promoted {len(promoted)} listing(s) to Top:")
+        for l in promoted:
+            print(f"  ★ {l.get('hood')} — {l.get('addr')} — criteria: "
+                  + ", ".join(k for k, v in scoring.criteria(l).items() if v))
+
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(updated_html)
 
-    print(f"Updated index.html with {len(new_listings)} new listing(s):")
-    for l in new_listings:
-        print(f"  • {l.get('hood')} — {l.get('addr')} — €{l.get('price'):,} ({l.get('type')})")
+    summary = "; ".join(
+        f"{l.get('hood')} {l.get('type')} €{l.get('price'):,}" for l in new_listings
+    ) or "no new listings"
+    promoted_summary = "; ".join(f"{l.get('hood')} {l.get('addr')}" for l in promoted)
+    write_outputs(new_count=len(new_listings), summary=summary,
+                  promoted_count=len(promoted), promoted_summary=promoted_summary)
 
-    # Signal count to the workflow
+
+def write_outputs(**values):
+    """Write step outputs for the workflow. Values are forced to one line: a newline
+    in a model-provided string would otherwise inject extra outputs."""
     with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
-        f.write(f"new_count={len(new_listings)}\n")
-        summary = "; ".join(
-            f"{l.get('hood')} {l.get('type')} €{l.get('price'):,}"
-            for l in new_listings
-        )
-        f.write(f"summary={summary}\n")
+        for k, v in values.items():
+            f.write(f"{k}={' '.join(str(v).split())[:500]}\n")
 
 
 if __name__ == "__main__":

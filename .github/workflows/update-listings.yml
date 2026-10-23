@@ -33,7 +33,14 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/update_listings.py
 
-      - name: Commit and push (new listings and/or last-checked date)
+      - name: Commit and push (new listings, Top promotions and/or last-checked date)
+        # Step outputs contain text derived from web pages / the model, so they are
+        # passed as environment variables, never pasted into the script itself.
+        env:
+          NEW_COUNT: ${{ steps.search.outputs.new_count }}
+          SUMMARY: ${{ steps.search.outputs.summary }}
+          PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
+          PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
@@ -42,25 +49,42 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          if [ "${{ steps.search.outputs.new_count }}" = "0" ]; then
-            MSG="Last checked $(date +%Y-%m-%d) — no new listings"
+          TODAY=$(date +%Y-%m-%d)
+          if [ "$NEW_COUNT" = "0" ]; then
+            SUBJECT="Last checked $TODAY — no new listings"
           else
-            MSG="Add ${{ steps.search.outputs.new_count }} new listing(s) — $(date +%Y-%m-%d)
-
-          ${{ steps.search.outputs.summary }}
-
-          Co-Authored-By: Claude <noreply@anthropic.com>"
+            SUBJECT="Add $NEW_COUNT new listing(s) — $TODAY"
           fi
-          git commit -m "$MSG"
+          if [ "${PROMOTED_COUNT:-0}" != "0" ]; then
+            SUBJECT="$SUBJECT; $PROMOTED_COUNT promoted to Top"
+          fi
+          {
+            echo "$SUBJECT"
+            if [ "$NEW_COUNT" != "0" ]; then echo; echo "$SUMMARY"; fi
+            if [ "${PROMOTED_COUNT:-0}" != "0" ]; then echo; echo "Promoted to Top: $PROMOTED_SUMMARY"; fi
+            echo
+            echo "Co-Authored-By: Claude <noreply@anthropic.com>"
+          } > "$RUNNER_TEMP/commit-msg.txt"
+          git commit -F "$RUNNER_TEMP/commit-msg.txt"
           git push
 
       - name: Summary
+        env:
+          NEW_COUNT: ${{ steps.search.outputs.new_count }}
+          SUMMARY: ${{ steps.search.outputs.summary }}
+          PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
+          PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
         run: |
-          if [ "${{ steps.search.outputs.new_count }}" = "0" ]; then
-            echo "### ✅ No new listings today" >> $GITHUB_STEP_SUMMARY
+          if [ "$NEW_COUNT" = "0" ]; then
+            echo "### ✅ No new listings today" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "### 🏠 ${{ steps.search.outputs.new_count }} new listing(s) added" >> $GITHUB_STEP_SUMMARY
-            echo "${{ steps.search.outputs.summary }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🌐 [casalingo.netlify.app](https://casalingo.netlify.app)" >> $GITHUB_STEP_SUMMARY
+            echo "### 🏠 $NEW_COUNT new listing(s) added" >> "$GITHUB_STEP_SUMMARY"
+            printf '%s\n' "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
           fi
+          if [ "${PROMOTED_COUNT:-0}" != "0" ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "### ★ $PROMOTED_COUNT promoted to Top" >> "$GITHUB_STEP_SUMMARY"
+            printf '%s\n' "$PROMOTED_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "🌐 [casalingo.netlify.app](https://casalingo.netlify.app)" >> "$GITHUB_STEP_SUMMARY"
