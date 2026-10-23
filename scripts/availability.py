@@ -2,19 +2,28 @@
 Availability check for new listings, using Anthropic's web-fetch tool (stdlib + anthropic only).
 
 Why: the search tool returns stale pages, and the portals answer 403 to our own servers, so the script cannot
-read an ad itself. In a one-off experiment (9 listings checked by hand + the 19 originals) Anthropic's fetcher was
-NOT blocked: it read idealista 2/2, immobiliare 5/5 + 2/2, wikicasa 8/12, and every listing the owner had found
-removed failed to fetch (6/6), while a sold-but-still-online ad was read and correctly called sold.
+read an ad itself. Anthropic's fetcher is not blocked by the portals, but it is not reliable either.
+
+Measured (all numbers from real runs, hand-checked by the site owner where stated):
+  * the 7 listings found removed or sold: all 7 rejected (6 unfetchable, 1 read and called sold).
+  * available listing c20: fetched, accepted. "In trattativa" listing v22: fetched, WRONGLY accepted
+    (the label is probably not in the page text the fetcher returns).
+  * the 19 original listings: 15 fetched (idealista 2/2, immobiliare 5/5, wikicasa 8/12). The 4 wikicasa ones that
+    did NOT fetch (v1, v5, v3, s4) were checked by hand and are ALIVE: so "cannot fetch" is not proof of removal,
+    and it failed the same way on a second run (deterministic per URL, not transient).
+
+So the check never let a dead listing through in these tests, but it also hides some live wikicasa listings
+(about a third of wikicasa pages could not be fetched). It trades recall for accuracy, on purpose.
 
 Policy (fail closed): a candidate is accepted ONLY if
   1. the fetch tool really returned page text (no error code), and
   2. the model, reading that page, says it is currently for sale.
-Anything else is rejected with a reason: page not fetchable (removed, or blocked: the API cannot tell which),
-sold/removed, under offer, check failed. "Cannot verify" therefore means "not published today": a real listing is
-only delayed, a dead one is never added.
+Anything else is rejected with a reason: page not fetchable (removed OR the fetcher failed: the API cannot tell
+which, and for wikicasa it was the fetcher in 4 of 4 hand-checked cases), sold/removed, under offer, check failed.
+"Cannot verify" means "not added": a live listing may be missed, a dead one is (so far) never added.
 
-Known weakness: an ad marked "in trattativa" was called available in the experiment (1 of 1), so the prompt now
-names those labels explicitly; this is not yet validated beyond that one case.
+Known weaknesses: ads marked "in trattativa" are not detected (v22: prompt wording did not help); a listing the
+fetcher cannot read is never added even if it is live.
 """
 import json
 import os
@@ -105,7 +114,7 @@ def check_listing(client, url):
            "tokens_out": int(getattr(usage, "output_tokens", 0) or 0)}
     if not f["fetched"]:
         why = ",".join(f["errors"]) or ("fetch tool not used" if not f["called"] else "empty page")
-        out.update(accept=False, reason=f"page not fetchable ({why}): removed or blocked, cannot verify")
+        out.update(accept=False, reason=f"page not fetchable ({why}): removed or unreadable by the fetcher, cannot verify")
     elif status == "available":
         out.update(accept=True, reason="page fetched, shows an active ad")
     elif status in ("sold_or_removed", "under_offer"):
