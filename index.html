@@ -376,7 +376,7 @@ a { color: inherit; text-decoration: none; }
 <footer class="site-footer">
   <div class="wrap">
     Annunci da <a href="https://www.immobiliare.it" target="_blank">immobiliare.it</a> · <a href="https://www.idealista.it" target="_blank">idealista.it</a> · <a href="https://www.wikicasa.it" target="_blank">wikicasa.it</a><br>
-    Aggiornato ottobre 2026 · Verificare disponibilità con l'agenzia
+    <span id="footer-updated"></span>Verificare disponibilità con l'agenzia
   </div>
 </footer>
 
@@ -693,6 +693,13 @@ document.getElementById('cards-area').addEventListener('click', e => {
 
 const lastCheckedEl = document.getElementById('last-checked');
 if (lastCheckedEl && lastChecked) lastCheckedEl.textContent = 'Ultimo controllo: ' + fmtDate(lastChecked);
+
+// Footer "Ultimo aggiornamento: gg/mm/aaaa" follows lastChecked (stamped daily by the update script)
+const footerUpdatedEl = document.getElementById('footer-updated');
+const lcParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lastChecked || '');
+if (footerUpdatedEl && lcParts && +lcParts[2] >= 1 && +lcParts[2] <= 12 && +lcParts[3] >= 1 && +lcParts[3] <= 31) {
+  footerUpdatedEl.textContent = 'Ultimo aggiornamento: ' + lcParts[3] + '/' + lcParts[2] + '/' + lcParts[1] + ' · ';
+}
 </script>
 </body>
 </html>
