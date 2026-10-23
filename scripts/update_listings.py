@@ -15,6 +15,7 @@ import urllib.error
 import anthropic
 import json5  # handles JS object syntax: unquoted keys, single-quoted strings
 import scoring
+import availability
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
@@ -342,15 +343,19 @@ def write_search_summary(status: str, funnel=None):
             lines.append(f"- final text starts: {clean(d['preview'])!r}")
     if funnel:
         lines.append(f"- model returned **{funnel['total']}** candidate(s): **{len(funnel['known'])}** already on the site, "
-                     f"**{len(funnel['bad'])}** rejected (link is not a numeric ad URL), **{len(funnel['new'])}** new")
+                     f"**{len(funnel['bad'])}** rejected (link is not a numeric ad URL), "
+                     f"**{len(funnel.get('unavailable', []))}** not available or unverifiable, **{len(funnel['new'])}** new")
         for c in funnel["known"][:8]:
             lines.append(f"  - already known: {clean(c.get('addr', '?'))} ({clean(c.get('src', '?'))})")
         for c in funnel["bad"][:8]:
             lines.append(f"  - rejected: {clean(c.get('addr', '?'))} — {clean(c.get('url', '?'))}")
+        for c, why in funnel.get("unavailable", [])[:12]:
+            lines.append(f"  - not added (availability): {clean(c.get('addr', '?'))} — {clean(why)}")
         for i, c in enumerate(funnel["new"][:12]):
             seen = funnel.get("seen")
             tag = "" if seen is None else (" · link seen in search results" if seen[i] else " · ⚠️ link NOT in search results")
-            lines.append(f"  - new: {clean(c.get('id', '?'))} {clean(c.get('addr', '?'))}{tag}")
+            ev = funnel.get("evidence", {}).get(c.get("url", ""), "")
+            lines.append(f"  - new: {clean(c.get('id', '?'))} {clean(c.get('addr', '?'))}{tag}" + (f" · verified: {clean(ev)}" if ev else ""))
     with open(path, "a") as f:
         f.write("\n".join(lines) + "\n\n")
 
@@ -429,13 +434,24 @@ def main():
     renamed = ensure_unique_ids(new_listings, {l.get("id") for l in existing})
     for a, b in renamed:
         print(f"  id {a!r} was taken, renamed to {b!r}")
+    # Availability: fetch each candidate's page and keep only those that are really up and for sale (fail closed).
+    unavailable, avail_info = [], {}
+    if new_listings:
+        try:
+            new_listings, unavailable, avail_info = availability.verify(None, new_listings)
+        except availability.VerifyError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            write_search_summary(f"❌ Availability check failed: {e}")
+            raise
+        for l, why in unavailable:
+            print(f"  not added: {l.get('addr')} — {why}")
     seen_urls = LAST_SEARCH.get("result_urls")
     seen = None if seen_urls is None else [norm_url(l.get("url")) in seen_urls for l in new_listings]
     # New listings always enter as non-Top: the model's own 2-of-4 judgement is looser than our 3-of-4 rule,
     # and Top flags are never removed. scoring.promote_top() below decides, identically for old and new.
     for l in new_listings:
         l["top"] = False
-    write_search_summary("✅ Search answered", funnel=dict(total=len(candidates), known=known, bad=bad_links, new=new_listings, seen=seen))
+    write_search_summary("✅ Search answered", funnel=dict(total=len(candidates), known=known, bad=bad_links, new=new_listings, seen=seen, unavailable=unavailable, evidence=avail_info.get("evidence", {})))
 
     # Guard against invented image URLs: an unusable one becomes "" (placeholder on the site)
     for l in new_listings:
@@ -484,7 +500,7 @@ def main():
     search_report = (f"stop={d.get('stop_reason', '?')}; web searches={d.get('web_searches', '?')}; "
                      f"tool errors={','.join(d.get('search_errors') or []) or 'none'}; "
                      f"model returned {len(candidates)} ({len(known)} already known, {len(bad_links)} rejected bad link, "
-                     f"{len(new_listings)} new"
+                     f"{len(unavailable)} not available/unverifiable, {len(new_listings)} new"
                      + ("" if seen is None else f", {sum(seen)} of them with link seen in search results") + "); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,

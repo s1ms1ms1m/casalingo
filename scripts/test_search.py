@@ -111,9 +111,9 @@ with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_clau
      mock.patch.dict(os.environ, env):
     ul.main()
 s = open(summ).read()
-assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** rejected (link is not a numeric ad URL), **0** new" in s and "already known" in s, s
+assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** rejected (link is not a numeric ad URL), **0** not available or unverifiable, **0** new" in s and "already known" in s, s
 o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
-assert "model returned 1 (1 already known, 0 rejected bad link, 0 new" in o["search_report"] and "\n" not in o["search_report"], o
+assert "model returned 1 (1 already known, 0 rejected bad link, 0 not available/unverifiable, 0 new" in o["search_report"] and "\n" not in o["search_report"], o
 
 # ── 4. link shape, url normalisation, unique ids
 ok = ul.ad_url_ok
@@ -151,7 +151,8 @@ def fake_search(_):
         text_chars=1, tokens_in=1, tokens_out=1, continuations=0, preview="", result_urls={ul.norm_url("https://www.casa.it/immobili/55555555/")})
     return [good, seen_not, slug]
 with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=fake_search), \
-     mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), mock.patch.dict(os.environ, env):
+     mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), \
+     mock.patch.object(ul.availability, "verify", side_effect=lambda client, ls: (ls, [], {"evidence": {}})), mock.patch.dict(os.environ, env):
     ul.main()
 final = {l["id"]: l for l in ul.extract_existing_listings(open(path, encoding="utf-8").read())}
 by_addr = {l["addr"]: l for l in final.values()}

@@ -130,6 +130,7 @@ assert "★ NEW" in rep and "🔒 ★" in rep and rep.count("\n") == 3 and "|str
 def run_main(path, returned, summary_file, out_file):
     with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", return_value=returned), \
          mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), \
+         mock.patch.object(ul.availability, "verify", side_effect=lambda client, ls: (ls, [], {"evidence": {}})), \
          mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "x", "GITHUB_OUTPUT": out_file, "GITHUB_STEP_SUMMARY": summary_file}):
         ul.main()
     return dict(line.rstrip("\n").split("=", 1) for line in open(out_file))
