@@ -79,6 +79,12 @@ Return a JSON array. Each object must have EXACTLY these fields:
 - outdoorType MUST be one of: "balcone" | "terrazzo" | "giardino"
 - src MUST be one of: "immobiliare.it" | "idealista.it" | "Wikicasa" | "casa.it"
 - price: integer, no € symbol
+- url: copy EXACTLY a listing URL that appeared in your search results. NEVER build, guess or shorten a URL
+  (for example from a street name). Real listing URLs contain a numeric ad ID. If you do not have a real URL for a
+  listing, do not include that listing at all.
+- Only include a listing if what you read shows it is CURRENTLY for sale. Skip anything marked sold ("venduto"),
+  under offer ("sotto offerta"), or "annuncio non più disponibile". If unsure, leave it out: a short list of real
+  listings is far better than a longer list with dead ones.
 - top: ALWAYS false. The site's own scoring rule (3 of 4 criteria) decides which listings become Top after you return them; do not judge it yourself.
 - img: copy an image URL EXACTLY as it appears in a page you actually read (e.g. an <img> src or og:image).
   NEVER construct, guess or complete an image URL. If you did not see one, use the empty string "".
@@ -172,10 +178,10 @@ def parse_candidates(text_blocks):
 
 
 def _tool_stats(content):
-    """(number of web searches, distinct error codes, Counter of result hosts) from the response blocks."""
+    """(number of web searches, distinct error codes, Counter of result hosts, set of normalised result URLs)."""
     from collections import Counter
     from urllib.parse import urlparse
-    searches, errors, hosts = 0, set(), Counter()
+    searches, errors, hosts, urls = 0, set(), Counter(), set()
     for b in content:
         t = getattr(b, "type", "")
         if t == "server_tool_use":
@@ -187,9 +193,10 @@ def _tool_stats(content):
                     u = getattr(r, "url", None)
                     if u:
                         hosts[(urlparse(u).netloc.lower() or "?").removeprefix("www.")] += 1
+                        urls.add(norm_url(u))
             elif getattr(c, "error_code", None):
                 errors.add(str(c.error_code))
-    return searches, sorted(errors), hosts
+    return searches, sorted(errors), hosts, urls
 
 
 def call_claude(existing: list[dict]) -> list[dict]:
@@ -245,12 +252,12 @@ def call_claude(existing: list[dict]) -> list[dict]:
         messages = [messages[0], {"role": "assistant", "content": list(content)}]
 
     texts = [b.text for b in content if getattr(b, "type", "") == "text" and getattr(b, "text", None)]
-    searches, errors, hosts = _tool_stats(content)
+    searches, errors, hosts, result_urls = _tool_stats(content)
     preview = " ".join((texts[-1] if texts else "").split())[:300]
     LAST_SEARCH.clear()
     LAST_SEARCH.update(stop_reason=stop, web_searches=searches, search_errors=errors, result_hosts=hosts.most_common(8),
                        text_blocks=len(texts), text_chars=sum(len(t) for t in texts), tokens_in=tokens_in,
-                       tokens_out=tokens_out, continuations=continuations, preview=preview)
+                       tokens_out=tokens_out, continuations=continuations, preview=preview, result_urls=result_urls)
     print(f"Search report: stop_reason={stop}, web searches={searches}, tool errors={errors or 'none'}, "
           f"text blocks={len(texts)}, tokens in/out={tokens_in}/{tokens_out}, continuations={continuations}")
     print(f"Result hosts: {hosts.most_common(8) or 'none'}")
@@ -334,12 +341,56 @@ def write_search_summary(status: str, funnel=None):
         if not funnel:
             lines.append(f"- final text starts: {clean(d['preview'])!r}")
     if funnel:
-        total, known, new = funnel
-        lines.append(f"- model returned **{total}** candidate(s): **{len(known)}** already on the site, **{new}** new")
-        for c in known[:8]:
+        lines.append(f"- model returned **{funnel['total']}** candidate(s): **{len(funnel['known'])}** already on the site, "
+                     f"**{len(funnel['bad'])}** rejected (link is not a numeric ad URL), **{len(funnel['new'])}** new")
+        for c in funnel["known"][:8]:
             lines.append(f"  - already known: {clean(c.get('addr', '?'))} ({clean(c.get('src', '?'))})")
+        for c in funnel["bad"][:8]:
+            lines.append(f"  - rejected: {clean(c.get('addr', '?'))} — {clean(c.get('url', '?'))}")
+        for i, c in enumerate(funnel["new"][:12]):
+            seen = funnel.get("seen")
+            tag = "" if seen is None else (" · link seen in search results" if seen[i] else " · ⚠️ link NOT in search results")
+            lines.append(f"  - new: {clean(c.get('id', '?'))} {clean(c.get('addr', '?'))}{tag}")
     with open(path, "a") as f:
         f.write("\n".join(lines) + "\n\n")
+
+
+AD_URL = re.compile(r"^https://(?:www\.)?(?:immobiliare\.it|idealista\.it|wikicasa\.it|casa\.it)/"
+                    r"(?:en/)?(?:annunci|annuncio|immobile|immobili)/\d{5,}(?:[/?#].*)?$")
+
+
+def ad_url_ok(url) -> bool:
+    """True only for an https ad page on a known portal whose path carries a numeric ad ID. A street-name slug
+    (casa.it/immobili/via-x-12/) is how the model fabricated two dead links; real ones always have an ID.
+    Shape check only: it cannot tell a real ID from an invented one, or a live ad from a sold one."""
+    return bool(AD_URL.match((url or "").strip()))
+
+
+def norm_url(url: str) -> str:
+    """Comparable form of a URL: no scheme, www, /en prefix, query, fragment or trailing slash; lower case."""
+    from urllib.parse import urlparse
+    u = urlparse((url or "").strip().lower())
+    path = re.sub(r"^/en(?=/)", "", u.path).rstrip("/")
+    return f"{u.netloc.removeprefix('www.')}{path}"
+
+
+def ensure_unique_ids(new: list, existing_ids) -> list:
+    """Give every new listing an id not used by any existing/earlier one (the model never sees the existing ids).
+    Returns [(old, new)] for the ones renamed. A duplicate id would make Top promotion refuse silently."""
+    taken, renamed = set(existing_ids), []
+    for l in new:
+        i = str(l.get("id") or "").strip()
+        if i and i not in taken:
+            l["id"] = i
+            taken.add(i)
+            continue
+        m = re.match(r"[a-z]+", i)
+        prefix = m.group(0) if m else "x"
+        nums = [int(x.group(1)) for t in taken if (x := re.fullmatch(re.escape(prefix) + r"(\d+)", t))]
+        l["id"] = f"{prefix}{max(nums or [0]) + 1}"
+        taken.add(l["id"])
+        renamed.append((i, l["id"]))
+    return renamed
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -370,11 +421,21 @@ def main():
     new_listings = deduplicate(candidates, existing)
     print(f"After deduplication: {len(new_listings)} new listing(s).")
     known = [c for c in candidates if c not in new_listings]
+    # Links: a candidate whose URL is not a numeric ad page on a known portal is dropped (and reported).
+    bad_links = [l for l in new_listings if not ad_url_ok(l.get("url"))]
+    new_listings = [l for l in new_listings if ad_url_ok(l.get("url"))]
+    for l in bad_links:
+        print(f"  rejected (link is not a real ad URL): {l.get('addr')} — {l.get('url')}", file=sys.stderr)
+    renamed = ensure_unique_ids(new_listings, {l.get("id") for l in existing})
+    for a, b in renamed:
+        print(f"  id {a!r} was taken, renamed to {b!r}")
+    seen_urls = LAST_SEARCH.get("result_urls")
+    seen = None if seen_urls is None else [norm_url(l.get("url")) in seen_urls for l in new_listings]
     # New listings always enter as non-Top: the model's own 2-of-4 judgement is looser than our 3-of-4 rule,
     # and Top flags are never removed. scoring.promote_top() below decides, identically for old and new.
     for l in new_listings:
         l["top"] = False
-    write_search_summary("✅ Search answered", funnel=(len(candidates), known, len(new_listings)))
+    write_search_summary("✅ Search answered", funnel=dict(total=len(candidates), known=known, bad=bad_links, new=new_listings, seen=seen))
 
     # Guard against invented image URLs: an unusable one becomes "" (placeholder on the site)
     for l in new_listings:
@@ -422,7 +483,9 @@ def main():
     d = LAST_SEARCH
     search_report = (f"stop={d.get('stop_reason', '?')}; web searches={d.get('web_searches', '?')}; "
                      f"tool errors={','.join(d.get('search_errors') or []) or 'none'}; "
-                     f"model returned {len(candidates)} ({len(known)} already known, {len(new_listings)} new); "
+                     f"model returned {len(candidates)} ({len(known)} already known, {len(bad_links)} rejected bad link, "
+                     f"{len(new_listings)} new"
+                     + ("" if seen is None else f", {sum(seen)} of them with link seen in search results") + "); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
                   promoted_count=len(promoted), promoted_summary=promoted_summary)
