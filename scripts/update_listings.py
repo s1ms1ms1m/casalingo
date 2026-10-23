@@ -424,7 +424,12 @@ def main():
         f"{l.get('hood')} {l.get('type')} €{l.get('price'):,}" for l in new_listings
     ) or "no new listings"
     promoted_summary = "; ".join(f"{l.get('hood')} {l.get('addr')}" for l in promoted)
-    write_outputs(new_count=len(new_listings), summary=summary,
+    d = LAST_SEARCH
+    search_report = (f"stop={d.get('stop_reason', '?')}; web searches={d.get('web_searches', '?')}; "
+                     f"tool errors={','.join(d.get('search_errors') or []) or 'none'}; "
+                     f"model returned {len(candidates)} ({len(known)} already known, {len(new_listings)} new); "
+                     f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
+    write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
                   promoted_count=len(promoted), promoted_summary=promoted_summary,
                   gone_count=link_info["gone_count"], link_summary=link_info["summary"])
 

@@ -51,6 +51,7 @@ jobs:
           PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
           GONE_COUNT: ${{ steps.search.outputs.gone_count }}
           LINK_SUMMARY: ${{ steps.search.outputs.link_summary }}
+          SEARCH_REPORT: ${{ steps.search.outputs.search_report }}
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
@@ -76,6 +77,7 @@ jobs:
             if [ "$NEW_COUNT" != "0" ]; then echo; echo "$SUMMARY"; fi
             if [ "${PROMOTED_COUNT:-0}" != "0" ]; then echo; echo "Promoted to Top: $PROMOTED_SUMMARY"; fi
             if [ -n "$LINK_SUMMARY" ]; then echo; echo "Link check: $LINK_SUMMARY"; fi
+            if [ -n "$SEARCH_REPORT" ]; then echo; echo "Search: $SEARCH_REPORT"; fi
             echo
             echo "Co-Authored-By: Claude <noreply@anthropic.com>"
           } > "$RUNNER_TEMP/commit-msg.txt"

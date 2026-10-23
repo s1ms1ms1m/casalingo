@@ -112,5 +112,7 @@ with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_clau
     ul.main()
 s = open(summ).read()
 assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** new" in s and "already known" in s, s
+o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
+assert "model returned 1 (1 already known, 0 new)" in o["search_report"] and "\n" not in o["search_report"], o
 shutil.rmtree(tmp)
 print("ALL SEARCH TESTS PASSED")
