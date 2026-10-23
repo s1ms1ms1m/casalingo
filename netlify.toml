@@ -1,0 +1,9 @@
+# Netlify build settings. Only the "ignore" rule lives here; publish dir / build command stay as configured in the Netlify UI.
+#
+# Why: the daily bot commits "Last checked <date>" even when nothing changed. On Netlify credit plans every
+# production deploy costs 15 credits (Free plan: 300/month hard limit, then ALL sites are paused), so a
+# date-only commit would burn ~450 credits/month on its own. scripts/netlify-ignore.js decides, per commit,
+# whether the live site would actually look different; if not it exits 0 and Netlify skips the build.
+# Any doubt or error -> it exits 1 and the build runs (never the other way round).
+[build]
+  ignore = "node ./scripts/netlify-ignore.js"
