@@ -32,6 +32,7 @@ jobs:
         run: |
           python scripts/test_scoring.py
           python scripts/test_linkcheck.py
+          python scripts/test_netlify_ignore.py
 
       - name: Search for new listings
         id: search
