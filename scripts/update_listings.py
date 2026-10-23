@@ -13,8 +13,9 @@ import datetime
 import urllib.request
 import urllib.error
 import anthropic
-import json5
-import scoring  # handles JS object syntax: unquoted keys, single-quoted strings
+import json5  # handles JS object syntax: unquoted keys, single-quoted strings
+import scoring
+import linkcheck
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
@@ -308,6 +309,9 @@ def main():
                     f"{scoring.PROMOTE_MIN} of 4; existing Top flags are never removed)\n\n"
                     + scoring.markdown_report(after, [l["id"] for l in promoted]) + "\n\n")
 
+    # Dead-listing check. Isolated on purpose: whatever happens here, the update above still goes out.
+    updated_html, link_info = check_links(updated_html, after, {l["id"] for l in new_listings}, today)
+
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(updated_html)
 
@@ -316,7 +320,54 @@ def main():
     ) or "no new listings"
     promoted_summary = "; ".join(f"{l.get('hood')} {l.get('addr')}" for l in promoted)
     write_outputs(new_count=len(new_listings), summary=summary,
-                  promoted_count=len(promoted), promoted_summary=promoted_summary)
+                  promoted_count=len(promoted), promoted_summary=promoted_summary,
+                  gone_count=link_info["gone_count"], link_summary=link_info["summary"])
+
+
+def check_links(html: str, listings: list, new_ids: set, today: str):
+    """Run the dead-listing check and return (html_with_updated_linkStatus, info).
+
+    Never raises: on any problem the html is returned unchanged and the problem is logged."""
+    info = {"gone_count": 0, "summary": ""}
+    try:
+        prev = linkcheck.read_state(html)
+        locked = {l["id"] for l in listings if l.get("skipLinkCheck")}
+        results = linkcheck.check_all(listings, today, skip_ids=new_ids | locked)
+        state, changes = linkcheck.update_state(prev, listings, results, today)
+        new_html = linkcheck.write_state(html, state)
+        if extract_existing_listings(new_html) != listings:      # the link step must not touch listing data
+            raise RuntimeError("link step changed the listings array")
+    except Exception as e:                                         # noqa: BLE001 - deliberately broad
+        print(f"WARNING: dead-listing check skipped: {type(e).__name__}: {e}", file=sys.stderr)
+        return html, info
+
+    by_id = {l["id"]: l for l in listings}
+    label = lambda i: f"{by_id[i].get('hood')} {by_id[i].get('addr')}"
+    parts = []
+    if changes["gone"]:
+        parts.append("no longer online: " + ", ".join(label(i) for i in changes["gone"]))
+    if changes["revived"]:
+        parts.append("back online: " + ", ".join(label(i) for i in changes["revived"]))
+    if changes["suspicious"]:
+        parts.append("ignored suspicious results from: " + ", ".join(changes["suspicious"]))
+    info = {"gone_count": len(changes["gone"]), "summary": "; ".join(parts)}
+
+    tally = {}
+    for i, (res, _) in results.items():
+        p = linkcheck.portal_of(by_id[i].get("url", "")) or "?"
+        tally.setdefault(p, {"alive": 0, "dead": 0, "unknown": 0})[res] += 1
+    for p, t in sorted(tally.items()):
+        print(f"Link check {p}: {t['alive']} alive, {t['dead']} dead, {t['unknown']} unknown")
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a") as f:
+            f.write("### Link check (a listing is marked gone after "
+                    f"{linkcheck.DEAD_AFTER} consecutive dead results; blocked or unclear answers change nothing)\n\n")
+            f.write("| portale | alive | dead | unknown |\n|---|---|---|---|\n")
+            for p, t in sorted(tally.items()):
+                f.write(f"| {p} | {t['alive']} | {t['dead']} | {t['unknown']} |\n")
+            f.write("\n" + linkcheck.markdown_report(listings, results, state) + "\n\n")
+    return new_html, info
 
 
 def write_outputs(**values):

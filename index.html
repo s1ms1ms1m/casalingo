@@ -131,6 +131,23 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 700px) { .sort-row select { font-size: 16px; padding: 6px 10px; } }
 #res-count { margin-left: auto; font-weight: 500; color: var(--fg2); }
 
+/* ── LISTINGS NO LONGER ONLINE (hidden by default, toggle appears only when there are some) ── */
+.gone-row { max-width: 1060px; margin: 0 auto; padding: 0 28px 6px; }
+.gone-row[hidden] { display: none; }
+.gone-toggle {
+  font: inherit; font-size: 12.5px; font-weight: 500; color: var(--green);
+  background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: underline;
+}
+@media (max-width: 700px) { .gone-toggle { min-height: 44px; } }
+.gone-tag {
+  position: absolute; top: 8px; left: 8px; z-index: 1;
+  font-size: 11px; font-weight: 600; color: #fff; background: #7A2E2E;
+  padding: 2px 7px; border-radius: 4px;
+}
+.is-gone .col-photo img { filter: grayscale(1); }
+.is-gone .col-photo.has-gone .top-tag { top: 36px; }
+.is-gone .c-price { text-decoration: line-through; }
+
 /* ── LISTING CARDS ── */
 .listings { padding-block: 8px 56px; }
 .listings-inner { display: flex; flex-direction: column; gap: 8px; }
@@ -356,6 +373,9 @@ a { color: inherit; text-decoration: none; }
   <span id="res-count"></span>
 </div>
 <p class="top-note" id="top-note">Selezione dei migliori: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.</p>
+<div class="gone-row" id="gone-row" hidden>
+  <button type="button" class="gone-toggle" id="gone-toggle" aria-pressed="false"></button>
+</div>
 
 <!-- MAP -->
 <details class="map-details" id="map-details">
@@ -382,6 +402,7 @@ a { color: inherit; text-decoration: none; }
 
 <script>
 const lastChecked = '2026-10-22';
+const linkStatus = {};   // written daily by scripts/update_listings.py (dead-listing check); do not edit by hand
 const listings = [
   {id:'v1',hood:'Vanchiglia',addr:'Via degli Artisti 13',floor:'5° piano · ascensore',lat:45.0706,lng:7.6944,price:355000,type:'Trilocale',m2:93,outdoor:'Balcone',outdoorType:'balcone',outdoorNote:'Balcone affacciato sulla corte interna.',naturaNote:'Il Lungo Po con la pista ciclabile è raggiungibile a piedi in circa 5 minuti.',desc:'Trilocale luminoso nel cuore di Vanchiglia, a pochi passi da Piazza Vittorio e dai caffè di Via Po.',url:'https://www.wikicasa.it/annuncio/30990084',img:'https://images.wk-cdn.it/c71458c2bb19fbb96c7e2b647a84395b381c0e4b427ea42adc6f8ab4669a4083/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-10-10'},
   {id:'v2',hood:'Vanchiglia',addr:'Via Santa Giulia 1',floor:'1° piano · ascensore',lat:45.0699,lng:7.6951,price:350000,type:'Quadrilocale',m2:115,outdoor:'2 balconi',outdoorType:'balcone',outdoorNote:'Due balconi su fronti opposti.',naturaNote:'Il Lungo Dora e il Parco Michelotti sono a breve distanza a piedi.',desc:'Quattro locali con doppio affaccio su una delle strade più vivaci di Vanchiglia.',url:'https://www.wikicasa.it/annuncio/30964104',img:'https://images.wk-cdn.it/c8feebd6e3f7fac3f5f5cf0c57af179d4cd3648114028dec09bc25067ef56b89/webp/640x427.webp',src:'Wikicasa',top:false,published:'2026-10-08'},
@@ -420,14 +441,16 @@ function card(l){
   const perM2 = (l.m2 && l.price) ? Math.round(l.price/l.m2) : 0;
   const facts = [l.type, l.m2 ? l.m2+' m²' : '', l.floor].filter(Boolean).join(' · ');
   const wide = window.matchMedia('(min-width: 700px)').matches;   // details open by default on wide screens
-  return `<article class="listing-card" id="card-${l.id}" tabindex="-1">
-  <div class="col-photo${l.img ? '' : ' no-img'}">
+  const gone = isGone(l);
+  return `<article class="listing-card${gone ? ' is-gone' : ''}" id="card-${l.id}" tabindex="-1">
+  <div class="col-photo${l.img ? '' : ' no-img'}${gone ? ' has-gone' : ''}">
     <a href="${l.url}" target="_blank" rel="noopener" aria-label="Apri annuncio: ${l.addr}">
       ${l.img ? `<img src="${l.img}" alt="${l.addr}" loading="lazy"
            onerror="this.closest('.col-photo').classList.add('no-img')">` : ''}
     </a>
     <div class="photo-tag"><span class="photo-tag-dot ${dotCls}"></span>${dotLbl}</div>
     <div class="src-tag">${l.src}</div>
+    ${gone?'<div class="gone-tag">Non più online</div>':''}
     ${l.top?'<div class="top-tag">Top pick</div>':''}
     <div class="photo-empty" role="img" aria-label="Foto non disponibile">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>
@@ -442,7 +465,7 @@ function card(l){
       </div>
       <div class="c-addr-row">
         <div class="c-addr"><a href="${l.url}" target="_blank" rel="noopener">${l.addr}</a></div>
-        ${(l.lat && l.lng) ? `<button type="button" class="c-mapbtn" data-id="${l.id}" aria-label="Mostra ${l.addr} sulla mappa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Mappa</button>` : ''}
+        ${(l.lat && l.lng && !gone) ? `<button type="button" class="c-mapbtn" data-id="${l.id}" aria-label="Mostra ${l.addr} sulla mappa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Mappa</button>` : ''}
       </div>
     </div>
     <div class="c-price">
@@ -485,6 +508,8 @@ function matchesTime(l){
   if(time==='Last month') return t >= monthMs;
   return true;
 }
+const isGone = l => !!(typeof linkStatus === 'object' && linkStatus && linkStatus[l.id] && linkStatus[l.id].s === 'gone');   // tolerant: a damaged/missing linkStatus line must never break the page
+let showGone = false;
 function matchesHood(l){
   if(hood==='Tutti') return true;
   if(hood==='Top')   return !!l.top;
@@ -493,7 +518,7 @@ function matchesHood(l){
 function counts(){
   ['Tutti','Top','Cavoretto','Gran Madre','Vanchiglietta','Vanchiglia','San Salvario'].forEach(h=>{
     const inTab = h==='Tutti' ? ()=>true : h==='Top' ? l=>l.top : l=>l.hood===h;
-    const n = listings.filter(l=>inTab(l) && matchesTime(l)).length;
+    const n = listings.filter(l=>inTab(l) && matchesTime(l) && (showGone || !isGone(l))).length;
     document.querySelectorAll('[data-hc="'+h+'"]').forEach(el=>el.textContent=n);
   });
   const hoodFiltered = listings.filter(matchesHood);
@@ -513,11 +538,12 @@ function counts(){
 function visible(){
   let r = listings.filter(matchesHood);
   r = r.filter(matchesTime);
+  r = r.filter(l => showGone || !isGone(l));
   if(sort==='top')        r.sort((a,b)=>b.top-a.top);
   else if(sort==='price-asc')  r.sort((a,b)=>a.price-b.price);
   else if(sort==='price-desc') r.sort((a,b)=>b.price-a.price);
   else if(sort==='size-desc')  r.sort((a,b)=>(b.m2||0)-(a.m2||0));
-  return r;
+  return r.filter(l=>!isGone(l)).concat(r.filter(isGone));   // listings no longer online always last
 }
 function render(){
   const v=visible();
@@ -526,7 +552,17 @@ function render(){
     : '<div class="empty">Nessun annuncio con questi filtri.</div>';
   document.getElementById('res-count').textContent = v.length+' annunci';
   document.getElementById('top-note').hidden = hood!=='Top';
+  updateGoneToggle();
 }
+function updateGoneToggle(){
+  const n = listings.filter(l => isGone(l) && matchesHood(l) && matchesTime(l)).length;
+  const row = document.getElementById('gone-row'), btn = document.getElementById('gone-toggle');
+  row.hidden = n === 0;
+  btn.setAttribute('aria-pressed', showGone);
+  btn.textContent = showGone ? 'Nascondi gli annunci non più disponibili'
+                             : 'Mostra anche ' + n + (n === 1 ? ' annuncio non più disponibile' : ' annunci non più disponibili');
+}
+document.getElementById('gone-toggle').addEventListener('click', () => { showGone = !showGone; counts(); render(); });
 
 // Hood tab listeners
 document.querySelectorAll('[data-hood]').forEach(b=>b.addEventListener('click',()=>{
@@ -613,7 +649,7 @@ function renderMapMarkers() {
   markersLayer.clearLayers();
   markerById = {};
   const filtered = listings.filter(l => {
-    if (!l.lat || !l.lng) return false;
+    if (!l.lat || !l.lng || isGone(l)) return false;
     if (!matchesHood(l)) return false;
     return matchesTime(l);
   });
