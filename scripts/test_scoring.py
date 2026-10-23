@@ -97,7 +97,7 @@ assert scoring.set_top_true(src, "ZZ") == (src, False)
 # mixed styles (hand-written JS + injected JSON) in the real fixture
 cand = {"id": "c9", "hood": "Cavoretto", "addr": "Via Prova 1", "floor": "1", "lat": 45.04, "lng": 7.71, "price": 300000,
         "type": "Trilocale", "m2": 100, "outdoor": "Giardino", "outdoorType": "giardino", "outdoorNote": "Giardino privato.",
-        "naturaNote": "Boschi collinari.", "desc": "Zona silenziosa.", "url": "https://example.test/1", "img": "",
+        "naturaNote": "Boschi collinari.", "desc": "Zona silenziosa.", "url": "https://www.immobiliare.it/annunci/90000001/", "img": "",
         "src": "casa.it", "top": False, "published": "2026-10-23"}
 inj = ul.inject_new_listings(html, [cand])
 inj2, pr = scoring.promote_top(inj, parse(inj))
@@ -163,9 +163,9 @@ assert open(path, "rb").read() == untouched, "file was modified despite failed v
 
 # new listings always enter as top:false, whatever the model says; only the fixed rule may promote them
 shutil.copy(FIXTURE, path); open(out, "w").close()
-weak_c = {**cand, "id": "w1", "addr": "Via Debole 9", "url": "https://example.test/w", "top": True, "hood": "Vanchiglia", "outdoorType": "balcone",
+weak_c = {**cand, "id": "w1", "addr": "Via Debole 9", "url": "https://www.immobiliare.it/annunci/90000002/", "top": True, "hood": "Vanchiglia", "outdoorType": "balcone",
           "outdoor": "Balcone", "outdoorNote": "Balcone.", "naturaNote": "Nessun parco vicino.", "desc": "Appartamento.", "price": 900000, "m2": 50}
-strong_c = {**cand, "id": "w2", "addr": "Via Forte 1", "url": "https://example.test/f", "top": True}           # scores 4 on the rule
+strong_c = {**cand, "id": "w2", "addr": "Via Forte 1", "url": "https://www.immobiliare.it/annunci/90000003/", "top": True}           # scores 4 on the rule
 run_main(path, [weak_c, strong_c], summ, out)
 got = {l["id"]: l for l in parse(open(path, encoding="utf-8").read())}
 assert scoring.score(got["w1"]) < scoring.PROMOTE_MIN and got["w1"]["top"] is False, "model-flagged weak listing became Top"

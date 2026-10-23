@@ -111,8 +111,57 @@ with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_clau
      mock.patch.dict(os.environ, env):
     ul.main()
 s = open(summ).read()
-assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** new" in s and "already known" in s, s
+assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** rejected (link is not a numeric ad URL), **0** new" in s and "already known" in s, s
 o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
-assert "model returned 1 (1 already known, 0 new)" in o["search_report"] and "\n" not in o["search_report"], o
+assert "model returned 1 (1 already known, 0 rejected bad link, 0 new" in o["search_report"] and "\n" not in o["search_report"], o
+
+# ── 4. link shape, url normalisation, unique ids
+ok = ul.ad_url_ok
+for u in ("https://www.immobiliare.it/annunci/131084574/", "https://www.immobiliare.it/en/annunci/121264012/", "https://www.idealista.it/immobile/34352825/",
+          "https://www.wikicasa.it/annuncio/24382672", "https://www.wikicasa.it/en/annuncio/24382672", "https://www.casa.it/immobili/54343667/",
+          "https://casa.it/immobili/54343667/?x=1"):
+    assert ok(u), u
+for u in ("https://www.casa.it/immobili/lungo-dora-voghera-94/", "https://www.casa.it/immobili/via-montebello-29/",      # the two fabricated links
+          "http://www.casa.it/immobili/54343667/", "https://evil.test/immobili/54343667/", "https://casa.it.evil.test/immobili/54343667/",
+          "https://www.immobiliare.it/vendita-case/torino/", "https://www.immobiliare.it/annunci/12/", "", None, "https://www.casa.it/immobili/54343667x/"):
+    assert not ok(u), u
+n = ul.norm_url
+assert n("https://www.immobiliare.it/en/annunci/121264012/?a=1#x") == n("http://immobiliare.it/annunci/121264012") == "immobiliare.it/annunci/121264012"
+assert n("https://www.idealista.it/immobile/1/") != n("https://www.idealista.it/immobile/2/")
+
+mk = lambda i: {"id": i}
+new_l = [mk("v1"), mk("v1"), mk("v20"), mk(""), mk("zz"), {"id": None}]
+ren = ul.ensure_unique_ids(new_l, {"v1", "v2", "v20"})
+ids = [l["id"] for l in new_l]
+assert ids[0] == "v21" and ids[1] == "v22" and ids[2] == "v23" and ids[4] == "zz", ids
+assert len(set(ids) | {"v1", "v2", "v20"}) == 9 and all(ids), ids
+assert ("v1", "v21") in ren
+
+# ── 5. main(): fabricated link rejected and reported, colliding id renamed, link-seen flags in the report
+shutil.copy(FIXTURE, path); open(summ, "w").close(); open(outp, "w").close()
+existing = ul.extract_existing_listings(open(path, encoding="utf-8").read())
+mkc = lambda i, addr, url: {"id": i, "hood": "Cavoretto", "addr": addr, "url": url, "floor": "1", "lat": 45.04, "lng": 7.71, "price": 300000, "type": "Trilocale",
+                            "m2": 100, "outdoor": "Giardino", "outdoorType": "giardino", "outdoorNote": "x", "naturaNote": "x", "desc": "x", "img": "",
+                            "src": "casa.it", "top": True, "published": "2026-10-23"}
+good = mkc(existing[0]["id"], "Via Reale 1", "https://www.casa.it/immobili/55555555/")          # id collides with an existing listing
+seen_not = mkc("c90", "Via Inventata 2", "https://www.casa.it/immobili/66666666/")               # right shape, but never in search results
+slug = mkc("v91", "Via Slug 3", "https://www.casa.it/immobili/via-slug-3/")
+def fake_search(_):
+    ul.LAST_SEARCH.clear(); ul.LAST_SEARCH.update(stop_reason="end_turn", web_searches=2, search_errors=[], result_hosts=[("casa.it", 1)], text_blocks=1,
+        text_chars=1, tokens_in=1, tokens_out=1, continuations=0, preview="", result_urls={ul.norm_url("https://www.casa.it/immobili/55555555/")})
+    return [good, seen_not, slug]
+with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=fake_search), \
+     mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), mock.patch.dict(os.environ, env):
+    ul.main()
+final = {l["id"]: l for l in ul.extract_existing_listings(open(path, encoding="utf-8").read())}
+by_addr = {l["addr"]: l for l in final.values()}
+assert "Via Slug 3" not in by_addr, "slug link was accepted"
+assert by_addr["Via Reale 1"]["id"] != existing[0]["id"] and len(final) == len(existing) + 2 and len({*final}) == len(final)
+assert all(by_addr[a]["top"] in (True, False) for a in ("Via Reale 1", "Via Inventata 2"))
+s = open(summ).read()
+assert "**1** rejected" in s and "rejected: Via Slug 3" in s and "link seen in search results" in s and "link NOT in search results" in s, s
+o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
+assert "1 rejected bad link" in o["search_report"] and "1 of them with link seen in search results" in o["search_report"], o
+
 shutil.rmtree(tmp)
 print("ALL SEARCH TESTS PASSED")
