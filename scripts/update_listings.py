@@ -15,7 +15,6 @@ import urllib.error
 import anthropic
 import json5  # handles JS object syntax: unquoted keys, single-quoted strings
 import scoring
-import linkcheck
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
@@ -80,12 +79,7 @@ Return a JSON array. Each object must have EXACTLY these fields:
 - outdoorType MUST be one of: "balcone" | "terrazzo" | "giardino"
 - src MUST be one of: "immobiliare.it" | "idealista.it" | "Wikicasa" | "casa.it"
 - price: integer, no € symbol
-- top: set true when the listing scores well on AT LEAST 2 of these 4 criteria:
-    1. OUTDOOR QUALITY — has a terrazzo or giardino (not just a balcone)
-    2. NATURE PROXIMITY — within ~5 min walk of the Po riverfront, a hillside (collina/pre-collina), or a large park (Valentino, Michelotti, Lungo Dora)
-    3. PRICE VALUE — price/m² is notably below zone average (Vanchiglia ≤€3.500/m², San Salvario ≤€3.200/m², Gran Madre/Cavoretto ≤€3.800/m²); if m² unknown, price is at least 10% below comparable listings
-    4. QUIET SETTING — not fronting a major traffic artery (no Corso Vittorio Emanuele, Corso Francia, Corso Regina, Corso Giulio Cesare); residential street or courtyard
-  Default to false when unsure.
+- top: ALWAYS false. The site's own scoring rule (3 of 4 criteria) decides which listings become Top after you return them; do not judge it yourself.
 - img: copy an image URL EXACTLY as it appears in a page you actually read (e.g. an <img> src or og:image).
   NEVER construct, guess or complete an image URL. If you did not see one, use the empty string "".
   The site shows a neutral placeholder for an empty img, which is far better than a broken link.
@@ -376,6 +370,10 @@ def main():
     new_listings = deduplicate(candidates, existing)
     print(f"After deduplication: {len(new_listings)} new listing(s).")
     known = [c for c in candidates if c not in new_listings]
+    # New listings always enter as non-Top: the model's own 2-of-4 judgement is looser than our 3-of-4 rule,
+    # and Top flags are never removed. scoring.promote_top() below decides, identically for old and new.
+    for l in new_listings:
+        l["top"] = False
     write_search_summary("✅ Search answered", funnel=(len(candidates), known, len(new_listings)))
 
     # Guard against invented image URLs: an unusable one becomes "" (placeholder on the site)
@@ -414,9 +412,6 @@ def main():
                     f"{scoring.PROMOTE_MIN} of 4; existing Top flags are never removed)\n\n"
                     + scoring.markdown_report(after, [l["id"] for l in promoted]) + "\n\n")
 
-    # Dead-listing check. Isolated on purpose: whatever happens here, the update above still goes out.
-    updated_html, link_info = check_links(updated_html, after, {l["id"] for l in new_listings}, today)
-
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(updated_html)
 
@@ -430,59 +425,7 @@ def main():
                      f"model returned {len(candidates)} ({len(known)} already known, {len(new_listings)} new); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
-                  promoted_count=len(promoted), promoted_summary=promoted_summary,
-                  gone_count=link_info["gone_count"], link_summary=link_info["summary"])
-
-
-def check_links(html: str, listings: list, new_ids: set, today: str):
-    """Run the dead-listing check and return (html_with_updated_linkStatus, info).
-
-    Never raises: on any problem the html is returned unchanged and the problem is logged."""
-    info = {"gone_count": 0, "summary": ""}
-    try:
-        prev = linkcheck.read_state(html)
-        locked = {l["id"] for l in listings if l.get("skipLinkCheck")}
-        results = linkcheck.check_all(listings, today, skip_ids=new_ids | locked)
-        state, changes = linkcheck.update_state(prev, listings, results, today)
-        new_html = linkcheck.write_state(html, state)
-        if extract_existing_listings(new_html) != listings:      # the link step must not touch listing data
-            raise RuntimeError("link step changed the listings array")
-    except Exception as e:                                         # noqa: BLE001 - deliberately broad
-        print(f"WARNING: dead-listing check skipped: {type(e).__name__}: {e}", file=sys.stderr)
-        return html, info
-
-    by_id = {l["id"]: l for l in listings}
-    label = lambda i: f"{by_id[i].get('hood')} {by_id[i].get('addr')}"
-    parts = []
-    if changes["gone"]:
-        parts.append("no longer online: " + ", ".join(label(i) for i in changes["gone"]))
-    if changes["revived"]:
-        parts.append("back online: " + ", ".join(label(i) for i in changes["revived"]))
-    if changes["suspicious"]:
-        parts.append("ignored suspicious results from: " + ", ".join(changes["suspicious"]))
-    info = {"gone_count": len(changes["gone"]), "summary": "; ".join(parts)}
-
-    tally, reasons = {}, {}
-    for i, (res, why) in results.items():
-        p = linkcheck.portal_of(by_id[i].get("url", "")) or "?"
-        tally.setdefault(p, {"alive": 0, "dead": 0, "unknown": 0})[res] += 1
-        if res != "alive":
-            r = " ".join(str(why).replace("|", "/").split())[:50]
-            reasons.setdefault(p, {}).setdefault(r, 0)
-            reasons[p][r] += 1
-    for p, t in sorted(tally.items()):
-        print(f"Link check {p}: {t['alive']} alive, {t['dead']} dead, {t['unknown']} unknown")
-    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
-    if summary_path:
-        with open(summary_path, "a") as f:
-            f.write("### Link check (a listing is marked gone after "
-                    f"{linkcheck.DEAD_AFTER} consecutive dead results; blocked or unclear answers change nothing)\n\n")
-            f.write("| portale | alive | dead | unknown | motivi (non alive) |\n|---|---|---|---|---|\n")
-            for p, t in sorted(tally.items()):
-                why = ", ".join(f"{r} ×{n}" for r, n in sorted(reasons.get(p, {}).items(), key=lambda kv: -kv[1])[:3])
-                f.write(f"| {p} | {t['alive']} | {t['dead']} | {t['unknown']} | {why or '-'} |\n")
-            f.write("\n" + linkcheck.markdown_report(listings, results, state) + "\n\n")
-    return new_html, info
+                  promoted_count=len(promoted), promoted_summary=promoted_summary)
 
 
 def write_outputs(**values):

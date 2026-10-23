@@ -108,7 +108,7 @@ existing = ul.extract_existing_listings(open(path, encoding="utf-8").read())
 known = {"id": "zz", "addr": existing[0]["addr"], "url": "https://elsewhere.test/1", "src": "casa.it"}
 open(summ, "w").close()
 with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", return_value=[known]), \
-     mock.patch.object(ul.linkcheck, "check_all", return_value={}), mock.patch.dict(os.environ, env):
+     mock.patch.dict(os.environ, env):
     ul.main()
 s = open(summ).read()
 assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** new" in s and "already known" in s, s
