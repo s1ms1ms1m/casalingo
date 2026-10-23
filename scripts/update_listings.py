@@ -289,13 +289,24 @@ def main():
         print("Nothing new — only the last-checked date is updated.")
 
     # Re-score every listing (old and new) with the fixed Top rules.
-    # Top flags are sticky: this only ever turns false -> true.
-    updated_html, promoted = scoring.promote_top(updated_html, extract_existing_listings(updated_html))
+    # Top flags are sticky (only false -> true) and topLocked listings are skipped.
+    before = extract_existing_listings(updated_html)
+    updated_html, promoted = scoring.promote_top(updated_html, before)
+    # Safety net: re-read what we are about to write and make sure NOTHING but the
+    # intended flags changed. If not, fail loudly instead of publishing wrong data.
+    after = extract_existing_listings(updated_html)
+    scoring.verify_promotions(before, after, [l["id"] for l in promoted])
     if promoted:
         print(f"Promoted {len(promoted)} listing(s) to Top:")
         for l in promoted:
             print(f"  ★ {l.get('hood')} — {l.get('addr')} — criteria: "
                   + ", ".join(k for k, v in scoring.criteria(l).items() if v))
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a") as f:
+            f.write("### Top scoring (promotion needs "
+                    f"{scoring.PROMOTE_MIN} of 4; existing Top flags are never removed)\n\n"
+                    + scoring.markdown_report(after, [l["id"] for l in promoted]) + "\n\n")
 
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(updated_html)

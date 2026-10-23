@@ -27,6 +27,10 @@ jobs:
       - name: Install dependencies
         run: pip install anthropic json5
 
+      - name: Run tests (fail fast, before any API cost)
+        # Uses a frozen fixture, so editing real listings can never break this.
+        run: python scripts/test_scoring.py
+
       - name: Search for new listings
         id: search
         env:
