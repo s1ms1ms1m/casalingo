@@ -1,0 +1,58 @@
+name: Deploy to GitHub Pages
+
+# Publishes index.html at https://s1ms1ms1m.github.io/casalingo/
+#
+# Triggers:
+#   - push to main that changes index.html (your own merges);
+#   - workflow_dispatch: the daily "Update apartment listings" job calls this
+#     explicitly, because a push made with GITHUB_TOKEN never triggers other
+#     workflows (workflow_dispatch is the documented exception).
+#
+# One-time setup (repo admin): Settings -> Pages -> Source: "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Stage only the public file
+        # Scripts, workflows and netlify.toml stay out of the published site.
+        run: |
+          mkdir _site
+          cp index.html _site/index.html
+          touch _site/.nojekyll
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
