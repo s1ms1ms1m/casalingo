@@ -30,21 +30,14 @@ If you find no new listings, return an empty array: []
 
 ## SEARCH CRITERIA
 - City: Torino, Italy
-- Budget: €200,000 – €700,000
+- Budget: €180,000 – €700,000 (asking price; skip anything outside it)
 - Rooms: 2 or more (bilocale, trilocale, quadrilocale…)
 - Outdoor space: balcony, terrace or garden — REQUIRED
 - Target neighbourhoods: Vanchiglia, Vanchiglietta, San Salvario, Gran Madre, Cavoretto, Borgo Dora, pre-collina, collina, Corso Casale
 - Sources to search: immobiliare.it, idealista.it, wikicasa.it, casa.it
 
-## SEARCH QUERIES TO RUN (run all of them)
-- site:immobiliare.it trilocale Vanchiglia Torino balcone
-- site:immobiliare.it appartamento San Salvario Torino terrazzo
-- site:idealista.it bilocale Gran Madre Torino balcone
-- site:idealista.it appartamento Cavoretto Torino terrazzo
-- site:wikicasa.it trilocale Vanchiglietta Torino balcone
-- site:wikicasa.it appartamento Corso Casale Torino
-- site:casa.it trilocale Vanchiglia Torino balcone
-- site:casa.it appartamento San Salvario Torino terrazzo
+## SEARCH QUERIES TO RUN (run all of them; today's set, rotated daily so every area gets covered)
+{queries}
 
 ## EXISTING LISTINGS (do NOT re-add these — deduplicate by url AND addr)
 {existing_json}
@@ -83,9 +76,11 @@ Return a JSON array. Each object must have EXACTLY these fields:
 - url: copy EXACTLY a listing URL that appeared in your search results. NEVER build, guess or shorten a URL
   (for example from a street name). Real listing URLs contain a numeric ad ID. If you do not have a real URL for a
   listing, do not include that listing at all.
-- Only include a listing if what you read shows it is CURRENTLY for sale. Skip anything marked sold ("venduto"),
-  under offer ("sotto offerta"), or "annuncio non più disponibile". If unsure, leave it out: a short list of real
-  listings is far better than a longer list with dead ones.
+- Only include listings FOR SALE ("in vendita"). Never rentals ("affitto", a price per month, "/mese"), never
+  "nuda proprietà". Skip anything you saw marked sold ("venduto"), rented, under offer ("sotto offerta") or
+  "annuncio non più disponibile". A separate step fetches every page you return and drops dead ads, so do not drop a
+  listing just because you could not open its page: include it if the search result looks current and matches the criteria.
+- Only individual ads (a page with a numeric ad ID). Search-results pages and agency pages are not listings.
 - top: ALWAYS false. The site's own scoring rule (3 of 4 criteria) decides which listings become Top after you return them; do not judge it yourself.
 - img: copy an image URL EXACTLY as it appears in a page you actually read (e.g. an <img> src or og:image).
   NEVER construct, guess or complete an image URL. If you did not see one, use the empty string "".
@@ -200,6 +195,26 @@ def _tool_stats(content):
     return searches, sorted(errors), hosts, urls
 
 
+SEARCH_PORTALS = ["immobiliare.it", "idealista.it", "wikicasa.it"]      # casa.it only returned results pages (24 Oct diagnosis)
+SEARCH_HOODS = ["Vanchiglia", "Vanchiglietta", "San Salvario", "Gran Madre", "Cavoretto"]   # the site's `hood` values
+SEARCH_VARIANTS = [("trilocale", "balcone"), ("appartamento", "terrazzo"), ("bilocale", "giardino"), ("quadrilocale", "balcone")]
+QUERIES_PER_DAY = 8
+
+
+def daily_queries(day: datetime.date) -> list[str]:
+    """The day's web-search queries: 8 of the 15 portal x neighbourhood pairs, rotating so any two consecutive days
+    cover all 15; the room-type/outdoor wording rotates too. Deterministic for a given date. Every query asks for sales."""
+    pairs = [(p, h) for h in SEARCH_HOODS for p in SEARCH_PORTALS]
+    n = day.toordinal()
+    start = (n * QUERIES_PER_DAY) % len(pairs)
+    out = []
+    for i in range(QUERIES_PER_DAY):
+        portal, hood = pairs[(start + i) % len(pairs)]
+        kind, outdoor = SEARCH_VARIANTS[(n + i) % len(SEARCH_VARIANTS)]
+        out.append(f"site:{portal} {kind} {hood} Torino {outdoor} in vendita")
+    return out
+
+
 def call_claude(existing: list[dict]) -> list[dict]:
     """Ask Claude (via API) to find new listings. Raises SearchError if the answer is unusable."""
     api_key = os.environ["ANTHROPIC_API_KEY"]
@@ -213,7 +228,8 @@ def call_claude(existing: list[dict]) -> list[dict]:
 
     prompt = SEARCH_PROMPT.format(
         existing_json=json.dumps(existing_compact, ensure_ascii=False),
-        today=today
+        today=today,
+        queries="\n".join(f"- {q}" for q in daily_queries(datetime.date.today())),
     )
 
     print(f"Calling Anthropic API (anthropic SDK version: {anthropic.__version__})…")
@@ -351,6 +367,14 @@ def write_search_summary(status: str, funnel=None):
             lines.append(f"  - rejected: {clean(c.get('addr', '?'))} — {clean(c.get('url', '?'))}")
         for c, why in funnel.get("unavailable", [])[:12]:
             lines.append(f"  - not added (availability): {clean(c.get('addr', '?'))} — {clean(why)}")
+        manual = [(c, why) for c, why in funnel.get("unavailable", []) if why.startswith(("page not fetchable", "model could not tell"))]
+        if manual:
+            lines += ["", "### 🔍 Please check by hand (the bot could not read these pages: they may be live or dead)", ""]
+            for c, _ in manual[:12]:
+                price = c.get("price")
+                price = f"€{price:,}" if isinstance(price, (int, float)) else "?"
+                lines.append(f"- {clean(c.get('hood', '?'))} · {clean(c.get('addr', '?'))} · {price} · {clean(c.get('m2', '?'))} m² · {clean(c.get('url', '?'))}")
+            lines.append("")
         for i, c in enumerate(funnel["new"][:12]):
             seen = funnel.get("seen")
             tag = "" if seen is None else (" · link seen in search results" if seen[i] else " · ⚠️ link NOT in search results")
