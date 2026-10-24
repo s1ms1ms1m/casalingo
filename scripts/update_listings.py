@@ -367,7 +367,7 @@ def write_search_summary(status: str, funnel=None):
             lines.append(f"  - rejected: {clean(c.get('addr', '?'))} — {clean(c.get('url', '?'))}")
         for c, why in funnel.get("unavailable", [])[:12]:
             lines.append(f"  - not added (availability): {clean(c.get('addr', '?'))} — {clean(why)}")
-        manual = [(c, why) for c, why in funnel.get("unavailable", []) if why.startswith(("page not fetchable", "model could not tell"))]
+        manual = [(c, why) for c, why in funnel.get("unavailable", []) if availability.needs_hand_check(why)]
         if manual:
             lines += ["", "### 🔍 Please check by hand (the bot could not read these pages: they may be live or dead)", ""]
             for c, _ in manual[:12]:
@@ -530,7 +530,7 @@ def main():
     # The links behind the counts, so they can be read in the commit message without the run logs.
     rejected_links = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l in bad_links)
     unreadable = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l, why in unavailable
-                           if why.startswith(("page not fetchable", "model could not tell")))
+                           if availability.needs_hand_check(why))
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
                   promoted_count=len(promoted), promoted_summary=promoted_summary,
                   rejected_links=rejected_links, unreadable=unreadable)

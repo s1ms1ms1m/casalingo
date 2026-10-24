@@ -12,26 +12,37 @@ Measured (all numbers from real runs, hand-checked by the site owner where state
     did NOT fetch (v1, v5, v3, s4) were checked by hand and are ALIVE: so "cannot fetch" is not proof of removal,
     and it failed the same way on a second run (deterministic per URL, not transient).
 
-So the check never let a dead listing through in these tests, but it also hides some live wikicasa listings
-(about a third of wikicasa pages could not be fetched). It trades recall for accuracy, on purpose.
+Second round (24 Oct 2026, hand-checked by the owner) CORRECTED the above: of 3 new immobiliare candidates the check
+accepted all 3, and all 3 were dead or in negotiation (s7 "in trattativa", s8 "non disponibile", s9 "venduto").
+Dumping the fetched text (12 pages) showed why: NONE of the pages contains any sold / under-offer wording, not even s9,
+whose copy was fetched the same day. The labels the owner sees in the browser are not in the text the fetcher returns,
+so this check CANNOT see them. What it can see: `retrieved_at`, and the fetcher often serves STORED copies (12 pages:
+retrieved between 13 Aug and 24 Oct; s8's copy was 64 days old, v22's 22 days). Hence the two extra rules below.
+Replayed on the 4 known-bad pages: s8 and v22 are now rejected (stale copy); s7 and s9 still pass (fresh copy, label
+invisible). The owner chose to keep auto-adding anyway; the residual risk is a dead or in-negotiation listing on the site,
+to be removed by hand. The commit message lists what the bot could not decide, for a look by hand.
 
 Policy (fail closed): a candidate is accepted ONLY if
   1. the fetch tool really returned page text (no error code), and
-  2. the model, reading that page, says it is currently for sale.
+  2. the page is a copy retrieved within MAX_AGE_DAYS and contains the ad's own ID (the link points to this ad), and
+  3. the model, reading that page, says it is currently for sale.
 Anything else is rejected with a reason: page not fetchable (removed OR the fetcher failed: the API cannot tell
 which, and for wikicasa it was the fetcher in 4 of 4 hand-checked cases), sold/removed, under offer, check failed.
 "Cannot verify" means "not added": a live listing may be missed, a dead one is (so far) never added.
 
-Known weaknesses: ads marked "in trattativa" are not detected (v22: prompt wording did not help); a listing the
-fetcher cannot read is never added even if it is live.
+Known weaknesses: sold / "in trattativa" / "non disponibile" labels are NOT visible to the fetcher (s7, s9, v22), so a
+fresh copy of a dead ad passes; a listing the fetcher cannot read, or only has an old copy of, is never added even if live.
 """
+import datetime
 import json
 import os
+import re
 import sys
 
 MODEL = os.environ.get("AVAILABILITY_MODEL", "claude-opus-4-5")
 TOOL = {"type": "web_fetch_20250910", "name": "web_fetch", "max_uses": 1}
 BETAS = ["web-fetch-2025-09-10"]
+MAX_AGE_DAYS = 7           # the fetcher may serve a stored copy; an older one says nothing about today
 MAX_CHECKS = 12            # per run; the rest are simply not added today (the search finds them again tomorrow)
 PROMPT = """Open this property-listing page with the web_fetch tool and tell me whether the ad is CURRENTLY available to buy.
 URL: __URL__
@@ -78,13 +89,35 @@ def fetch_outcome(content):
     called = any(b.get("type") == "server_tool_use" and "fetch" in str(b.get("name", "")) for b in blocks)
     results = [b for b in blocks if "fetch" in str(b.get("type", "")) and b.get("type") != "server_tool_use"]
     errors = sorted({str(d["error_code"]) for r in results for d in walk(r) if d.get("error_code")})
-    text = ""
+    text, retrieved = "", None
     for r in results:
         for d in walk(r):
             for k in ("data", "text"):
                 if isinstance(d.get(k), str) and len(d[k]) > len(text):
                     text = d[k]
-    return {"called": called, "errors": errors, "chars": len(text), "fetched": bool(called and text.strip() and not errors)}
+            if retrieved is None and isinstance(d.get("retrieved_at"), str):
+                retrieved = d["retrieved_at"]
+    return {"called": called, "errors": errors, "chars": len(text), "text": text, "retrieved_at": retrieved,
+            "fetched": bool(called and text.strip() and not errors)}
+
+
+def page_problem(f, url, now=None):
+    """Why a fetched page cannot back an 'available' verdict, or None. Two things measured on 24 Oct 2026:
+    the fetcher serves stored copies (s8's was from 21 Aug, the ad was already gone), and the page must be this ad."""
+    m = re.search(r"/(\d{5,})(?:[/?#]|$)", url or "")
+    if m and m.group(1) not in f.get("text", ""):
+        return "fetched page does not contain this ad's ID: the link may point to another page"
+    raw = f.get("retrieved_at")
+    try:
+        got = datetime.datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        if got.tzinfo is None:
+            got = got.replace(tzinfo=datetime.timezone.utc)
+    except ValueError:
+        return "no retrieval date on the fetched page: cannot tell how old this copy is"
+    age = ((now or datetime.datetime.now(datetime.timezone.utc)) - got).days
+    if age > MAX_AGE_DAYS:
+        return f"stale copy (retrieved {age} days ago, {got.date()}): it may have been sold or removed since"
+    return None
 
 
 def parse_verdict(texts):
@@ -101,6 +134,14 @@ def parse_verdict(texts):
     return None
 
 
+HAND_CHECK = ("page not fetchable", "model could not tell", "stale copy", "fetched page does not contain", "no retrieval date")
+
+
+def needs_hand_check(reason) -> bool:
+    """True when the bot could not decide (as opposed to finding the ad sold/under offer): worth a look by the owner."""
+    return str(reason).startswith(HAND_CHECK)
+
+
 def check_listing(client, url):
     """One listing -> {accept, reason, status, evidence, fetched, tokens_in, tokens_out}. Raises on API errors."""
     resp = client.beta.messages.create(model=MODEL, max_tokens=1024, betas=BETAS, tools=[TOOL],
@@ -115,10 +156,12 @@ def check_listing(client, url):
     if not f["fetched"]:
         why = ",".join(f["errors"]) or ("fetch tool not used" if not f["called"] else "empty page")
         out.update(accept=False, reason=f"page not fetchable ({why}): removed or unreadable by the fetcher, cannot verify")
-    elif status == "available":
-        out.update(accept=True, reason="page fetched, shows an active ad")
     elif status in ("sold_or_removed", "under_offer"):
         out.update(accept=False, reason=f"{status}: {evidence}")
+    elif (problem := page_problem(f, url)):
+        out.update(accept=False, reason=problem)
+    elif status == "available":
+        out.update(accept=True, reason=f"page fetched {str(f['retrieved_at'])[:10]}, shows an active ad")
     else:
         out.update(accept=False, reason=f"model could not tell ({status}): {evidence}")
     return out
