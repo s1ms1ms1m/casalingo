@@ -1,27 +1,27 @@
 === https://www.immobiliare.it/annunci/130839936/
 fetched=True errors=[] chars=10720 meta={"retrieved_at": "2026-10-24T12:55:37+00:00", "url": "https://www.immobiliare.it/annunci/130839936/", "title": "Quadrilocale via Tommaso Grossi 32, San Salvario - Dante, Torino | 4 locali | 102 m²"}
-model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Tommaso Grossi 32 - € 318.000"}
+model verdict: {"status": "available", "evidence": "€ 318.000 - active listing with price, contact options, and no sold/reserved labels"}
 keyword hits in fetched text (0):
 
 first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/130839936/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: In una zona comoda al centro, ben servita dai mezzi pubblici e a pochi passi dalla metropolitana, proponiamo in vendita un interessante appartamento completamente ristruttur'
 
 === https://www.immobiliare.it/annunci/128367780/
 fetched=True errors=[] chars=9926 meta={"retrieved_at": "2026-08-21T04:01:54+00:00", "url": "https://www.immobiliare.it/annunci/128367780/", "title": "Quadrilocale via Claudio Luigi Berthollet 14, San Salvario - Baretti, Torino | 4 locali | 103 m²"}
-model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Claudio Luigi Berthollet 14. € 237.000"}
+model verdict: {"status": "available", "evidence": "€ 237.000 | Vendita Appartamento Torino. Quadrilocale in via Claudio Luigi Berthollet 14"}
 keyword hits in fetched text (1):
   ... I GRATUITE con perizie aggiornate agli ultimi valori di mercato compravenduto per offrire un servizio COMPLETO ed ACCURATO grazie ad un team giovan ...
 first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/128367780/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: Stai cercando un ampia soluzione a due passi da Porta nuova?\nTEMPOCASA HA LA SOLUZIONE GIUSTA PER TE!\n\nIn Via Berthollet 14 a due passi da P.zza Madama Cristina, TEMPOCASA, '
 
 === https://www.immobiliare.it/annunci/128608380/
 fetched=True errors=[] chars=10508 meta={"retrieved_at": "2026-10-24T12:46:59+00:00", "url": "https://www.immobiliare.it/annunci/128608380/", "title": "Quadrilocale via Tiziano Vecellio 3, San Salvario - Dante, Torino | 4 locali | 154 m²"}
-model verdict: {"status": "available", "evidence": "Contratto: Vendita | € 350.000 | Quadrilocale via Tiziano Vecellio 3"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Tiziano Vecellio 3... € 350.000"}
 keyword hits in fetched text (0):
 
 first 400 chars: "---\ncanonical: https://www.immobiliare.it/annunci/128608380/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: VIA TIZIANO- PRESSI CORSO DANTE - L'appartamento, comodo per raggiungere in pochi minuti a piedi la zona degli Ospedali e delle Università, si trova in posizione centrale e "
 
 === https://www.idealista.it/immobile/35536856/
-fetched=True errors=[] chars=14641 meta={"retrieved_at": "2026-10-24T12:55:47+00:00", "url": "https://www.idealista.it/immobile/35536856/", "title": "Quadrilocale in vendita in Via Gattinara, 1, Vanchiglietta, Torino — idealista, N.1 in Italia"}
-model verdict: {"status": "available", "evidence": "Quadrilocale in vendita in Via Gattinara, 1 - 295.000 €"}
+fetched=True errors=[] chars=14641 meta={"retrieved_at": "2026-10-24T12:58:23+00:00", "url": "https://www.idealista.it/immobile/35536856/", "title": "Quadrilocale in vendita in Via Gattinara, 1, Vanchiglietta, Torino — idealista, N.1 in Italia"}
+model verdict: {"status": "available", "evidence": "Quadrilocale in vendita in Via Gattinara, 1 — 295.000 €"}
 keyword hits in fetched text (2):
   ... a  La tua nota  Modifica Modifica  ## Descrizione dell’inserzionista  Disponibile in [Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#) ...
   ... сский](#) - [Svenska](#) - [Ελληνικά](#) - [中文](#) - [Українська](#)  Disponibile in [Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#) ...
