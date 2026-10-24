@@ -1,0 +1,555 @@
+{
+ "date": "2026-10-24",
+ "stop_reason": "end_turn",
+ "queries": [
+  {
+   "query": "site:immobiliare.it trilocale Vanchiglia Torino balcone"
+  },
+  {
+   "query": "site:immobiliare.it appartamento San Salvario Torino terrazzo"
+  },
+  {
+   "query": "site:idealista.it bilocale Gran Madre Torino balcone"
+  },
+  {
+   "query": "site:idealista.it appartamento Cavoretto Torino terrazzo"
+  },
+  {
+   "query": "site:wikicasa.it trilocale Vanchiglietta Torino balcone"
+  },
+  {
+   "query": "site:wikicasa.it appartamento Corso Casale Torino"
+  },
+  {
+   "query": "site:casa.it trilocale Vanchiglia Torino balcone"
+  },
+  {
+   "query": "site:casa.it appartamento San Salvario Torino terrazzo"
+  }
+ ],
+ "n_results": 74,
+ "n_ad_shaped": 20,
+ "n_ad_known": 2,
+ "n_ad_unknown": 18,
+ "results": [
+  {
+   "title": "Affitto Appartamento Torino. Trilocale in via Montebello. Ottimo stato, quarto piano, con balcone, riscaldamento autonomo, rif. 128596190",
+   "url": "https://www.immobiliare.it/annunci/128596190/",
+   "age": "176 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento Torino. Trilocale in via Vanchiglia 32. Da ristrutturare, secondo piano, con balcone, riscaldamento autonomo, rif. 117896417",
+   "url": "https://www.immobiliare.it/annunci/117896417/",
+   "age": "633 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento Torino. Trilocale in via Guastalla 20. Buono stato, primo piano, con balcone, riscaldamento autonomo, rif. 119441931",
+   "url": "https://www.immobiliare.it/annunci/119441931/",
+   "age": "521 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento Torino. Trilocale in via Santa Giulia 44. Nuovo, piano rialzato, con balcone, riscaldamento autonomo, rif. 112284707",
+   "url": "https://www.immobiliare.it/annunci/112284707/",
+   "age": "783 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento Torino. Trilocale in via Giovanni Francesco Napione 23. Buono stato, settimo piano, con balcone, riscaldamento centralizzato, rif. 119546655",
+   "url": "https://www.immobiliare.it/annunci/119546655/",
+   "age": "553 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento Torino. Trilocale in corso Brianza 19. Buono stato, secondo piano, con balcone, riscaldamento centralizzato, rif. 110941661",
+   "url": "https://www.immobiliare.it/annunci/110941661/",
+   "age": "351 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Sale Apartment Turin. 3-room flat in via Cesare Balbo 2. To be refurbished, fifth floor, with balcony, independent heating, ref. 121264012",
+   "url": "https://www.immobiliare.it/en/annunci/121264012/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Rent Apartment Turin. 3-room flat in via Gattinara. Excellent condition, second floor, with balcony, central heating, ref. 133016678",
+   "url": "https://www.immobiliare.it/en/annunci/133016678/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Rent Apartment Turin. 3-room flat in via Vanchiglia 36. Excellent condition, second floor, with balcony, independent heating, ref. 88397505",
+   "url": "https://www.immobiliare.it/en/annunci/88397505/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Sale Apartment Turin. 3-room flat in via Gioacchino Rossini 23. Excellent condition, third floor, with balcony, central heating, ref. 127335231",
+   "url": "https://www.immobiliare.it/en/annunci/127335231/",
+   "age": null,
+   "ad_shaped": true,
+   "known": true
+  },
+  {
+   "title": "Appartamenti in vendita a San Salvario - Torino",
+   "url": "https://www.immobiliare.it/en/vendita-appartamenti/torino/san-salvario/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Apartments for rent in San Salvario - Turin - Immobiliare.it",
+   "url": "https://www.immobiliare.it/en/affitto-appartamenti/torino/san-salvario/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Apartments with terrace for sale in San Salvario - Turin - Immobiliare.it",
+   "url": "https://www.immobiliare.it/en/vendita-appartamenti/torino/san-salvario/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento Torino. Trilocale in via Emanuele Thesauro 6. Ottimo stato, primo piano, con terrazza, riscaldamento autonomo, rif. 129986428",
+   "url": "https://www.immobiliare.it/annunci/129986428/",
+   "age": "87 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Vendita Appartamento in via San Pio V 31. Torino. Ottimo stato, terzo piano, posto auto, con terrazza, riscaldamento autonomo, rif. 131084574",
+   "url": "https://www.immobiliare.it/annunci/131084574/",
+   "age": "54 days ago",
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Appartamenti di lusso in vendita a San Salvario - Torino",
+   "url": "https://www.immobiliare.it/en/vendita-appartamenti/torino/san-salvario/con-lusso/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con terrazzo in vendita a San Salvario - Torino",
+   "url": "https://www.immobiliare.it/en/vendita-case/torino/san-salvario/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Homes with terrace for sale in area San Salvario - Dante, Turin - Immobiliare.it",
+   "url": "https://www.immobiliare.it/en/vendita-case/torino/san-salvario-dante/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Homes with terrace for sale in area San Salvario - Baretti, Turin - Immobiliare.it",
+   "url": "https://www.immobiliare.it/en/vendita-case/torino/san-salvario-baretti/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Homes with terrace for rent in area San Salvario - Dante, Turin - Immobiliare.it",
+   "url": "https://www.immobiliare.it/en/affitto-case/torino/san-salvario-dante/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Bilocale in affitto in Via Monferrato, 16, Gran Madre di Dio, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/immobile/32076630/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Bilocali in affitto, Precollina, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/geo/affitto-case/precollina/con-appartamenti,bilocali-2/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Bilocale in affitto in Corso Giuseppe Gabetti, 8, Gran Madre di Dio, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/immobile/19546076/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Bilocali, Precollina, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/geo/vendita-case/precollina/con-appartamenti,bilocali-2/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamento in vendita in Via Tonco, 22, Gran Madre di Dio, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/immobile/35498392/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Bilocali in vendita a Cavoretto, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/cavoretto/con-appartamenti,bilocali-2/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Bilocali in vendita a Cavoretto - Madonna del Pilone - Crimea, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/con-appartamenti,bilocali-2/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Mansarde in affitto in provincia di Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/affitto-case/torino-provincia/con-mansarde/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Property for sale in Gran Madre di Dio, Turin, Italy: flats / apartments — idealista, no. 1 in Italy",
+   "url": "https://www.idealista.it/en/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/gran-madre-di-dio/con-dimensione-max_350,solo-appartamenti/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamento in vendita in Strada Comunale di Cavoretto, 72, Cavoretto, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/immobile/34352825/",
+   "age": null,
+   "ad_shaped": true,
+   "known": true
+  },
+  {
+   "title": "Appartamenti, Strada Vicinale Delle Terrazze, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/geo/vendita-case/strada-vicinale-delle-terrazze-torino-torino/con-solo-appartamenti/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti in vendita a Cavoretto - Madonna del Pilone - Crimea, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/con-appartamenti,garage/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con più di 50 mq in vendita a Cavoretto, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/cavoretto/con-dimensione_50/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Affitto a lungo termine: appartamenti a Cavoretto - Madonna del Pilone - Crimea, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/affitto-case/torino/cavoretto-madonna-del-pilone-crimea/con-solo-appartamenti/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case, Strada Vicinale Delle Terrazze, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/geo/vendita-case/strada-vicinale-delle-terrazze-torino-torino/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case in vendita a Cavoretto - Madonna del Pilone - Crimea, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Property for sale in Cavoretto, Turin, Italy: houses and flats — idealista, no. 1 in Italy",
+   "url": "https://www.idealista.it/en/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/cavoretto/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con 2 bagni in affitto a Cavoretto - Madonna del Pilone - Crimea, Torino — idealista, N.1 in Italia",
+   "url": "https://www.idealista.it/affitto-case/torino/cavoretto-madonna-del-pilone-crimea/con-bagno-2/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Trilocali in vendita a Vanchiglia - Lungo Po - Vanchiglietta, Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/vendita-trilocali/torino/zona-vanchiglia-lungo-po-vanchiglietta/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Torino - Vanchiglietta - Tempocasa - Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/agenzia-immobiliare/torino-vanchiglietta-tempocasa-58662",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamento in vendita, Torino con balcone e box, 78 mq • Wikicasa",
+   "url": "https://www.wikicasa.it/annuncio/29090037",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Torino 8 - Solo Affitti - Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/en/agenzia-immobiliare/torino-8-solo-affitti-87457",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Affiliato Tecnocasa: IMMOBILIARE NUOVA VANCHIGLIETTA SAS - Tecnocasa - Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/agenzia-immobiliare/affiliato-tecnocasa-immobiliare-nuova-vanchiglietta-sas-tecnocasa-30251",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti con doppi servizi in vendita a Vanchiglia - Lungo Po - Vanchiglietta, Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/vendita-appartamenti/torino/zona-vanchiglia-lungo-po-vanchiglietta/con-doppi-servizi/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "in Vanchiglia - Lungo Po - Vanchiglietta, Torino, Real Estate & Homes for sale • Wikicasa",
+   "url": "https://www.wikicasa.it/en/sale-houses/torino/zona-vanchiglia-lungo-po-vanchiglietta/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case da ristrutturare in vendita a Torino",
+   "url": "https://www.wikicasa.it/en/sale-houses/torino/to-be-refurbished/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case in affitto a Torino",
+   "url": "https://www.wikicasa.it/en/rent-houses/torino/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamento in vendita, Corso Casale 428, 10132, Torino, Torino, 184 mq • Wikicasa",
+   "url": "https://www.wikicasa.it/annuncio/26542807",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Nuove costruzioni in affitto a Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/affitto-nuove-costruzioni/torino/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "EDILPROFIN Sparacio Salvatore - Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/agenzia-immobiliare/edilprofin-sparacio-salvatore-4090",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Torino - Sassi/Madonna del Pilone - Tempocasa - Torino • Wikicasa",
+   "url": "https://www.wikicasa.it/agenzia-immobiliare/torino-sassimadonna-del-pilone-tempocasa-70965",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Apartment in sale, Torino. Three-room apartment Corso Casale 317 con garage, 90 mq • Wikicasa",
+   "url": "https://www.wikicasa.it/en/annuncio/24382672",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "in Madonna del Pilone - Sassi, Torino, Real Estate & Homes with terrace for sale • Wikicasa",
+   "url": "https://www.wikicasa.it/en/sale-houses/torino/zona-madonna-del-pilone-sassi/with-terrace/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "in Madonna del Pilone - Sassi, Torino, Real Estate & Homes for sale • Wikicasa",
+   "url": "https://www.wikicasa.it/en/sale-houses/torino/zona-madonna-del-pilone-sassi/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case fino a 60.000 euro in vendita a Torino",
+   "url": "https://www.wikicasa.it/en/sale-houses/torino/price-up-to-60000/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "in Madonna del Pilone - Sassi, Torino, Real Estate & Homes for rent • Wikicasa",
+   "url": "https://www.wikicasa.it/en/rent-houses/torino/zona-madonna-del-pilone-sassi/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con balcone in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/affitto/residenziale/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti con balcone in vendita a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/vendita/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Trilocali con balcone in vendita a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/trilocali/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti con balcone in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/affitto/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con balcone in vendita nel quartiere Vanchiglia di Torino - Casa.it - pagina 2",
+   "url": "https://www.casa.it/vendita/residenziale/torino/vanchiglia-vanchiglietta/vanchiglia/con-balcone?page=2",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Trilocali in vendita nel quartiere Vanchiglietta di Torino - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/trilocali/torino/vanchiglia-vanchiglietta/vanchiglietta/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti con balcone e riscaldamento autonomo in vendita a Torino in zona Vanchiglia, Vanchiglietta",
+   "url": "https://www.casa.it/vendita/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone-e-riscaldamento-autonomo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/affitto/appartamenti/torino/vanchiglia-vanchiglietta/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Stanze in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/affitto/stanze/torino/vanchiglia-vanchiglietta/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con terrazzo in vendita a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/torino/san-salvario/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case con terrazzo in affitto a Torino in zona San Salvario, Parco Valentino",
+   "url": "https://www.casa.it/affitto/residenziale/torino/san-salvario-parco-valentino/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Trilocale in Vendita in zona San Salvario a Torino - 100mq - Casa.it",
+   "url": "https://www.casa.it/immobili/54343667/",
+   "age": null,
+   "ad_shaped": true,
+   "known": false
+  },
+  {
+   "title": "Appartamenti grandi in vendita a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/vendita/appartamenti/torino/san-salvario?sortType=surface_desc",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti grandi in affitto a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/affitto/appartamenti/torino/san-salvario?sortType=surface_desc",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case in affitto a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/affitto/residenziale/torino/san-salvario/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case costose in affitto a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/affitto/residenziale/torino/san-salvario?sortType=price_desc",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Case da ristrutturare in vendita a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/da-ristrutturare/torino/san-salvario/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Trilocali con ascensore in vendita a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/trilocali/torino/san-salvario/con-ascensore/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  }
+ ],
+ "report": "**DIAGNOSTIC REPORT**\n\n## 1. Individual-ad URLs NOT in EXISTING LISTINGS\n\n### From immobiliare.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.immobiliare.it/annunci/128596190/ | Via Montebello, Vanchiglia | €2,700/month | Balcone | Vanchiglia | EXCLUDE | Rental, not for sale |\n| https://www.immobiliare.it/annunci/117896417/ | Via Vanchiglia 32 | €189,000 | 2 balconi | Vanchiglia | EXCLUDE | Under budget (€200k minimum) |\n| https://www.immobiliare.it/annunci/119441931/ | Via Guastalla 20 | N/A | Balcone | Vanchiglietta | EXCLUDE | Marked as \"Venduto il 16/05/2026\" (sold) |\n| https://www.immobiliare.it/annunci/112284707/ | Via Santa Giulia 44 | €195,000 | Balcone | Vanchiglia | EXCLUDE | Under budget (€200k minimum) |\n| https://www.immobiliare.it/annunci/119546655/ | Via Napione 23 | N/A | Balcone | Vanchiglia | EXCLUDE | Marked as \"Venduto il 17/04/2025\" (sold) |\n| https://www.immobiliare.it/annunci/110941661/ | Corso Brianza 19 | N/A | Balcone | Vanchiglietta | EXCLUDE | Marked as \"Venduto il 07/11/2025\" (sold) |\n| https://www.immobiliare.it/en/annunci/121264012/ | Via Cesare Balbo 2 | €135,000 | 3 balconi | Vanchiglia | EXCLUDE | Under budget (€200k minimum) |\n| https://www.immobiliare.it/en/annunci/133016678/ | Via Gattinara | €800/month | Balcone | Vanchiglietta | EXCLUDE | Rental, not for sale |\n| https://www.immobiliare.it/en/annunci/88397505/ | Via Vanchiglia 36 | N/A | Balcone | Vanchiglia | EXCLUDE | Marked as \"Rented on 07/04/2022\" (rental/past) |\n| https://www.immobiliare.it/annunci/129986428/ | Via Thesauro 6 | €149,000 | Terrazzo | San Salvario | EXCLUDE | Under budget AND Nuda Proprietà |\n| https://www.immobiliare.it/annunci/131084574/ | Via San Pio V 31 | €620,000 | Terrazzo + Balcone | San Salvario | INCLUDE | Within budget, 5 locali, terrazzo, for sale |\n\n### From idealista.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.idealista.it/immobile/32076630/ | Via Monferrato 16 | €1,200/month | N/A | Gran Madre | EXCLUDE | Rental, not for sale |\n| https://www.idealista.it/immobile/19546076/ | Corso Giuseppe Gabetti 8 | €640/month | N/A | Gran Madre | EXCLUDE | Rental, not for sale |\n| https://www.idealista.it/immobile/35498392/ | Via Tonco 22 | €460,000 | Terrazza + Balcone | Gran Madre | INCLUDE | Within budget, 5 locali, terrazza, for sale |\n\n### From wikicasa.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.wikicasa.it/annuncio/29090037 | Via Sineo 10 | Not specified | 2 balconi | Vanchiglia | EXCLUDE | No price visible in search results |\n| https://www.wikicasa.it/annuncio/26542807 | Corso Casale 428 | €440,000 | N/A | Corso Casale/Sassi | EXCLUDE | No outdoor space mentioned; outside target neighbourhoods |\n| https://www.wikicasa.it/en/annuncio/24382672 | Corso Casale 317 | €195,000 | 2 balconi | Sassi | EXCLUDE | Under budget (€200k minimum) |\n\n### From casa.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| All results from casa.it | Various | Various | Various | Various | EXCLUDE | All listings found were either rentals, already in existing list, outside budget, or listings pages (not individual ads with specific URLs) |\n\n---\n\n## 2. Query Results Summary\n\n| Query | Usable Individual Ads |\n|-------|----------------------|\n| site:immobiliare.it trilocale Vanchiglia Torino balcone | 0 (all either sold, rental, under budget, or in existing list) |\n| site:immobiliare.it appartamento San Salvario Torino terrazzo | 1 (Via San Pio V 31 - €620k) |\n| site:idealista.it bilocale Gran Madre Torino balcone | 0 (all rentals or listing pages) |\n| site:idealista.it appartamento Cavoretto Torino terrazzo | 1 (Via Tonco 22 - €460k) - note: this is Gran Madre area |\n| site:wikicasa.it trilocale Vanchiglietta Torino balcone | 0 (listings already in existing list or incomplete info) |\n| site:wikicasa.it appartamento Corso Casale Torino | 0 (outside target neighbourhoods - Sassi area, or under budget) |\n| site:casa.it trilocale Vanchiglia Torino balcone | 0 (all listing pages, not individual ad URLs with IDs) |\n| site:casa.it appartamento San Salvario Torino terrazzo | 0 (all listing pages, not individual ad URLs) |\n\n---\n\n## 3. Main Reason for Potentially Empty Array\n\nThe searches primarily returned:\n1. **Listing aggregation pages** rather than individual property ads (especially casa.it)\n2. **Rentals** rather than sales\n3. **Sold properties** (marked \"Venduto\")\n4. **Properties under the €200k minimum budget**\n5. **Properties already in the existing listings**\n\nThe two potentially new listings that meet criteria are:\n- **https://www.immobiliare.it/annunci/131084574/** - Via San Pio V 31, San Salvario, €620,000, terrazzo + balcone, 5 locali (190 mq)\n- **https://www.idealista.it/immobile/35498392/** - Via Tonco 22, Gran Madre, €460,000, terrazza + balcone, 5 locali (188 mq)\n\nHowever, I would need to verify these are not marked as sold and confirm all details before including them in production output."
+}
