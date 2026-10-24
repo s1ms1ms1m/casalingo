@@ -30,21 +30,14 @@ If you find no new listings, return an empty array: []
 
 ## SEARCH CRITERIA
 - City: Torino, Italy
-- Budget: €200,000 – €700,000
+- Budget: €180,000 – €700,000 (asking price; skip anything outside it)
 - Rooms: 2 or more (bilocale, trilocale, quadrilocale…)
 - Outdoor space: balcony, terrace or garden — REQUIRED
 - Target neighbourhoods: Vanchiglia, Vanchiglietta, San Salvario, Gran Madre, Cavoretto, Borgo Dora, pre-collina, collina, Corso Casale
 - Sources to search: immobiliare.it, idealista.it, wikicasa.it, casa.it
 
-## SEARCH QUERIES TO RUN (run all of them)
-- site:immobiliare.it trilocale Vanchiglia Torino balcone
-- site:immobiliare.it appartamento San Salvario Torino terrazzo
-- site:idealista.it bilocale Gran Madre Torino balcone
-- site:idealista.it appartamento Cavoretto Torino terrazzo
-- site:wikicasa.it trilocale Vanchiglietta Torino balcone
-- site:wikicasa.it appartamento Corso Casale Torino
-- site:casa.it trilocale Vanchiglia Torino balcone
-- site:casa.it appartamento San Salvario Torino terrazzo
+## SEARCH QUERIES TO RUN (run all of them; today's set, rotated daily so every area gets covered)
+{queries}
 
 ## EXISTING LISTINGS (do NOT re-add these — deduplicate by url AND addr)
 {existing_json}
@@ -83,9 +76,11 @@ Return a JSON array. Each object must have EXACTLY these fields:
 - url: copy EXACTLY a listing URL that appeared in your search results. NEVER build, guess or shorten a URL
   (for example from a street name). Real listing URLs contain a numeric ad ID. If you do not have a real URL for a
   listing, do not include that listing at all.
-- Only include a listing if what you read shows it is CURRENTLY for sale. Skip anything marked sold ("venduto"),
-  under offer ("sotto offerta"), or "annuncio non più disponibile". If unsure, leave it out: a short list of real
-  listings is far better than a longer list with dead ones.
+- Only include listings FOR SALE ("in vendita"). Never rentals ("affitto", a price per month, "/mese"), never
+  "nuda proprietà". Skip anything you saw marked sold ("venduto"), rented, under offer ("sotto offerta") or
+  "annuncio non più disponibile". A separate step fetches every page you return and drops dead ads, so do not drop a
+  listing just because you could not open its page: include it if the search result looks current and matches the criteria.
+- Only individual ads (a page with a numeric ad ID). Search-results pages and agency pages are not listings.
 - top: ALWAYS false. The site's own scoring rule (3 of 4 criteria) decides which listings become Top after you return them; do not judge it yourself.
 - img: copy an image URL EXACTLY as it appears in a page you actually read (e.g. an <img> src or og:image).
   NEVER construct, guess or complete an image URL. If you did not see one, use the empty string "".
@@ -200,6 +195,26 @@ def _tool_stats(content):
     return searches, sorted(errors), hosts, urls
 
 
+SEARCH_PORTALS = ["immobiliare.it", "idealista.it", "wikicasa.it"]      # casa.it only returned results pages (24 Oct diagnosis)
+SEARCH_HOODS = ["Vanchiglia", "Vanchiglietta", "San Salvario", "Gran Madre", "Cavoretto"]   # the site's `hood` values
+SEARCH_VARIANTS = [("trilocale", "balcone"), ("appartamento", "terrazzo"), ("bilocale", "giardino"), ("quadrilocale", "balcone")]
+QUERIES_PER_DAY = 8
+
+
+def daily_queries(day: datetime.date) -> list[str]:
+    """The day's web-search queries: 8 of the 15 portal x neighbourhood pairs, rotating so any two consecutive days
+    cover all 15; the room-type/outdoor wording rotates too. Deterministic for a given date. Every query asks for sales."""
+    pairs = [(p, h) for h in SEARCH_HOODS for p in SEARCH_PORTALS]
+    n = day.toordinal()
+    start = (n * QUERIES_PER_DAY) % len(pairs)
+    out = []
+    for i in range(QUERIES_PER_DAY):
+        portal, hood = pairs[(start + i) % len(pairs)]
+        kind, outdoor = SEARCH_VARIANTS[(n + i) % len(SEARCH_VARIANTS)]
+        out.append(f"site:{portal} {kind} {hood} Torino {outdoor} in vendita")
+    return out
+
+
 def call_claude(existing: list[dict]) -> list[dict]:
     """Ask Claude (via API) to find new listings. Raises SearchError if the answer is unusable."""
     api_key = os.environ["ANTHROPIC_API_KEY"]
@@ -213,7 +228,8 @@ def call_claude(existing: list[dict]) -> list[dict]:
 
     prompt = SEARCH_PROMPT.format(
         existing_json=json.dumps(existing_compact, ensure_ascii=False),
-        today=today
+        today=today,
+        queries="\n".join(f"- {q}" for q in daily_queries(datetime.date.today())),
     )
 
     print(f"Calling Anthropic API (anthropic SDK version: {anthropic.__version__})…")
@@ -351,6 +367,14 @@ def write_search_summary(status: str, funnel=None):
             lines.append(f"  - rejected: {clean(c.get('addr', '?'))} — {clean(c.get('url', '?'))}")
         for c, why in funnel.get("unavailable", [])[:12]:
             lines.append(f"  - not added (availability): {clean(c.get('addr', '?'))} — {clean(why)}")
+        manual = [(c, why) for c, why in funnel.get("unavailable", []) if availability.needs_hand_check(why)]
+        if manual:
+            lines += ["", "### 🔍 Please check by hand (the bot could not read these pages: they may be live or dead)", ""]
+            for c, _ in manual[:12]:
+                price = c.get("price")
+                price = f"€{price:,}" if isinstance(price, (int, float)) else "?"
+                lines.append(f"- {clean(c.get('hood', '?'))} · {clean(c.get('addr', '?'))} · {price} · {clean(c.get('m2', '?'))} m² · {clean(c.get('url', '?'))}")
+            lines.append("")
         for i, c in enumerate(funnel["new"][:12]):
             seen = funnel.get("seen")
             tag = "" if seen is None else (" · link seen in search results" if seen[i] else " · ⚠️ link NOT in search results")
@@ -377,6 +401,19 @@ def norm_url(url: str) -> str:
     u = urlparse((url or "").strip().lower())
     path = re.sub(r"^/en(?=/)", "", u.path).rstrip("/")
     return f"{u.netloc.removeprefix('www.')}{path}"
+
+
+REMOVED_PATH = os.path.join(os.path.dirname(__file__), "removed_listings.txt")
+
+
+def load_removed(path=None) -> set:
+    """Normalised URLs from removed_listings.txt (comments and blank lines ignored). Missing file = empty set."""
+    try:
+        lines = open(path or REMOVED_PATH, encoding="utf-8").read().splitlines()
+    except OSError:
+        return set()
+    urls = (re.sub(r"\s+#.*$", "", l).strip() for l in lines if l.strip() and not l.lstrip().startswith("#"))
+    return {norm_url(u) for u in urls if u}
 
 
 def ensure_unique_ids(new: list, existing_ids) -> list:
@@ -431,6 +468,11 @@ def main():
     new_listings = [l for l in new_listings if ad_url_ok(l.get("url"))]
     for l in bad_links:
         print(f"  rejected (link is not a real ad URL): {l.get('addr')} — {l.get('url')}", file=sys.stderr)
+    removed = load_removed()
+    blocked = [l for l in new_listings if norm_url(l.get("url")) in removed]
+    new_listings = [l for l in new_listings if norm_url(l.get("url")) not in removed]
+    for l in blocked:
+        print(f"  skipped (on the removed list): {l.get('addr')} — {l.get('url')}")
     renamed = ensure_unique_ids(new_listings, {l.get("id") for l in existing})
     for a, b in renamed:
         print(f"  id {a!r} was taken, renamed to {b!r}")
@@ -500,19 +542,26 @@ def main():
     search_report = (f"stop={d.get('stop_reason', '?')}; web searches={d.get('web_searches', '?')}; "
                      f"tool errors={','.join(d.get('search_errors') or []) or 'none'}; "
                      f"model returned {len(candidates)} ({len(known)} already known, {len(bad_links)} rejected bad link, "
+                     f"{len(blocked)} on the removed list, "
                      f"{len(unavailable)} not available/unverifiable, {len(new_listings)} new"
                      + ("" if seen is None else f", {sum(seen)} of them with link seen in search results") + "); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
+    # The links behind the counts, so they can be read in the commit message without the run logs.
+    rejected_links = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l in bad_links)
+    unreadable = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l, why in unavailable
+                           if availability.needs_hand_check(why))
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
-                  promoted_count=len(promoted), promoted_summary=promoted_summary)
+                  promoted_count=len(promoted), promoted_summary=promoted_summary,
+                  rejected_links=rejected_links, unreadable=unreadable)
 
 
 def write_outputs(**values):
     """Write step outputs for the workflow. Values are forced to one line: a newline
     in a model-provided string would otherwise inject extra outputs."""
+    limits = {"rejected_links": 1500, "unreadable": 1500}       # lists of links need more room than the one-line summaries
     with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
         for k, v in values.items():
-            f.write(f"{k}={' '.join(str(v).split())[:500]}\n")
+            f.write(f"{k}={' '.join(str(v).split())[:limits.get(k, 500)]}\n")
 
 
 if __name__ == "__main__":

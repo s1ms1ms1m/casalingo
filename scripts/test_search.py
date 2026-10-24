@@ -113,7 +113,7 @@ with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_clau
 s = open(summ).read()
 assert "✅ Search answered" in s and "model returned **1** candidate(s): **1** already on the site, **0** rejected (link is not a numeric ad URL), **0** not available or unverifiable, **0** new" in s and "already known" in s, s
 o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
-assert "model returned 1 (1 already known, 0 rejected bad link, 0 not available/unverifiable, 0 new" in o["search_report"] and "\n" not in o["search_report"], o
+assert "model returned 1 (1 already known, 0 rejected bad link, 0 on the removed list, 0 not available/unverifiable, 0 new" in o["search_report"] and "\n" not in o["search_report"], o
 
 # ── 4. link shape, url normalisation, unique ids
 ok = ul.ad_url_ok
@@ -163,6 +163,72 @@ s = open(summ).read()
 assert "**1** rejected" in s and "rejected: Via Slug 3" in s and "link seen in search results" in s and "link NOT in search results" in s, s
 o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
 assert "1 rejected bad link" in o["search_report"] and "1 of them with link seen in search results" in o["search_report"], o
+assert "Via Slug 3 <https://www.casa.it/immobili/via-slug-3/>" in o["rejected_links"], o
+
+# ── 6. rotating queries, prompt template, and the "check by hand" list
+import datetime as _dt, re as _re
+d1, d2 = _dt.date(2026, 10, 24), _dt.date(2026, 10, 25)
+q1, q2 = ul.daily_queries(d1), ul.daily_queries(d2)
+assert len(q1) == 8 and len(set(q1)) == 8 and q1 == ul.daily_queries(d1), q1
+assert all("in vendita" in q and "Torino" in q and "site:casa.it" not in q for q in q1 + q2), q1
+pair = lambda q: (q.split()[0], next(h for h in ul.SEARCH_HOODS if f" {h} Torino" in q))
+assert len({pair(q) for q in q1 + q2}) == len(ul.SEARCH_PORTALS) * len(ul.SEARCH_HOODS), "two days must cover every portal x hood pair"
+prompt = ul.SEARCH_PROMPT.format(existing_json="[]", today="2026-10-24", queries="\n".join(f"- {q}" for q in q1))
+assert all(q in prompt for q in q1) and "180,000" in prompt and "200,000" not in prompt and "{queries}" not in prompt
+assert "nuda proprietà" in prompt and "FOR SALE" in prompt
+
+shutil.copy(FIXTURE, path); open(summ, "w").close(); open(outp, "w").close()
+existing = ul.extract_existing_listings(open(path, encoding="utf-8").read())
+unread = mkc("c91", "Via Illeggibile 4", "https://www.idealista.it/immobile/77777777/"); unread["price"] = 185000
+dead = mkc("c92", "Via Venduta 5", "https://www.immobiliare.it/annunci/88888888/")
+def one_search(_):
+    ul.LAST_SEARCH.clear(); ul.LAST_SEARCH.update(stop_reason="end_turn", web_searches=1, search_errors=[], result_hosts=[], text_blocks=1,
+        text_chars=1, tokens_in=1, tokens_out=1, continuations=0, preview="", result_urls=set())
+    return [unread, dead]
+rej = lambda client, ls: ([], [(ls[0], "page not fetchable (url_not_accessible): removed or unreadable by the fetcher, cannot verify"),
+                               (ls[1], "sold_or_removed: Venduto il 01/09/2025")], {"evidence": {}})
+with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=one_search), \
+     mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), \
+     mock.patch.object(ul.availability, "verify", side_effect=rej), mock.patch.dict(os.environ, env):
+    ul.main()
+s = open(summ).read()
+hand = s.split("Please check by hand")[1]
+assert "Via Illeggibile 4" in hand and "€185,000" in hand and "https://www.idealista.it/immobile/77777777/" in hand, s
+assert "Via Venduta 5" not in hand, "a listing the page showed as sold must not be in the check-by-hand list"
+assert len(ul.extract_existing_listings(open(path, encoding="utf-8").read())) == len(existing), "nothing unverified may be added"
+o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
+assert "Via Illeggibile 4 <https://www.idealista.it/immobile/77777777/>" in o["unreadable"] and "Venduta" not in o["unreadable"], o
+assert o["rejected_links"] == "", o
+
+# ── 7. removed-listings list: a removed URL is never added again
+import tempfile as _tf
+rp = os.path.join(tmp, "removed.txt")
+open(rp, "w").write("# comment\n\nhttps://www.immobiliare.it/en/annunci/127335231/   # v22\n  # indented comment\nhttps://www.idealista.it/immobile/35498392\n")
+rs = ul.load_removed(rp)
+assert rs == {ul.norm_url("https://www.immobiliare.it/annunci/127335231/"), ul.norm_url("https://www.idealista.it/immobile/35498392/")}, rs
+assert ul.load_removed(os.path.join(tmp, "nope.txt")) == set()
+real = ul.load_removed()
+assert ul.norm_url("https://www.immobiliare.it/annunci/128608380/") in real and ul.norm_url("https://www.immobiliare.it/annunci/130839936?x=1") in real and len(real) >= 10, real
+
+shutil.copy(FIXTURE, path); open(summ, "w").close(); open(outp, "w").close()
+existing = ul.extract_existing_listings(open(path, encoding="utf-8").read())
+back = mkc("c93", "Via Tornata 6", "https://www.immobiliare.it/en/annunci/128608380/")          # removed one, different /en spelling
+fresh = mkc("c94", "Via Nuova 7", "https://www.immobiliare.it/annunci/99999991/")
+def removed_search(_):
+    ul.LAST_SEARCH.clear(); ul.LAST_SEARCH.update(stop_reason="end_turn", web_searches=1, search_errors=[], result_hosts=[], text_blocks=1,
+        text_chars=1, tokens_in=1, tokens_out=1, continuations=0, preview="", result_urls=set())
+    return [back, fresh]
+seen_by_verify = []
+def vfy(client, ls):
+    seen_by_verify.extend(l["addr"] for l in ls); return ls, [], {"evidence": {}}
+with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=removed_search), \
+     mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), \
+     mock.patch.object(ul.availability, "verify", side_effect=vfy), mock.patch.dict(os.environ, env):
+    ul.main()
+final = {l["addr"] for l in ul.extract_existing_listings(open(path, encoding="utf-8").read())}
+assert "Via Tornata 6" not in final and "Via Nuova 7" in final and seen_by_verify == ["Via Nuova 7"], (final, seen_by_verify)
+o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
+assert "1 on the removed list" in o["search_report"], o
 
 shutil.rmtree(tmp)
 print("ALL SEARCH TESTS PASSED")

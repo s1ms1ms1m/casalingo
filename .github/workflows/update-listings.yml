@@ -52,6 +52,8 @@ jobs:
           PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
           PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
           SEARCH_REPORT: ${{ steps.search.outputs.search_report }}
+          REJECTED_LINKS: ${{ steps.search.outputs.rejected_links }}
+          UNREADABLE: ${{ steps.search.outputs.unreadable }}
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
@@ -75,6 +77,8 @@ jobs:
             if [ "$NEW_COUNT" != "0" ]; then echo; echo "$SUMMARY"; fi
             if [ "${PROMOTED_COUNT:-0}" != "0" ]; then echo; echo "Promoted to Top: $PROMOTED_SUMMARY"; fi
             if [ -n "$SEARCH_REPORT" ]; then echo; echo "Search: $SEARCH_REPORT"; fi
+            if [ -n "$REJECTED_LINKS" ]; then echo; echo "Rejected links (not a single-ad URL): $REJECTED_LINKS"; fi
+            if [ -n "$UNREADABLE" ]; then echo; echo "Could not be read by the bot, check by hand: $UNREADABLE"; fi
             echo
             echo "Co-Authored-By: Claude <noreply@anthropic.com>"
           } > "$RUNNER_TEMP/commit-msg.txt"
