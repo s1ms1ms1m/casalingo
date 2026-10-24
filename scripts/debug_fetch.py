@@ -32,6 +32,9 @@ def main(urls):
         hits = []
         for m in KEYS.finditer(text):
             hits.append(text[max(0, m.start() - 70): m.end() + 70].replace("\n", " "))
+        os.makedirs(os.path.join(HERE, "diagnostics"), exist_ok=True)
+        slug = re.sub(r"[^a-z0-9]+", "-", u.lower().split("//")[-1]).strip("-")
+        open(os.path.join(HERE, "diagnostics", f"page-{slug}.txt"), "w", encoding="utf-8").write(text)
         out.append(f"=== {u}\nfetched={f['fetched']} errors={f['errors']} chars={len(text)} meta={json.dumps(meta, ensure_ascii=False)}\n"
                    f"model verdict: {json.dumps(verdict, ensure_ascii=False)}\n"
                    f"keyword hits in fetched text ({len(hits)}):\n" + "\n".join(f"  ... {h} ..." for h in hits[:12]) +

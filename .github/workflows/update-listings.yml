@@ -36,13 +36,20 @@ jobs:
             https://www.immobiliare.it/annunci/130839936/ \
             https://www.immobiliare.it/annunci/128367780/ \
             https://www.immobiliare.it/annunci/128608380/ \
-            https://www.idealista.it/immobile/35536856/ \
-            https://www.wikicasa.it/annuncio/30923478
+            https://www.immobiliare.it/en/annunci/127335231/ \
+            https://www.immobiliare.it/annunci/129969450/ \
+            https://www.immobiliare.it/annunci/130803894/ \
+            https://www.immobiliare.it/annunci/131464854/ \
+            https://www.immobiliare.it/annunci/132359476/ \
+            https://www.immobiliare.it/annunci/133383032/ \
+            https://www.idealista.it/immobile/34352825/ \
+            https://www.idealista.it/immobile/34683058/ \
+            https://www.idealista.it/immobile/35904288/
 
       - name: Commit result to this branch
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
-          git add scripts/diagnostics/fetch-debug.txt
+          git add scripts/diagnostics
           git commit -m "Fetch debug result"
           git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
