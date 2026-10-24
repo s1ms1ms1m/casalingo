@@ -138,6 +138,13 @@
    "known": false
   },
   {
+   "title": "Case con terrazzo in affitto a San Salvario - Torino",
+   "url": "https://www.immobiliare.it/en/affitto-case/torino/san-salvario/con-terrazzo/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
    "title": "Appartamenti di lusso in vendita a San Salvario - Torino",
    "url": "https://www.immobiliare.it/en/vendita-appartamenti/torino/san-salvario/con-lusso/",
    "age": null,
@@ -154,13 +161,6 @@
   {
    "title": "Homes with terrace for sale in area San Salvario - Dante, Turin - Immobiliare.it",
    "url": "https://www.immobiliare.it/en/vendita-case/torino/san-salvario-dante/con-terrazzo/",
-   "age": null,
-   "ad_shaped": false,
-   "known": false
-  },
-  {
-   "title": "Homes with terrace for sale in area San Salvario - Baretti, Turin - Immobiliare.it",
-   "url": "https://www.immobiliare.it/en/vendita-case/torino/san-salvario-baretti/con-terrazzo/",
    "age": null,
    "ad_shaped": false,
    "known": false
@@ -285,15 +285,15 @@
    "known": false
   },
   {
-   "title": "Property for sale in Cavoretto, Turin, Italy: houses and flats — idealista, no. 1 in Italy",
-   "url": "https://www.idealista.it/en/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/cavoretto/",
+   "title": "Property for sale in Cavoretto, Turin, Italy: flats / apartments — idealista, no. 1 in Italy",
+   "url": "https://www.idealista.it/en/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/cavoretto/con-dimensione_90,solo-appartamenti/",
    "age": null,
    "ad_shaped": false,
    "known": false
   },
   {
-   "title": "Case con 2 bagni in affitto a Cavoretto - Madonna del Pilone - Crimea, Torino — idealista, N.1 in Italia",
-   "url": "https://www.idealista.it/affitto-case/torino/cavoretto-madonna-del-pilone-crimea/con-bagno-2/",
+   "title": "Property for sale in Cavoretto, Turin, Italy: houses and flats — idealista, no. 1 in Italy",
+   "url": "https://www.idealista.it/en/vendita-case/torino/cavoretto-madonna-del-pilone-crimea/cavoretto/",
    "age": null,
    "ad_shaped": false,
    "known": false
@@ -425,15 +425,15 @@
    "known": false
   },
   {
-   "title": "Case con balcone in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
-   "url": "https://www.casa.it/affitto/residenziale/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "title": "Appartamenti con balcone in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/affitto/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone/",
    "age": null,
    "ad_shaped": false,
    "known": false
   },
   {
-   "title": "Appartamenti con balcone in vendita a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
-   "url": "https://www.casa.it/vendita/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "title": "Case con balcone in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/affitto/residenziale/torino/vanchiglia-vanchiglietta/con-balcone/",
    "age": null,
    "ad_shaped": false,
    "known": false
@@ -446,8 +446,15 @@
    "known": false
   },
   {
-   "title": "Appartamenti con balcone in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
-   "url": "https://www.casa.it/affitto/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone/",
+   "title": "Appartamenti con balcone in vendita nel quartiere Vanchiglietta di Torino - Casa.it",
+   "url": "https://www.casa.it/vendita/appartamenti/torino/vanchiglia-vanchiglietta/vanchiglietta/con-balcone/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
+  },
+  {
+   "title": "Appartamenti con balcone in vendita a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
+   "url": "https://www.casa.it/vendita/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone/",
    "age": null,
    "ad_shaped": false,
    "known": false
@@ -469,13 +476,6 @@
   {
    "title": "Appartamenti con balcone e riscaldamento autonomo in vendita a Torino in zona Vanchiglia, Vanchiglietta",
    "url": "https://www.casa.it/vendita/appartamenti/torino/vanchiglia-vanchiglietta/con-balcone-e-riscaldamento-autonomo/",
-   "age": null,
-   "ad_shaped": false,
-   "known": false
-  },
-  {
-   "title": "Appartamenti in affitto a Torino in zona Vanchiglia, Vanchiglietta - Casa.it",
-   "url": "https://www.casa.it/affitto/appartamenti/torino/vanchiglia-vanchiglietta/",
    "age": null,
    "ad_shaped": false,
    "known": false
@@ -523,13 +523,6 @@
    "known": false
   },
   {
-   "title": "Case in affitto a Torino in zona San Salvario - Casa.it",
-   "url": "https://www.casa.it/affitto/residenziale/torino/san-salvario/",
-   "age": null,
-   "ad_shaped": false,
-   "known": false
-  },
-  {
    "title": "Case costose in affitto a Torino in zona San Salvario - Casa.it",
    "url": "https://www.casa.it/affitto/residenziale/torino/san-salvario?sortType=price_desc",
    "age": null,
@@ -537,8 +530,8 @@
    "known": false
   },
   {
-   "title": "Case da ristrutturare in vendita a Torino in zona San Salvario - Casa.it",
-   "url": "https://www.casa.it/vendita/residenziale/da-ristrutturare/torino/san-salvario/",
+   "title": "Case in nuove costruzioni in vendita a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/in-nuove-costruzioni/torino/san-salvario/",
    "age": null,
    "ad_shaped": false,
    "known": false
@@ -549,7 +542,14 @@
    "age": null,
    "ad_shaped": false,
    "known": false
+  },
+  {
+   "title": "Case da ristrutturare in vendita a Torino in zona San Salvario - Casa.it",
+   "url": "https://www.casa.it/vendita/residenziale/da-ristrutturare/torino/san-salvario/",
+   "age": null,
+   "ad_shaped": false,
+   "known": false
   }
  ],
- "report": "**DIAGNOSTIC REPORT**\n\n## 1. Individual-ad URLs NOT in EXISTING LISTINGS\n\n### From immobiliare.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.immobiliare.it/annunci/128596190/ | Via Montebello, Vanchiglia | €2,700/month | Balcone | Vanchiglia | EXCLUDE | Rental, not for sale |\n| https://www.immobiliare.it/annunci/117896417/ | Via Vanchiglia 32 | €189,000 | 2 balconi | Vanchiglia | EXCLUDE | Under budget (€200k minimum) |\n| https://www.immobiliare.it/annunci/119441931/ | Via Guastalla 20 | N/A | Balcone | Vanchiglietta | EXCLUDE | Marked as \"Venduto il 16/05/2026\" (sold) |\n| https://www.immobiliare.it/annunci/112284707/ | Via Santa Giulia 44 | €195,000 | Balcone | Vanchiglia | EXCLUDE | Under budget (€200k minimum) |\n| https://www.immobiliare.it/annunci/119546655/ | Via Napione 23 | N/A | Balcone | Vanchiglia | EXCLUDE | Marked as \"Venduto il 17/04/2025\" (sold) |\n| https://www.immobiliare.it/annunci/110941661/ | Corso Brianza 19 | N/A | Balcone | Vanchiglietta | EXCLUDE | Marked as \"Venduto il 07/11/2025\" (sold) |\n| https://www.immobiliare.it/en/annunci/121264012/ | Via Cesare Balbo 2 | €135,000 | 3 balconi | Vanchiglia | EXCLUDE | Under budget (€200k minimum) |\n| https://www.immobiliare.it/en/annunci/133016678/ | Via Gattinara | €800/month | Balcone | Vanchiglietta | EXCLUDE | Rental, not for sale |\n| https://www.immobiliare.it/en/annunci/88397505/ | Via Vanchiglia 36 | N/A | Balcone | Vanchiglia | EXCLUDE | Marked as \"Rented on 07/04/2022\" (rental/past) |\n| https://www.immobiliare.it/annunci/129986428/ | Via Thesauro 6 | €149,000 | Terrazzo | San Salvario | EXCLUDE | Under budget AND Nuda Proprietà |\n| https://www.immobiliare.it/annunci/131084574/ | Via San Pio V 31 | €620,000 | Terrazzo + Balcone | San Salvario | INCLUDE | Within budget, 5 locali, terrazzo, for sale |\n\n### From idealista.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.idealista.it/immobile/32076630/ | Via Monferrato 16 | €1,200/month | N/A | Gran Madre | EXCLUDE | Rental, not for sale |\n| https://www.idealista.it/immobile/19546076/ | Corso Giuseppe Gabetti 8 | €640/month | N/A | Gran Madre | EXCLUDE | Rental, not for sale |\n| https://www.idealista.it/immobile/35498392/ | Via Tonco 22 | €460,000 | Terrazza + Balcone | Gran Madre | INCLUDE | Within budget, 5 locali, terrazza, for sale |\n\n### From wikicasa.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.wikicasa.it/annuncio/29090037 | Via Sineo 10 | Not specified | 2 balconi | Vanchiglia | EXCLUDE | No price visible in search results |\n| https://www.wikicasa.it/annuncio/26542807 | Corso Casale 428 | €440,000 | N/A | Corso Casale/Sassi | EXCLUDE | No outdoor space mentioned; outside target neighbourhoods |\n| https://www.wikicasa.it/en/annuncio/24382672 | Corso Casale 317 | €195,000 | 2 balconi | Sassi | EXCLUDE | Under budget (€200k minimum) |\n\n### From casa.it searches:\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| All results from casa.it | Various | Various | Various | Various | EXCLUDE | All listings found were either rentals, already in existing list, outside budget, or listings pages (not individual ads with specific URLs) |\n\n---\n\n## 2. Query Results Summary\n\n| Query | Usable Individual Ads |\n|-------|----------------------|\n| site:immobiliare.it trilocale Vanchiglia Torino balcone | 0 (all either sold, rental, under budget, or in existing list) |\n| site:immobiliare.it appartamento San Salvario Torino terrazzo | 1 (Via San Pio V 31 - €620k) |\n| site:idealista.it bilocale Gran Madre Torino balcone | 0 (all rentals or listing pages) |\n| site:idealista.it appartamento Cavoretto Torino terrazzo | 1 (Via Tonco 22 - €460k) - note: this is Gran Madre area |\n| site:wikicasa.it trilocale Vanchiglietta Torino balcone | 0 (listings already in existing list or incomplete info) |\n| site:wikicasa.it appartamento Corso Casale Torino | 0 (outside target neighbourhoods - Sassi area, or under budget) |\n| site:casa.it trilocale Vanchiglia Torino balcone | 0 (all listing pages, not individual ad URLs with IDs) |\n| site:casa.it appartamento San Salvario Torino terrazzo | 0 (all listing pages, not individual ad URLs) |\n\n---\n\n## 3. Main Reason for Potentially Empty Array\n\nThe searches primarily returned:\n1. **Listing aggregation pages** rather than individual property ads (especially casa.it)\n2. **Rentals** rather than sales\n3. **Sold properties** (marked \"Venduto\")\n4. **Properties under the €200k minimum budget**\n5. **Properties already in the existing listings**\n\nThe two potentially new listings that meet criteria are:\n- **https://www.immobiliare.it/annunci/131084574/** - Via San Pio V 31, San Salvario, €620,000, terrazzo + balcone, 5 locali (190 mq)\n- **https://www.idealista.it/immobile/35498392/** - Via Tonco 22, Gran Madre, €460,000, terrazza + balcone, 5 locali (188 mq)\n\nHowever, I would need to verify these are not marked as sold and confirm all details before including them in production output."
+ "report": "**DIAGNOSTIC REPORT**\n\n---\n\n## 1. Individual-Ad URLs NOT in EXISTING LISTINGS\n\n| URL | Address | Price | Outdoor | Neighbourhood | Decision | Reason |\n|-----|---------|-------|---------|---------------|----------|--------|\n| https://www.immobiliare.it/annunci/128596190/ | Via Montebello, Vanchiglia | €2,700/month | Balcone | Vanchiglia | EXCLUDE | Rental (affitto), not for sale |\n| https://www.immobiliare.it/annunci/117896417/ | Via Vanchiglia 32 | €189,000 | 2 balconi | Vanchiglia | EXCLUDE | Under budget (€189,000 < €200,000) |\n| https://www.immobiliare.it/annunci/119441931/ | Via Guastalla 20 | Sold | Balcone | Vanchiglietta | EXCLUDE | Marked \"Venduto il 16/05/2026\" |\n| https://www.immobiliare.it/annunci/112284707/ | Via Santa Giulia 44 | €195,000 | Balcone (small area esterna) | Vanchiglia | EXCLUDE | Under budget (€195,000 < €200,000) |\n| https://www.immobiliare.it/annunci/119546655/ | Via Napione 23 | Sold | Balcone | Vanchiglia | EXCLUDE | Marked \"Venduto il 17/04/2025\" |\n| https://www.immobiliare.it/annunci/110941661/ | Corso Brianza 19 | Sold | Balcone | Vanchiglietta | EXCLUDE | Marked \"Venduto il 07/11/2025\" |\n| https://www.immobiliare.it/en/annunci/121264012/ | Via Cesare Balbo 2 | €135,000 | 3 balconi | Vanchiglia | EXCLUDE | Under budget (€135,000 < €200,000) |\n| https://www.immobiliare.it/en/annunci/133016678/ | Via Gattinara | €800/month | Balcone | Vanchiglietta | EXCLUDE | Rental (affitto), not for sale |\n| https://www.immobiliare.it/en/annunci/88397505/ | Via Vanchiglia 36 | Rented | Balcone | Vanchiglia | EXCLUDE | Marked \"Rented on 07/04/2022\" |\n| https://www.immobiliare.it/annunci/129986428/ | Via Emanuele Thesauro 6 | €149,000 | Terrazzo | San Salvario | EXCLUDE | Under budget, also Nuda Proprietà |\n| https://www.immobiliare.it/annunci/131084574/ | Via San Pio V 31 | €620,000 | Terrazzo + Balcone | San Salvario | INCLUDE | For sale, within budget, outdoor, target area |\n| https://www.idealista.it/immobile/32076630/ | Via Monferrato 16 | €1,200/month | No info | Gran Madre | EXCLUDE | Rental (affitto), not for sale |\n| https://www.idealista.it/immobile/19546076/ | Corso Giuseppe Gabetti 8 | €640/month | No outdoor | Gran Madre | EXCLUDE | Rental (affitto), not for sale |\n| https://www.idealista.it/immobile/35498392/ | Via Tonco 22 | €460,000 | Terrazza e balcone | Gran Madre | INCLUDE | For sale, within budget, outdoor, target area |\n| https://www.wikicasa.it/annuncio/30990084 | Via degli Artisti 13 | €355,000 | 2 balconi | Vanchiglia | EXCLUDE | Already in EXISTING LISTINGS |\n| https://www.wikicasa.it/annuncio/30985764 | Via Santa Giulia 32 | €199,000 | 2 balconi | Vanchiglia | EXCLUDE | Already in EXISTING LISTINGS |\n| https://www.wikicasa.it/annuncio/26542807 | Corso Casale 428 | €440,000 | Not specified | Madonna del Pilone/Sassi | EXCLUDE | No outdoor space confirmed; also outside primary target hoods |\n| https://www.wikicasa.it/annuncio/24382672 | Corso Casale 317 | €195,000 | 2 balconi | Sassi | EXCLUDE | Under budget (€195,000 < €200,000) |\n| https://www.idealista.it/immobile/35904288/ | Strada Vicinale delle Terrazze 56 | Already in list | Terrazzo | Cavoretto | EXCLUDE | Already in EXISTING LISTINGS (Duplex version) |\n\n---\n\n## 2. Usable Individual Ads per Query\n\n| Query | Usable individual ads |\n|-------|----------------------|\n| site:immobiliare.it trilocale Vanchiglia Torino balcone | 0 (all sold, rental, or under budget) |\n| site:immobiliare.it appartamento San Salvario Torino terrazzo | 1 (Via San Pio V 31) |\n| site:idealista.it bilocale Gran Madre Torino balcone | 1 (Via Tonco 22 - actually 5 locali not bilocale, but has terrace) |\n| site:idealista.it appartamento Cavoretto Torino terrazzo | 0 (Strada Comunale di Cavoretto 72 is in existing list) |\n| site:wikicasa.it trilocale Vanchiglietta Torino balcone | 0 (all existing listings or no valid new individual ads with URLs) |\n| site:wikicasa.it appartamento Corso Casale Torino | 0 (listings under budget or no outdoor) |\n| site:casa.it trilocale Vanchiglia Torino balcone | 0 (listing pages, no distinct new individual ad URLs with full data) |\n| site:casa.it appartamento San Salvario Torino terrazzo | 0 (listing pages only, no distinct new individual ad URLs with full data) |\n\n---\n\n## 3. Main Reason for Potentially Empty Array\n\nMost search results return listing index pages rather than individual ad pages with full details and URLs. The few individual ad URLs found are either:\n- Already in the EXISTING LISTINGS database\n- Marked as \"Venduto\" (sold) or rentals (\"affitto\")\n- Under the €200,000 minimum budget threshold\n\nTwo potentially new listings were identified:\n1. **https://www.immobiliare.it/annunci/131084574/** - Via San Pio V 31, San Salvario, €620,000, 190 m², 5 locali, terrazzo + balcone\n2. **https://www.idealista.it/immobile/35498392/** - Via Tonco 22, Gran Madre, €460,000, 188 m², 5 locali, terrazza e balcone\n\nHowever, the Via Tonco 22 listing shows 5 locali (not bilocale as searched) and is described as \"da ristrutturare\" (to be renovated). Both are larger apartments (5 locali) rather than the typical trilocale format, but they meet the criteria of 2+ rooms, outdoor space, within budget, and target neighbourhoods."
 }
