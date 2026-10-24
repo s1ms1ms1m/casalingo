@@ -3,12 +3,13 @@ name: Update apartment listings
 on:
   schedule:
     # Every day at 11:55 Rome time (UTC+1 winter / UTC+2 summer).
-    # Using 10:55 UTC to cover winter; Netlify deploys within ~2 min after push.
+    # Using 10:55 UTC to cover winter; the site redeploys within ~2 min after the push.
     - cron: '55 10 * * *'
   workflow_dispatch:   # allow manual runs from the GitHub Actions tab
 
 permissions:
   contents: write      # needed to push the updated index.html
+  actions: write       # needed to start the Pages deploy workflow (gh workflow run)
 
 jobs:
   update:
@@ -42,6 +43,7 @@ jobs:
         run: python scripts/update_listings.py
 
       - name: Commit and push (new listings, Top promotions and/or last-checked date)
+        id: commit
         # Step outputs contain text derived from web pages / the model, so they are
         # passed as environment variables, never pasted into the script itself.
         env:
@@ -56,6 +58,7 @@ jobs:
           git add index.html
           if git diff --cached --quiet; then
             echo "No changes to commit."
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           TODAY=$(date +%Y-%m-%d)
@@ -77,6 +80,16 @@ jobs:
           } > "$RUNNER_TEMP/commit-msg.txt"
           git commit -F "$RUNNER_TEMP/commit-msg.txt"
           git push
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to GitHub Pages
+        # A push made with GITHUB_TOKEN does not trigger the push-based workflow,
+        # so start it explicitly. Never fails the job: the listings are already saved.
+        if: steps.commit.outputs.pushed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref "${{ github.event.repository.default_branch }}"
 
       - name: Summary
         env:
@@ -97,4 +110,4 @@ jobs:
             printf '%s\n' "$PROMOTED_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "🌐 [casalingo.netlify.app](https://casalingo.netlify.app)" >> "$GITHUB_STEP_SUMMARY"
+          echo "🌐 [GitHub Pages](https://s1ms1ms1m.github.io/casalingo/) · [Netlify](https://casalingo.netlify.app)" >> "$GITHUB_STEP_SUMMARY"
