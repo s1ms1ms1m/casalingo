@@ -119,7 +119,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ── SORT ROW ── */
 .sort-row {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 10px 28px; font-size: 12px; color: var(--fg3);
   max-width: 1060px; margin: 0 auto;
 }
@@ -129,6 +129,17 @@ a { color: inherit; text-decoration: none; }
   padding: 4px 8px; border-radius: 5px; cursor: pointer;
 }
 @media (max-width: 700px) { .sort-row select { font-size: 16px; padding: 6px 10px; } }
+/* Sort / portal controls: a pill with the real <select> laid transparently over it (native picker, keyboard and screen reader intact) */
+.pill { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font-size: 13px; cursor: pointer; white-space: nowrap; }
+.pill .k { color: var(--fg3); }
+.pill .v { color: var(--fg2); font-weight: 400; }
+#pill-sort .v, .pill.is-set .v { color: var(--fg); font-weight: 500; }
+.pill.is-set { border-color: var(--green); }
+.pill.is-set .v { color: var(--green); }
+.pill::after { content: ""; width: 6px; height: 6px; margin: -3px 0 0 2px; border: solid var(--fg3); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+.pill:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
+.sort-row .pill select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; font-size: 16px; cursor: pointer; }
 #res-count { margin-left: auto; font-weight: 500; color: var(--fg2); }
 
 /* ── LISTINGS NO LONGER ONLINE (hidden by default, toggle appears only when there are some) ── */
@@ -363,13 +374,17 @@ a { color: inherit; text-decoration: none; }
 </div>
 
 <div class="sort-row">
-  <label for="sort-sel" style="color:var(--fg2);font-weight:400">Ordina</label>
-  <select id="sort-sel">
-    <option value="top">Consigliati prima</option>
-    <option value="price-asc">Prezzo ↑</option>
-    <option value="price-desc">Prezzo ↓</option>
-    <option value="size-desc">Metratura ↓</option>
-  </select>
+  <label class="pill" id="pill-sort"><span class="k" aria-hidden="true">↕</span><span class="v" id="sort-v">Consigliati</span>
+    <select id="sort-sel" aria-label="Ordina">
+      <option value="top" data-short="Consigliati">Consigliati prima</option>
+      <option value="price-asc" data-short="Prezzo ↑">Prezzo ↑</option>
+      <option value="price-desc" data-short="Prezzo ↓">Prezzo ↓</option>
+      <option value="ppm-asc" data-short="€/m² ↑">Prezzo al m² ↑</option>
+      <option value="ppm-desc" data-short="€/m² ↓">Prezzo al m² ↓</option>
+      <option value="size-desc" data-short="Metratura ↓">Metratura ↓</option>
+    </select></label>
+  <label class="pill" id="pill-src"><span class="v" id="src-v">Portale</span>
+    <select id="src-sel" aria-label="Filtra per portale"></select></label>
   <span id="res-count"></span>
 </div>
 <p class="top-note" id="top-note">Selezione dei migliori: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.</p>
@@ -559,7 +574,7 @@ function card(l){
 </article>`;
 }
 
-let hood='Tutti', sort='top', time='Anytime';
+let hood='Tutti', sort='top', time='Anytime', srcSel='all';
 
 const todayMs = new Date(new Date().toDateString()).getTime();
 const weekMs  = todayMs - 7*864e5;
@@ -582,13 +597,17 @@ function matchesHood(l){
   if(hood==='Top')   return !!l.top;
   return l.hood===hood;
 }
+// Portal filter. `src` is free text from the search ('Wikicasa', 'wikicasa.it', 'idealista.it'): compare a normalised key.
+const PORTALS = [['immobiliare','immobiliare.it'], ['idealista','idealista.it'], ['wikicasa','Wikicasa'], ['casa','casa.it']];
+const srcKey = l => String(l.src || '').trim().toLowerCase().replace(/\.it$/, '');
+function matchesSrc(l){ return srcSel==='all' || srcKey(l)===srcSel; }
 function counts(){
   ['Tutti','Top','Cavoretto','Gran Madre','Vanchiglietta','Vanchiglia','San Salvario'].forEach(h=>{
     const inTab = h==='Tutti' ? ()=>true : h==='Top' ? l=>l.top : l=>l.hood===h;
-    const n = listings.filter(l=>inTab(l) && matchesTime(l) && (showGone || !isGone(l))).length;
+    const n = listings.filter(l=>inTab(l) && matchesTime(l) && matchesSrc(l) && (showGone || !isGone(l))).length;
     document.querySelectorAll('[data-hc="'+h+'"]').forEach(el=>el.textContent=n);
   });
-  const hoodFiltered = listings.filter(matchesHood);
+  const hoodFiltered = listings.filter(l=>matchesHood(l) && matchesSrc(l));
   ['Anytime','Today','Last week','Last month'].forEach(t=>{
     const n = t==='Anytime'
       ? hoodFiltered.length
@@ -601,15 +620,26 @@ function counts(){
         }).length;
     document.querySelectorAll('[data-tc="'+t+'"]').forEach(el=>el.textContent=n);
   });
+  const base = listings.filter(l=>matchesHood(l) && matchesTime(l) && (showGone || !isGone(l)));
+  document.querySelectorAll('#src-sel option').forEach(o=>{
+    const n = o.value==='all' ? base.length : base.filter(l=>srcKey(l)===o.value).length;
+    o.textContent = o.dataset.label + ' (' + n + ')';
+  });
 }
+// Price per m² (same figure as the "€/m²" on the cards). A listing with no known size has none and always goes last.
+const ppm = l => (l.m2 && l.price) ? l.price / l.m2 : null;
+const byPpm = dir => (a,b) => { const x = ppm(a), y = ppm(b); return x===null ? (y===null ? 0 : 1) : y===null ? -1 : dir*(x-y); };
 function visible(){
   let r = listings.filter(matchesHood);
   r = r.filter(matchesTime);
+  r = r.filter(matchesSrc);
   r = r.filter(l => showGone || !isGone(l));
   if(sort==='top')        r.sort((a,b)=>b.top-a.top);
   else if(sort==='price-asc')  r.sort((a,b)=>a.price-b.price);
   else if(sort==='price-desc') r.sort((a,b)=>b.price-a.price);
   else if(sort==='size-desc')  r.sort((a,b)=>(b.m2||0)-(a.m2||0));
+  else if(sort==='ppm-asc')    r.sort(byPpm(1));
+  else if(sort==='ppm-desc')   r.sort(byPpm(-1));
   return r.filter(l=>!isGone(l)).concat(r.filter(isGone));   // listings no longer online always last
 }
 function render(){
@@ -622,7 +652,7 @@ function render(){
   updateGoneToggle();
 }
 function updateGoneToggle(){
-  const n = listings.filter(l => isGone(l) && matchesHood(l) && matchesTime(l)).length;
+  const n = listings.filter(l => isGone(l) && matchesHood(l) && matchesTime(l) && matchesSrc(l)).length;
   const row = document.getElementById('gone-row'), btn = document.getElementById('gone-toggle');
   row.hidden = n === 0;
   btn.setAttribute('aria-pressed', showGone);
@@ -641,7 +671,15 @@ document.querySelectorAll('.tab-time').forEach(b=>b.addEventListener('click',()=
   document.querySelectorAll('.tab-time').forEach(x=>x.classList.remove('active'));
   b.classList.add('active'); time=b.dataset.time; syncPressed(); counts(); render(); renderMapMarkers();
 }));
-document.getElementById('sort-sel').addEventListener('change',e=>{sort=e.target.value;render();});
+document.getElementById('sort-sel').addEventListener('change',e=>{sort=e.target.value;render();syncPills();});
+// Portal select: options are built once; counts() keeps their numbers current
+(function(){
+  const sel = document.getElementById('src-sel');
+  [['all','Tutti i portali']].concat(PORTALS).forEach(([v,label])=>{
+    const o = document.createElement('option'); o.value = v; o.dataset.label = label; o.textContent = label; sel.appendChild(o);
+  });
+  sel.addEventListener('change', e=>{ srcSel = e.target.value; counts(); render(); renderMapMarkers(); syncPills(); });
+})();
 
 // Landing view is the Top filter (falls back to Tutti when nothing is flagged)
 function syncPressed(){
@@ -655,7 +693,16 @@ function initFilters(){
   syncPressed();
 }
 
-initFilters(); counts(); render();
+// The pills show the current choice; they turn green when it is not the default
+function syncPills(){
+  const so = document.getElementById('sort-sel'), sr = document.getElementById('src-sel');
+  document.getElementById('sort-v').textContent = so.options[so.selectedIndex].dataset.short;
+  const o = sr.options[sr.selectedIndex];
+  document.getElementById('src-v').textContent = (o && o.value!=='all') ? o.dataset.label : 'Portale';
+  document.getElementById('pill-sort').classList.toggle('is-set', sort!=='top');
+  document.getElementById('pill-src').classList.toggle('is-set', srcSel!=='all');
+}
+initFilters(); counts(); render(); syncPills();
 
 // ── MAP ──
 const hoodColor = {
@@ -718,7 +765,7 @@ function renderMapMarkers() {
   const filtered = listings.filter(l => {
     if (!l.lat || !l.lng || isGone(l)) return false;
     if (!matchesHood(l)) return false;
-    return matchesTime(l);
+    return matchesTime(l) && matchesSrc(l);
   });
   filtered.forEach(l => {
     const disc = l.oldPrice ? ` <span style="color:#c0392b;font-size:11px">−${Math.round((1-l.price/l.oldPrice)*100)}%</span>` : '';
