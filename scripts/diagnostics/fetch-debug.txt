@@ -1,35 +1,87 @@
 === https://www.immobiliare.it/annunci/130839936/
 fetched=True errors=[] chars=10720 meta={"retrieved_at": "2026-10-24T12:55:37+00:00", "url": "https://www.immobiliare.it/annunci/130839936/", "title": "Quadrilocale via Tommaso Grossi 32, San Salvario - Dante, Torino | 4 locali | 102 m²"}
-model verdict: {"status": "available", "evidence": "€ 318.000 - active listing with price, contact options, and no sold/reserved labels"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Tommaso Grossi 32 - € 318.000"}
 keyword hits in fetched text (0):
 
 first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/130839936/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: In una zona comoda al centro, ben servita dai mezzi pubblici e a pochi passi dalla metropolitana, proponiamo in vendita un interessante appartamento completamente ristruttur'
 
 === https://www.immobiliare.it/annunci/128367780/
 fetched=True errors=[] chars=9926 meta={"retrieved_at": "2026-08-21T04:01:54+00:00", "url": "https://www.immobiliare.it/annunci/128367780/", "title": "Quadrilocale via Claudio Luigi Berthollet 14, San Salvario - Baretti, Torino | 4 locali | 103 m²"}
-model verdict: {"status": "available", "evidence": "€ 237.000 | Vendita Appartamento Torino. Quadrilocale in via Claudio Luigi Berthollet 14"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Claudio Luigi Berthollet 14. € 237.000"}
 keyword hits in fetched text (1):
   ... I GRATUITE con perizie aggiornate agli ultimi valori di mercato compravenduto per offrire un servizio COMPLETO ed ACCURATO grazie ad un team giovan ...
 first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/128367780/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: Stai cercando un ampia soluzione a due passi da Porta nuova?\nTEMPOCASA HA LA SOLUZIONE GIUSTA PER TE!\n\nIn Via Berthollet 14 a due passi da P.zza Madama Cristina, TEMPOCASA, '
 
 === https://www.immobiliare.it/annunci/128608380/
 fetched=True errors=[] chars=10508 meta={"retrieved_at": "2026-10-24T12:46:59+00:00", "url": "https://www.immobiliare.it/annunci/128608380/", "title": "Quadrilocale via Tiziano Vecellio 3, San Salvario - Dante, Torino | 4 locali | 154 m²"}
-model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Tiziano Vecellio 3... € 350.000"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Tiziano Vecellio 3 - € 350.000"}
 keyword hits in fetched text (0):
 
 first 400 chars: "---\ncanonical: https://www.immobiliare.it/annunci/128608380/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: VIA TIZIANO- PRESSI CORSO DANTE - L'appartamento, comodo per raggiungere in pochi minuti a piedi la zona degli Ospedali e delle Università, si trova in posizione centrale e "
 
-=== https://www.idealista.it/immobile/35536856/
-fetched=True errors=[] chars=14641 meta={"retrieved_at": "2026-10-24T12:58:23+00:00", "url": "https://www.idealista.it/immobile/35536856/", "title": "Quadrilocale in vendita in Via Gattinara, 1, Vanchiglietta, Torino — idealista, N.1 in Italia"}
-model verdict: {"status": "available", "evidence": "Quadrilocale in vendita in Via Gattinara, 1 — 295.000 €"}
+=== https://www.immobiliare.it/en/annunci/127335231/
+fetched=True errors=[] chars=10416 meta={"retrieved_at": "2026-10-02T04:07:42+00:00", "url": "https://www.immobiliare.it/en/annunci/127335231/", "title": "3-room flat via Gioacchino Rossini 23, Vanchiglia, Turin | 3 rooms | 99 m²"}
+model verdict: {"status": "available", "evidence": "€ 210,000 - active listing with price, features, contact options and no sold/reserved badges"}
+keyword hits in fetched text (0):
+
+first 400 chars: '---\ncanonical: https://www.immobiliare.it/en/annunci/127335231/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: L’immobile è situato nel cuore di Vanchiglia, in Via Rossini, tra Corso San Maurizio e Via Santa Giulia, all’interno di uno stabile d’epoca signorile del 1925, oggi in ot'
+
+=== https://www.immobiliare.it/annunci/129969450/
+fetched=True errors=[] chars=9823 meta={"retrieved_at": "2026-08-24T19:38:43+00:00", "url": "https://www.immobiliare.it/annunci/129969450/", "title": "Quadrilocale Strada delle Terrazze 56/12F, Cavoretto, Torino | 4 locali | 183 m²"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in Strada delle Terrazze 56/12F. € 430.000"}
+keyword hits in fetched text (0):
+
+first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/129969450/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: In una delle posizioni più esclusive e ricercate della precollina torinese, dominata da una vista straordinaria che abbraccia la città fino all’orizzonte, proponiamo luminos'
+
+=== https://www.immobiliare.it/annunci/130803894/
+fetched=True errors=[] chars=11670 meta={"retrieved_at": "2026-08-13T15:04:09+00:00", "url": "https://www.immobiliare.it/annunci/130803894/", "title": "Bilocale via Ferrante Aporti 6, Gran Madre - Crimea, Torino | 2 locali | 80 m²"}
+model verdict: {"status": "available", "evidence": "€ 289.000"}
+keyword hits in fetched text (2):
+  ... OSTRUZIONE   - POSIZIONE ESCLUSIVA GRAN MADRE   - CONTESTO ELEGANTE E RISERVATO   Nel cuore dell'esclusivo quartiere Gran Madre, proponiamo in vendi ...
+  ... 'aperto, accogliere amici o semplicemente godere della quiete e della riservatezza che solo uno spazio esterno esclusivo può offrire, pur rimanendo  ...
+first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/130803894/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: 5 BUONI MOTIVI PER ACQUISTARLO\n- IN PERFETTE CONDIZIONI  INTERNE ED ELEGANTEMENTE ARREDATO\n- GIARDINO PRIVATO E AMPIO TERRAZZO UTILIZZABILE\n- STABILE SIGNORILE DI RECENTE CO'
+
+=== https://www.immobiliare.it/annunci/131464854/
+fetched=True errors=[] chars=12421 meta={"retrieved_at": "2026-09-16T09:40:13+00:00", "url": "https://www.immobiliare.it/annunci/131464854/", "title": "Quadrilocale via Vanchiglia 18, Vanchiglia, Torino | 4 locali | 142 m²"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento Torino. Quadrilocale in via Vanchiglia 18. € 398.000"}
+keyword hits in fetched text (0):
+
+first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/131464854/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: Nel cuore di Vanchiglia, avvolto dal fascino di un palazzo storico, con androne progettato da Antonelli.\nAppartamento romantico, ampio e luminosissimo, con ambienti armonios'
+
+=== https://www.immobiliare.it/annunci/132359476/
+fetched=True errors=[] chars=11311 meta={"retrieved_at": "2026-10-23T18:06:44+00:00", "url": "https://www.immobiliare.it/annunci/132359476/", "title": "Trilocale corso Moncalieri 411, Cavoretto, Torino | 3 locali | 74 m²"}
+model verdict: {"status": "available", "evidence": "€ 330.000 - active listing with price, photos, contact options, no sold/reserved labels"}
+keyword hits in fetched text (0):
+
+first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/132359476/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: Un elegante appartamento di 74 mq, finemente ristrutturato, e mai abitato, con uno spazio esterno privato di mq 90. Un gioiello da non lasciarsi sfuggire! Questa la proposta'
+
+=== https://www.immobiliare.it/annunci/133383032/
+fetched=True errors=[] chars=9725 meta={"retrieved_at": "2026-10-12T17:46:40+00:00", "url": "https://www.immobiliare.it/annunci/133383032/", "title": "Appartamento strada delle terrazze 56/12, Cavoretto, Torino | 5+ locali | 285 m²"}
+model verdict: {"status": "available", "evidence": "Vendita Appartamento in strada delle terrazze 56/12. Torino. € 695.000"}
+keyword hits in fetched text (0):
+
+first 400 chars: '---\ncanonical: https://www.immobiliare.it/annunci/133383032/\nmeta-apple-mobile-web-app-status-bar-style: black-translucent\nmeta-apple-mobile-web-app-title: Immobiliare.it\nmeta-application-name: Immobiliare.it\nmeta-description: Precollina – Cavoretto, Strada delle Terrazze.\nNel prestigioso complesso residenziale “Le Terrazze”, proponiamo in vendita ampio e luminoso appartamento di 285 mq con terraz'
+
+=== https://www.idealista.it/immobile/34352825/
+fetched=True errors=[] chars=16425 meta={"retrieved_at": "2026-10-24T12:59:40+00:00", "url": "https://www.idealista.it/immobile/34352825/", "title": "Appartamento in vendita in Strada Comunale di Cavoretto, 72, Cavoretto, Torino — idealista, N.1 in Italia"}
+model verdict: {"status": "available", "evidence": "Appartamento in vendita in Strada Comunale di Cavoretto, 72 - 295.000 €"}
 keyword hits in fetched text (2):
   ... a  La tua nota  Modifica Modifica  ## Descrizione dell’inserzionista  Disponibile in [Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#) ...
   ... сский](#) - [Svenska](#) - [Ελληνικά](#) - [中文](#) - [Українська](#)  Disponibile in [Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#) ...
-first 400 chars: '---\ncanonical: https://www.idealista.it/immobile/35536856/\nmeta-author: idealista.com\nmeta-description: Quadrilocale di 95 m², Quadrilocale in vendita in Via Gattinara, 1, Vanchiglietta, Torino, quartiere Vanchiglietta\nmeta-og:description: Quadrilocale di 95 m², Quadrilocale in vendita in Via Gattinara, 1, Vanchiglietta, Torino, quartiere Vanchiglietta\nmeta-og:image: https://img4.idealista.it/blur'
+first 400 chars: '---\ncanonical: https://www.idealista.it/immobile/34352825/\nmeta-author: idealista.com\nmeta-description: appartamento di 157 m², Appartamento in vendita in Strada Comunale di Cavoretto, 72, Cavoretto, Torino, quartiere Cavoretto\nmeta-og:description: appartamento di 157 m², Appartamento in vendita in Strada Comunale di Cavoretto, 72, Cavoretto, Torino, quartiere Cavoretto\nmeta-og:image: https://img4'
 
-=== https://www.wikicasa.it/annuncio/30923478
-fetched=False errors=['url_not_accessible'] chars=0 meta={}
-model verdict: {"status": "cannot_tell", "evidence": "The URL could not be accessed. The site may be down, the URL may be incorrect, or there may be network issues."}
-keyword hits in fetched text (0):
+=== https://www.idealista.it/immobile/34683058/
+fetched=True errors=[] chars=15826 meta={"retrieved_at": "2026-10-11T15:01:49+00:00", "url": "https://www.idealista.it/immobile/34683058/", "title": "Bilocale in vendita in Corso Vittorio Emanuele II, 5, San Salvario, Torino — idealista, N.1 in Italia"}
+model verdict: {"status": "available", "evidence": "Bilocale in vendita in Corso Vittorio Emanuele II, 5 - 280.000 €"}
+keyword hits in fetched text (2):
+  ... a  La tua nota  Modifica Modifica  ## Descrizione dell’inserzionista  Disponibile in[Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#)  ...
+  ... сский](#) - [Svenska](#) - [Ελληνικά](#) - [中文](#) - [Українська](#)  Disponibile in[Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#)  ...
+first 400 chars: '---\ncanonical: https://www.idealista.it/immobile/34683058/\nmeta-author: idealista.com\nmeta-description: Bilocale di 70 m², Bilocale in vendita in Corso Vittorio Emanuele II, 5, San Salvario, Torino, San Salvario\nmeta-og:description: Bilocale di 70 m², Bilocale in vendita in Corso Vittorio Emanuele II, 5, San Salvario, Torino, San Salvario\nmeta-og:image: https://img4.idealista.it/blur/WEB_DETAIL-M-'
 
-first 400 chars: ''
+=== https://www.idealista.it/immobile/35904288/
+fetched=True errors=[] chars=19074 meta={"retrieved_at": "2026-10-12T17:46:54+00:00", "url": "https://www.idealista.it/immobile/35904288/", "title": "Appartamento su due piani in vendita in Strada Vicinale delle Terrazze, 56, Cavoretto, Torino — idealista, N.1 in Italia"}
+model verdict: {"status": "available", "evidence": "490.000 € 140 m² 4 locali 3º piano con ascensore"}
+keyword hits in fetched text (2):
+  ... a  La tua nota  Modifica Modifica  ## Descrizione dell’inserzionista  Disponibile in[Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#)  ...
+  ... сский](#) - [Svenska](#) - [Ελληνικά](#) - [中文](#) - [Українська](#)  Disponibile in[Italiano](#) [English](#) [Español](#) [Français](#) [Deutsch](#)  ...
+first 400 chars: '---\ncanonical: https://www.idealista.it/immobile/35904288/\nmeta-author: idealista.com\nmeta-description: Appartamento su due piani di 140 m², Appartamento su due piani in vendita in Strada Vicinale delle Terrazze, 56, Cavoretto, Torino, quartiere Cavoretto\nmeta-og:description: Appartamento su due piani di 140 m², Appartamento su due piani in vendita in Strada Vicinale delle Terrazze, 56, Cavoretto,'
