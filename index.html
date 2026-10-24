@@ -119,10 +119,11 @@ a { color: inherit; text-decoration: none; }
 
 /* ── SORT ROW ── */
 .sort-row {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 10px 28px; font-size: 12px; color: var(--fg3);
   max-width: 1060px; margin: 0 auto;
 }
+.sort-field { display: flex; align-items: center; gap: 10px; }   /* a label stays next to its select when the row wraps */
 .sort-row select {
   border: 1px solid var(--border); background: var(--surface); color: var(--fg);
   font-family: 'Avenir Next', 'Avenir', system-ui, sans-serif; font-size: 12px; font-weight: 300;
@@ -363,13 +364,15 @@ a { color: inherit; text-decoration: none; }
 </div>
 
 <div class="sort-row">
-  <label for="sort-sel" style="color:var(--fg2);font-weight:400">Ordina</label>
+  <span class="sort-field"><label for="sort-sel" style="color:var(--fg2);font-weight:400">Ordina</label>
   <select id="sort-sel">
     <option value="top">Consigliati prima</option>
     <option value="price-asc">Prezzo ↑</option>
     <option value="price-desc">Prezzo ↓</option>
     <option value="size-desc">Metratura ↓</option>
-  </select>
+  </select></span>
+  <span class="sort-field"><label for="src-sel" style="color:var(--fg2);font-weight:400">Portale</label>
+  <select id="src-sel" aria-label="Filtra per portale"></select></span>
   <span id="res-count"></span>
 </div>
 <p class="top-note" id="top-note">Selezione dei migliori: spazio aperto di qualità, natura vicina, buon prezzo, strada tranquilla.</p>
@@ -559,7 +562,7 @@ function card(l){
 </article>`;
 }
 
-let hood='Tutti', sort='top', time='Anytime';
+let hood='Tutti', sort='top', time='Anytime', srcSel='all';
 
 const todayMs = new Date(new Date().toDateString()).getTime();
 const weekMs  = todayMs - 7*864e5;
@@ -582,13 +585,17 @@ function matchesHood(l){
   if(hood==='Top')   return !!l.top;
   return l.hood===hood;
 }
+// Portal filter. `src` is free text from the search ('Wikicasa', 'wikicasa.it', 'idealista.it'): compare a normalised key.
+const PORTALS = [['immobiliare','immobiliare.it'], ['idealista','idealista.it'], ['wikicasa','Wikicasa'], ['casa','casa.it']];
+const srcKey = l => String(l.src || '').trim().toLowerCase().replace(/\.it$/, '');
+function matchesSrc(l){ return srcSel==='all' || srcKey(l)===srcSel; }
 function counts(){
   ['Tutti','Top','Cavoretto','Gran Madre','Vanchiglietta','Vanchiglia','San Salvario'].forEach(h=>{
     const inTab = h==='Tutti' ? ()=>true : h==='Top' ? l=>l.top : l=>l.hood===h;
-    const n = listings.filter(l=>inTab(l) && matchesTime(l) && (showGone || !isGone(l))).length;
+    const n = listings.filter(l=>inTab(l) && matchesTime(l) && matchesSrc(l) && (showGone || !isGone(l))).length;
     document.querySelectorAll('[data-hc="'+h+'"]').forEach(el=>el.textContent=n);
   });
-  const hoodFiltered = listings.filter(matchesHood);
+  const hoodFiltered = listings.filter(l=>matchesHood(l) && matchesSrc(l));
   ['Anytime','Today','Last week','Last month'].forEach(t=>{
     const n = t==='Anytime'
       ? hoodFiltered.length
@@ -601,10 +608,16 @@ function counts(){
         }).length;
     document.querySelectorAll('[data-tc="'+t+'"]').forEach(el=>el.textContent=n);
   });
+  const base = listings.filter(l=>matchesHood(l) && matchesTime(l) && (showGone || !isGone(l)));
+  document.querySelectorAll('#src-sel option').forEach(o=>{
+    const n = o.value==='all' ? base.length : base.filter(l=>srcKey(l)===o.value).length;
+    o.textContent = o.dataset.label + ' (' + n + ')';
+  });
 }
 function visible(){
   let r = listings.filter(matchesHood);
   r = r.filter(matchesTime);
+  r = r.filter(matchesSrc);
   r = r.filter(l => showGone || !isGone(l));
   if(sort==='top')        r.sort((a,b)=>b.top-a.top);
   else if(sort==='price-asc')  r.sort((a,b)=>a.price-b.price);
@@ -622,7 +635,7 @@ function render(){
   updateGoneToggle();
 }
 function updateGoneToggle(){
-  const n = listings.filter(l => isGone(l) && matchesHood(l) && matchesTime(l)).length;
+  const n = listings.filter(l => isGone(l) && matchesHood(l) && matchesTime(l) && matchesSrc(l)).length;
   const row = document.getElementById('gone-row'), btn = document.getElementById('gone-toggle');
   row.hidden = n === 0;
   btn.setAttribute('aria-pressed', showGone);
@@ -642,6 +655,14 @@ document.querySelectorAll('.tab-time').forEach(b=>b.addEventListener('click',()=
   b.classList.add('active'); time=b.dataset.time; syncPressed(); counts(); render(); renderMapMarkers();
 }));
 document.getElementById('sort-sel').addEventListener('change',e=>{sort=e.target.value;render();});
+// Portal select: options are built once; counts() keeps their numbers current
+(function(){
+  const sel = document.getElementById('src-sel');
+  [['all','Tutti i portali']].concat(PORTALS).forEach(([v,label])=>{
+    const o = document.createElement('option'); o.value = v; o.dataset.label = label; o.textContent = label; sel.appendChild(o);
+  });
+  sel.addEventListener('change', e=>{ srcSel = e.target.value; counts(); render(); renderMapMarkers(); });
+})();
 
 // Landing view is the Top filter (falls back to Tutti when nothing is flagged)
 function syncPressed(){
@@ -718,7 +739,7 @@ function renderMapMarkers() {
   const filtered = listings.filter(l => {
     if (!l.lat || !l.lng || isGone(l)) return false;
     if (!matchesHood(l)) return false;
-    return matchesTime(l);
+    return matchesTime(l) && matchesSrc(l);
   });
   filtered.forEach(l => {
     const disc = l.oldPrice ? ` <span style="color:#c0392b;font-size:11px">−${Math.round((1-l.price/l.oldPrice)*100)}%</span>` : '';
