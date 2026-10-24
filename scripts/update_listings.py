@@ -403,6 +403,19 @@ def norm_url(url: str) -> str:
     return f"{u.netloc.removeprefix('www.')}{path}"
 
 
+REMOVED_PATH = os.path.join(os.path.dirname(__file__), "removed_listings.txt")
+
+
+def load_removed(path=None) -> set:
+    """Normalised URLs from removed_listings.txt (comments and blank lines ignored). Missing file = empty set."""
+    try:
+        lines = open(path or REMOVED_PATH, encoding="utf-8").read().splitlines()
+    except OSError:
+        return set()
+    urls = (re.sub(r"\s+#.*$", "", l).strip() for l in lines if l.strip() and not l.lstrip().startswith("#"))
+    return {norm_url(u) for u in urls if u}
+
+
 def ensure_unique_ids(new: list, existing_ids) -> list:
     """Give every new listing an id not used by any existing/earlier one (the model never sees the existing ids).
     Returns [(old, new)] for the ones renamed. A duplicate id would make Top promotion refuse silently."""
@@ -455,6 +468,11 @@ def main():
     new_listings = [l for l in new_listings if ad_url_ok(l.get("url"))]
     for l in bad_links:
         print(f"  rejected (link is not a real ad URL): {l.get('addr')} — {l.get('url')}", file=sys.stderr)
+    removed = load_removed()
+    blocked = [l for l in new_listings if norm_url(l.get("url")) in removed]
+    new_listings = [l for l in new_listings if norm_url(l.get("url")) not in removed]
+    for l in blocked:
+        print(f"  skipped (on the removed list): {l.get('addr')} — {l.get('url')}")
     renamed = ensure_unique_ids(new_listings, {l.get("id") for l in existing})
     for a, b in renamed:
         print(f"  id {a!r} was taken, renamed to {b!r}")
@@ -524,6 +542,7 @@ def main():
     search_report = (f"stop={d.get('stop_reason', '?')}; web searches={d.get('web_searches', '?')}; "
                      f"tool errors={','.join(d.get('search_errors') or []) or 'none'}; "
                      f"model returned {len(candidates)} ({len(known)} already known, {len(bad_links)} rejected bad link, "
+                     f"{len(blocked)} on the removed list, "
                      f"{len(unavailable)} not available/unverifiable, {len(new_listings)} new"
                      + ("" if seen is None else f", {sum(seen)} of them with link seen in search results") + "); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")

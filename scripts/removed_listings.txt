@@ -1,0 +1,19 @@
+# Listings that were removed from the site. The daily search never adds a URL listed here again
+# (it has no memory of what was removed, so it kept finding the same dead ads). One URL per line;
+# '#' starts a comment. Matching ignores https/www, a /en prefix, query strings and a trailing slash.
+# Add a URL here whenever you remove a listing by hand.
+
+# 24 Oct 2026, checked by hand by the site owner
+https://www.immobiliare.it/annunci/130839936/       # s7 Via Tommaso Grossi 32: in trattativa
+https://www.immobiliare.it/annunci/128367780/       # s8 Via Berthollet 14: non disponibile
+https://www.immobiliare.it/annunci/128608380/       # s9 Via Tiziano Vecellio 3: venduto
+https://www.immobiliare.it/en/annunci/127335231/    # v22 Via Rossini 23: in trattativa
+https://www.immobiliare.it/annunci/131084574/       # Via San Pio V 31: not available
+https://www.idealista.it/immobile/35498392/         # Via Tonco 22: not available
+
+# removed earlier (dead, fabricated or under budget)
+https://www.immobiliare.it/en/annunci/121264012/
+https://www.casa.it/immobili/lungo-dora-voghera-94/
+https://www.casa.it/immobili/via-montebello-29/
+https://www.wikicasa.it/en/annuncio/24382672
+https://www.casa.it/immobili/54343667/
