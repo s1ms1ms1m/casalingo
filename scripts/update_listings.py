@@ -527,16 +527,22 @@ def main():
                      f"{len(unavailable)} not available/unverifiable, {len(new_listings)} new"
                      + ("" if seen is None else f", {sum(seen)} of them with link seen in search results") + "); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
+    # The links behind the counts, so they can be read in the commit message without the run logs.
+    rejected_links = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l in bad_links)
+    unreadable = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l, why in unavailable
+                           if why.startswith(("page not fetchable", "model could not tell")))
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
-                  promoted_count=len(promoted), promoted_summary=promoted_summary)
+                  promoted_count=len(promoted), promoted_summary=promoted_summary,
+                  rejected_links=rejected_links, unreadable=unreadable)
 
 
 def write_outputs(**values):
     """Write step outputs for the workflow. Values are forced to one line: a newline
     in a model-provided string would otherwise inject extra outputs."""
+    limits = {"rejected_links": 1500, "unreadable": 1500}       # lists of links need more room than the one-line summaries
     with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
         for k, v in values.items():
-            f.write(f"{k}={' '.join(str(v).split())[:500]}\n")
+            f.write(f"{k}={' '.join(str(v).split())[:limits.get(k, 500)]}\n")
 
 
 if __name__ == "__main__":

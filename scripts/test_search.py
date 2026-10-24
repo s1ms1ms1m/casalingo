@@ -163,6 +163,7 @@ s = open(summ).read()
 assert "**1** rejected" in s and "rejected: Via Slug 3" in s and "link seen in search results" in s and "link NOT in search results" in s, s
 o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
 assert "1 rejected bad link" in o["search_report"] and "1 of them with link seen in search results" in o["search_report"], o
+assert "Via Slug 3 <https://www.casa.it/immobili/via-slug-3/>" in o["rejected_links"], o
 
 # ── 6. rotating queries, prompt template, and the "check by hand" list
 import datetime as _dt, re as _re
@@ -195,6 +196,9 @@ hand = s.split("Please check by hand")[1]
 assert "Via Illeggibile 4" in hand and "€185,000" in hand and "https://www.idealista.it/immobile/77777777/" in hand, s
 assert "Via Venduta 5" not in hand, "a listing the page showed as sold must not be in the check-by-hand list"
 assert len(ul.extract_existing_listings(open(path, encoding="utf-8").read())) == len(existing), "nothing unverified may be added"
+o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
+assert "Via Illeggibile 4 <https://www.idealista.it/immobile/77777777/>" in o["unreadable"] and "Venduta" not in o["unreadable"], o
+assert o["rejected_links"] == "", o
 
 shutil.rmtree(tmp)
 print("ALL SEARCH TESTS PASSED")
