@@ -32,17 +32,17 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          python scripts/availability.py \
-            https://www.immobiliare.it/annunci/131084574/ \
-            https://www.idealista.it/immobile/35498392/ \
-            https://www.immobiliare.it/annunci/117896417/ \
-            https://www.immobiliare.it/annunci/112284707/ \
-            | tee scripts/diagnostics/candidates.txt
+          python scripts/debug_fetch.py \
+            https://www.immobiliare.it/annunci/130839936/ \
+            https://www.immobiliare.it/annunci/128367780/ \
+            https://www.immobiliare.it/annunci/128608380/ \
+            https://www.idealista.it/immobile/35536856/ \
+            https://www.wikicasa.it/annuncio/30923478
 
       - name: Commit result to this branch
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
-          git add scripts/diagnostics/candidates.txt
-          git commit -m "Candidate availability result"
+          git add scripts/diagnostics/fetch-debug.txt
+          git commit -m "Fetch debug result"
           git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
