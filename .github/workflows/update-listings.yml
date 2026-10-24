@@ -28,86 +28,15 @@ jobs:
       - name: Install dependencies
         run: pip install anthropic json5
 
-      - name: Run tests (fail fast, before any API cost)
-        # Uses a frozen fixture, so editing real listings can never break this.
-        run: |
-          python scripts/test_scoring.py
-          python scripts/test_search.py
-          python scripts/test_availability.py
-          python scripts/test_netlify_ignore.py
-
-      - name: Search for new listings
-        id: search
+      - name: One-off search diagnosis (experiment branch only)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scripts/update_listings.py
+        run: python scripts/diagnose_search.py
 
-      - name: Commit and push (new listings, Top promotions and/or last-checked date)
-        id: commit
-        # Step outputs contain text derived from web pages / the model, so they are
-        # passed as environment variables, never pasted into the script itself.
-        env:
-          NEW_COUNT: ${{ steps.search.outputs.new_count }}
-          SUMMARY: ${{ steps.search.outputs.summary }}
-          PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
-          PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
-          SEARCH_REPORT: ${{ steps.search.outputs.search_report }}
+      - name: Commit result to this branch
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
-          git add index.html
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            echo "pushed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          TODAY=$(date +%Y-%m-%d)
-          if [ "$NEW_COUNT" = "0" ]; then
-            SUBJECT="Last checked $TODAY — no new listings"
-          else
-            SUBJECT="Add $NEW_COUNT new listing(s) — $TODAY"
-          fi
-          if [ "${PROMOTED_COUNT:-0}" != "0" ]; then
-            SUBJECT="$SUBJECT; $PROMOTED_COUNT promoted to Top"
-          fi
-          {
-            echo "$SUBJECT"
-            if [ "$NEW_COUNT" != "0" ]; then echo; echo "$SUMMARY"; fi
-            if [ "${PROMOTED_COUNT:-0}" != "0" ]; then echo; echo "Promoted to Top: $PROMOTED_SUMMARY"; fi
-            if [ -n "$SEARCH_REPORT" ]; then echo; echo "Search: $SEARCH_REPORT"; fi
-            echo
-            echo "Co-Authored-By: Claude <noreply@anthropic.com>"
-          } > "$RUNNER_TEMP/commit-msg.txt"
-          git commit -F "$RUNNER_TEMP/commit-msg.txt"
-          git push
-          echo "pushed=true" >> "$GITHUB_OUTPUT"
-
-      - name: Deploy to GitHub Pages
-        # A push made with GITHUB_TOKEN does not trigger the push-based workflow,
-        # so start it explicitly. Never fails the job: the listings are already saved.
-        if: steps.commit.outputs.pushed == 'true'
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run pages.yml --ref "${{ github.event.repository.default_branch }}"
-
-      - name: Summary
-        env:
-          NEW_COUNT: ${{ steps.search.outputs.new_count }}
-          SUMMARY: ${{ steps.search.outputs.summary }}
-          PROMOTED_COUNT: ${{ steps.search.outputs.promoted_count }}
-          PROMOTED_SUMMARY: ${{ steps.search.outputs.promoted_summary }}
-        run: |
-          if [ "$NEW_COUNT" = "0" ]; then
-            echo "### ✅ No new listings today" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "### 🏠 $NEW_COUNT new listing(s) added" >> "$GITHUB_STEP_SUMMARY"
-            printf '%s\n' "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
-          fi
-          if [ "${PROMOTED_COUNT:-0}" != "0" ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "### ★ $PROMOTED_COUNT promoted to Top" >> "$GITHUB_STEP_SUMMARY"
-            printf '%s\n' "$PROMOTED_SUMMARY" >> "$GITHUB_STEP_SUMMARY"
-          fi
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "🌐 [GitHub Pages](https://s1ms1ms1m.github.io/casalingo/) · [Netlify](https://casalingo.netlify.app)" >> "$GITHUB_STEP_SUMMARY"
+          git add scripts/diagnostics/search-diagnosis.json
+          git commit -m "Search diagnosis result"
+          git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
