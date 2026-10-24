@@ -31,12 +31,18 @@ jobs:
       - name: One-off search diagnosis (experiment branch only)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python scripts/diagnose_search.py
+        run: |
+          python scripts/availability.py \
+            https://www.immobiliare.it/annunci/131084574/ \
+            https://www.idealista.it/immobile/35498392/ \
+            https://www.immobiliare.it/annunci/117896417/ \
+            https://www.immobiliare.it/annunci/112284707/ \
+            | tee scripts/diagnostics/candidates.txt
 
       - name: Commit result to this branch
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
-          git add scripts/diagnostics/search-diagnosis.json
-          git commit -m "Search diagnosis result"
+          git add scripts/diagnostics/candidates.txt
+          git commit -m "Candidate availability result"
           git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
