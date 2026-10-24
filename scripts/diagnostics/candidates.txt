@@ -1,0 +1,4 @@
+REJECT	https://www.immobiliare.it/annunci/131084574/	page not fetchable (url_not_accessible): removed or unreadable by the fetcher, cannot verify
+REJECT	https://www.idealista.it/immobile/35498392/	page not fetchable (url_not_accessible): removed or unreadable by the fetcher, cannot verify
+REJECT	https://www.immobiliare.it/annunci/117896417/	sold_or_removed: Venduto il 01/09/2025
+REJECT	https://www.immobiliare.it/annunci/112284707/	page not fetchable (url_not_accessible): removed or unreadable by the fetcher, cannot verify
