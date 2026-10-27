@@ -35,6 +35,7 @@ jobs:
           python scripts/test_search.py
           python scripts/test_availability.py
           python scripts/test_netlify_ignore.py
+          python scripts/test_deploy_pages.py
 
       - name: Search for new listings
         id: search
@@ -87,15 +88,17 @@ jobs:
           echo "pushed=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to GitHub Pages
-        # A push made with GITHUB_TOKEN does not trigger the push-based workflow,
-        # so start it explicitly. Never fails the job: the listings are already saved.
+        # A push made with GITHUB_TOKEN does not trigger the push-based workflow, so start it explicitly,
+        # then wait for it. If it cannot be started or does not finish with "success", this step FAILS
+        # (red run, ::error:: annotation): the listings are saved, but the live site would be out of date.
         if: steps.commit.outputs.pushed == 'true'
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run pages.yml --ref "${{ github.event.repository.default_branch }}"
+        run: bash scripts/deploy_pages.sh "${{ github.event.repository.default_branch }}"
 
       - name: Summary
+        # Still written when only the deploy failed; skipped if the search itself failed (it has no numbers then).
+        if: ${{ !cancelled() && steps.search.outcome == 'success' }}
         env:
           NEW_COUNT: ${{ steps.search.outputs.new_count }}
           SUMMARY: ${{ steps.search.outputs.summary }}
