@@ -18,6 +18,9 @@
   --green:   #477556;   /* 4.5:1+ on bg, white, green-lt */
   --green-lt:#EEF5F0;
   --border:  #E4E2DC;
+  --warn-bg:     #FFF4D6;   /* stale-data banner */
+  --warn-fg:     #6A4300;
+  --warn-border: #E6C877;
   --r:       8px;
   color-scheme: light;
 }
@@ -57,6 +60,16 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid currentColor;
   padding: 4px 12px; border-radius: 20px; white-space: nowrap;
 }
+
+/* ── STALE-DATA WARNING: shown by script when the daily check has not run for 2+ days ── */
+.stale-banner {
+  background: var(--warn-bg); color: var(--warn-fg);
+  border-bottom: 1px solid var(--warn-border);
+  font-size: 13px; font-weight: 400; line-height: 1.5;
+}
+.stale-banner .wrap { padding-block: 10px; }
+.stale-banner strong { font-weight: 600; }
+.stale-banner[hidden] { display: none; }
 
 /* note shown under the filters while "Top" is selected */
 .top-note { font-size: 12.5px; color: var(--fg2); padding: 0 28px 10px; max-width: 1060px; margin: 0 auto; }
@@ -351,6 +364,11 @@ a { color: inherit; text-decoration: none; }
     <div class="budget-pill">€ 180k – 700k · 2+ locali</div>
   </div>
 </header>
+
+<!-- STALE-DATA WARNING (hidden unless the last daily check is 2+ days old) -->
+<div class="stale-banner" id="stale-banner" role="status" hidden>
+  <div class="wrap"><strong>Dati non aggiornati.</strong> <span id="stale-msg"></span></div>
+</div>
 
 <!-- FILTER -->
 <div class="filter-bar">
@@ -849,6 +867,22 @@ const footerUpdatedEl = document.getElementById('footer-updated');
 const lcParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lastChecked || '');
 if (footerUpdatedEl && lcParts && +lcParts[2] >= 1 && +lcParts[2] <= 12 && +lcParts[3] >= 1 && +lcParts[3] <= 31) {
   footerUpdatedEl.textContent = 'Ultimo aggiornamento: ' + lcParts[3] + '/' + lcParts[2] + '/' + lcParts[1] + ' · ';
+}
+
+// Stale-data warning. The daily job stamps lastChecked at about 11:15 UTC, so a stamp one calendar day old is
+// normal (the morning before the run). Two or more days means a daily run was missed: say so on the page,
+// because a date in small grey text cannot raise an alarm. Calendar days are counted in UTC to be DST-safe.
+const STALE_AFTER_DAYS = 2;
+const staleEl = document.getElementById('stale-banner');
+if (staleEl && lcParts && +lcParts[2] >= 1 && +lcParts[2] <= 12 && +lcParts[3] >= 1 && +lcParts[3] <= 31) {
+  const t = new Date();
+  const ageDays = Math.round((Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()) - Date.UTC(+lcParts[1], +lcParts[2] - 1, +lcParts[3])) / 86400000);
+  if (ageDays >= STALE_AFTER_DAYS) {
+    document.getElementById('stale-msg').textContent =
+      "L'ultimo controllo automatico risale al " + fmtDate(lastChecked) + ' (' + ageDays + ' giorni fa): ' +
+      "l'aggiornamento giornaliero potrebbe essersi fermato. Verifica gli annunci direttamente sui portali.";
+    staleEl.hidden = false;
+  }
 }
 </script>
 </body>
