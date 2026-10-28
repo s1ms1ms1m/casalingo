@@ -42,7 +42,17 @@ SEARCH_PAGES = [                      # (label, slug, page): newest first; Vanch
 PRICE_MIN, PRICE_MAX = 180_000, 700_000
 SEARCH_MAX_AGE_H = 24                 # a search page must be a live copy; an older one may list sold ads
 MAX_AGE_DAYS = availability.MAX_AGE_DAYS
-MAX_EXAMINE = 10                      # ad pages read per run (cost cap); the rest wait for the next day
+def max_examine_from(value, default=10, ceiling=100):
+    """Cap on ad pages read per run: 10 by default (cost, and a day's new ads are few). A manual run can raise it through
+    the IMMOBILIARE_MAX_EXAMINE environment variable (workflow input), e.g. once to clear the first backlog. Junk = default."""
+    try:
+        n = int(str(value or "").strip())
+    except ValueError:
+        return default
+    return n if 1 <= n <= ceiling else default
+
+
+MAX_EXAMINE = max_examine_from(os.environ.get("IMMOBILIARE_MAX_EXAMINE"))
 RETRY_LIMIT = 3                       # an ad that could not be read is retried on 3 different days, then dropped
 
 SEEN_PATH = os.path.join(os.path.dirname(__file__), "immobiliare_seen.txt")

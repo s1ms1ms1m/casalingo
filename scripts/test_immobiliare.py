@@ -256,6 +256,7 @@ with tempfile.TemporaryDirectory() as d:
     check("seen: 'added' is final; 2 failed tries are retried; the 3rd failed try is final", im.is_done(s["133901445"]) and not im.is_done(s["133803572"]) and im.is_done(["unreadable", "stale", "mismatch"]))
     open(p, "a").write("garbage line\n# comment\n\n12\tx\n")
     check("seen: garbage / comments / short lines ignored", im.load_seen(p) == s)
+check("max_examine_from: default 10; valid override; junk, zero, negative and absurd values fall back", [im.max_examine_from(v) for v in (None, "", "45", " 50 ", "abc", "0", "-5", "5000", "12.5")] == [10, 10, 45, 50, 10, 10, 10, 10, 10])
 check("the real seen file (if present) parses", isinstance(im.load_seen(), dict))
 check("ad_id", (im.ad_id("https://www.immobiliare.it/annunci/133901445/"), im.ad_id("https://www.immobiliare.it/en/annunci/133901445/?a=1"), im.ad_id("https://www.idealista.it/immobile/35754443/"), im.ad_id(None)) == ("133901445", "133901445", None, None))
 
