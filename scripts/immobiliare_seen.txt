@@ -9,3 +9,48 @@
 133904129	2026-10-28	added	read 2026-10-28, updated 27/10/2026
 133901445	2026-10-28	added	read 2026-10-27, updated 26/10/2026
 133891574	2026-10-28	added	read 2026-10-28, updated 26/10/2026
+133988501	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133886182	2026-10-28	no_outdoor	no balcony, terrace or garden stated
+133830966	2026-10-28	added	read 2026-10-28, updated 26/10/2026
+133827774	2026-10-28	no_outdoor	no balcony, terrace or garden stated
+133803572	2026-10-28	no_outdoor	no balcony, terrace or garden stated
+133802228	2026-10-28	added	read 2026-10-28, updated 23/10/2026
+133790708	2026-10-28	added	read 2026-10-25, updated 23/10/2026
+133770056	2026-10-28	added	read 2026-10-28, updated 21/10/2026
+133768258	2026-10-28	added	read 2026-10-23, updated 21/10/2026
+133764808	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133733220	2026-10-28	added	read 2026-10-25, updated 20/10/2026
+133728870	2026-10-28	added	read 2026-10-28, updated 20/10/2026
+133727810	2026-10-28	added	read 2026-10-26, updated 20/10/2026
+133726910	2026-10-28	added	read 2026-10-28, updated 22/10/2026
+133726516	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133725986	2026-10-28	added	read 2026-10-28, updated 20/10/2026
+133724260	2026-10-28	added	read 2026-10-25, updated 20/10/2026
+133723304	2026-10-28	added	read 2026-10-28, updated 27/10/2026
+133712636	2026-10-28	added	read 2026-10-28, updated 22/10/2026
+133705408	2026-10-28	added	read 2026-10-21, updated 19/10/2026
+133701186	2026-10-28	stale	copy of the ad page is 7 days old
+133697168	2026-10-28	no_outdoor	no balcony, terrace or garden stated
+133689794	2026-10-28	no_outdoor	no balcony, terrace or garden stated
+133654704	2026-10-28	added	read 2026-10-28, updated 21/10/2026
+133635958	2026-10-28	added	read 2026-10-24, updated 23/10/2026
+133628858	2026-10-28	added	read 2026-10-28, updated 21/10/2026
+133626664	2026-10-28	stale	copy of the ad page is 9 days old
+133619088	2026-10-28	added	read 2026-10-28, updated 16/10/2026
+133601256	2026-10-28	added	read 2026-10-28, updated 16/10/2026
+133600832	2026-10-28	added	read 2026-10-28, updated 20/10/2026
+133600012	2026-10-28	added	read 2026-10-22, updated 15/10/2026
+133594110	2026-10-28	stale	copy of the ad page is 12 days old
+133590456	2026-10-28	added	read 2026-10-28, updated 15/10/2026
+133559626	2026-10-28	stale	copy of the ad page is 13 days old
+133559358	2026-10-28	added	read 2026-10-28, updated 15/10/2026
+133540708	2026-10-28	no_outdoor	no balcony, terrace or garden stated
+133533786	2026-10-28	added	read 2026-10-23, updated 22/10/2026
+133487684	2026-10-28	stale	copy of the ad page is 15 days old
+133468132	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133402800	2026-10-28	added	read 2026-10-28, updated 09/10/2026
+133384428	2026-10-28	added	read 2026-10-22, updated 08/10/2026
+133366902	2026-10-28	added	read 2026-10-21, updated 12/10/2026
+133337068	2026-10-28	stale	copy of the ad page is 14 days old
+133328064	2026-10-28	added	read 2026-10-28, updated 08/10/2026
+133291170	2026-10-28	added	read 2026-10-28, updated 12/10/2026
