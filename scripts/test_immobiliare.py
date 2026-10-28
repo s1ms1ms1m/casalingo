@@ -162,14 +162,18 @@ rejected("error", "unreadable")
 rejected(GONE, "gone")
 rejected(ad_page("133901445", canonical="199999999"), "mismatch")                                  # a different ad behind the link (the c24 failure)
 rejected(ad_page("133901445", contract="Affitto"), "not_for_sale")
-rejected(ad_page("133901445"), "stale", when=iso(days=9))
+rejected(ad_page("133901445"), "stale", when=iso(days=70))
 rejected(ad_page("133901445"), "stale", when="garbage")
 rejected(ad_page("133901445", price="230.000"), "mismatch")                                          # page price not on the card
 rejected(ad_page("133901445", locali="1"), "few_rooms")
 rejected(ad_page("133901445", balcone="No", terrazzo="No"), "no_outdoor")
 rejected("Pagina senza dati dell'annuncio. canonical: https://www.immobiliare.it/annunci/133901445/", "mismatch")
 l6, st6, *_ = ex(ad_page("133901445"), when=iso(days=5))
-check("examine: a 5-day-old copy is accepted (limit is 7)", st6 == "added")
+check("examine: a 5-day-old copy is accepted", st6 == "added")
+l6b, st6b, note6b, _ = ex(ad_page("133901445"), when=iso(days=42))
+check("examine: a 42-day-old stored copy is accepted when ID and price match the live card (limit 60), and the note says how old", st6b == "added" and "42 d old" in note6b, (st6b, note6b))
+l6c, st6c, *_ = ex(ad_page("133901445"), when=iso(days=61))
+check("examine: a 61-day-old copy is rejected", st6c == "stale")
 l7, st7, *_ = ex(ad_page("133901445", price="195.000"), card=dict(C, prices=[210000, 195000]))
 check("examine: card with two prices (old + new) accepts the page price among them", st7 == "added")
 try:
@@ -209,6 +213,13 @@ check("discover: cap of 2 -> the 2 newest examined, 1 waits, and the report says
 
 r, _ = disc(pages_for("133901445", "133803572", "133948517"), existing=EXISTING + [{"id": "v1", "url": "https://www.immobiliare.it/en/annunci/133901445/?x=1"}])
 check("discover: an ad already on the site (matched by ID, whatever the URL form) is skipped", "133901445" not in {l["url"].split("/")[-2] for l in r["listings"]} and "on_site 1" in r["report"], r["report"])
+dup_existing = EXISTING + [{"id": "v1", "addr": "C.so Belgio 24", "price": 195000, "url": "https://www.wikicasa.it/annuncio/1"},
+                           {"id": "v2", "addr": "Via Santa Giulia 37", "price": 199999, "url": "https://www.wikicasa.it/annuncio/2"},      # same street, other price: a different flat
+                           {"id": "c1", "addr": "Via Saluzzo, 44", "price": 495000, "url": "x"}]                                          # punctuation differs: still the same address
+r, fake = disc(pages_for("133901445", "133803572", "133948517"), existing=dup_existing)
+check("discover: same address AND price as a listing already on the site (other portal) is skipped before any page is read; same address with another price is not",
+      [l["url"].split("/")[-2] for l in r["listings"]] == ["133803572"] and "duplicate 2" in r["report"] and sum(1 for c in fake.calls if "annunci" in c["messages"][0]["content"]) == 1, r["report"])
+check("addr_key", im.addr_key("C.so Casale, 34") == im.addr_key("corso casale 34") == "corsocasale34" and im.addr_key(None) == "")
 r, _ = disc(pages_for("133901445", "133803572", "133948517"), removed={"immobiliare.it/annunci/133803572"})
 check("discover: an ad on the removed list is skipped", "133803572" not in {l["url"].split("/")[-2] for l in r["listings"]} and "removed 1" in r["report"], r["report"])
 r, _ = disc(pages_for("133901445", "133803572", "133948517"), seen={"133901445": ["no_outdoor"], "133803572": ["unreadable", "stale", "mismatch"], "133948517": ["unreadable"]})

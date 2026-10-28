@@ -17,7 +17,7 @@ from the ad's own description, and a failure there falls back to a plain sentenc
 
 Checks that reject an ad (all fail closed; nothing is guessed):
   search page not a live copy (older than SEARCH_MAX_AGE_H) or without ads -> the page is not used at all;
-  ad page unreadable / not this ad (canonical ID differs) / not "Vendita" / copy older than MAX_AGE_DAYS;
+  ad page unreadable / not this ad (canonical ID differs) / not "Vendita" / copy older than AD_COPY_MAX_AGE_DAYS (60);
   price on the ad page not among the prices printed on its card (the card proves the ad is listed today at that price);
   no balcony/terrace/garden stated, fewer than 2 rooms.
 
@@ -41,7 +41,8 @@ SEARCH_PAGES = [                      # (label, slug, page): newest first; Vanch
 ]
 PRICE_MIN, PRICE_MAX = 180_000, 700_000
 SEARCH_MAX_AGE_H = 24                 # a search page must be a live copy; an older one may list sold ads
-MAX_AGE_DAYS = availability.MAX_AGE_DAYS
+AD_COPY_MAX_AGE_DAYS = 60             # the fetcher serves stored copies of ad pages (7-42 days old seen on 28 Oct). Liveness is proven by the
+                                      # search card read today and the page price must equal the card price, so an old copy only feeds features
 def max_examine_from(value, default=10, ceiling=100):
     """Cap on ad pages read per run: 10 by default (cost, and a day's new ads are few). A manual run can raise it through
     the IMMOBILIARE_MAX_EXAMINE environment variable (workflow input), e.g. once to clear the first backlog. Junk = default."""
@@ -186,6 +187,12 @@ def pin(hood, ad_number):
     lat, lng = HOOD_COORDS[hood]
     n = int(ad_number)
     return round(lat + ((n % 17) - 8) * 0.00011, 5), round(lng + ((n // 17 % 17) - 8) * 0.00015, 5)
+
+
+def addr_key(addr):
+    """Comparable form of a street address: lower case, 'c.so' = 'corso', letters and digits only."""
+    a = re.sub(r"\bc\.so\b", "corso", (addr or "").lower())
+    return re.sub(r"[^a-z0-9]", "", a)
 
 
 def next_id(hood, taken):
@@ -342,7 +349,7 @@ def examine(client, card, today, now):
     if ad["contract"] != "vendita":
         return None, "not_for_sale", f"contract type {ad['contract']!r}", tok
     age = age_days(f["retrieved_at"], now)
-    if age is None or age > MAX_AGE_DAYS:
+    if age is None or age > AD_COPY_MAX_AGE_DAYS:
         return None, "stale", f"copy of the ad page is {'of unknown age' if age is None else f'{age:.0f} days old'}", tok
     if ad["price"] is None or ad["price"] not in card["prices"]:
         return None, "mismatch", f"ad page price {ad['price']} is not among the card prices {card['prices']}", tok
@@ -366,7 +373,7 @@ def examine(client, card, today, now):
         "desc": clean_text(model.get("desc"), 320) or fallback, "url": card["url"], "img": ad["image"] or "",
         "src": "immobiliare.it", "top": False, "published": today,
     }
-    return listing, "added", f"read {str(f['retrieved_at'])[:10]}, updated {ad['updated'] or '?'}", tok
+    return listing, "added", f"copy of {str(f['retrieved_at'])[:10]} ({age:.0f} d old), updated {ad['updated'] or '?'}", tok
 
 
 def discover(client, existing, removed_urls, seen, today=None, now=None, max_examine=MAX_EXAMINE, pages=SEARCH_PAGES):
@@ -379,8 +386,9 @@ def discover(client, existing, removed_urls, seen, today=None, now=None, max_exa
     cards, page_report, tokens, pages_ok = read_search_pages(client, now, pages)
     known = {i for l in existing if (i := ad_id(l.get("url")))}
     removed = {i for u in removed_urls if (i := ad_id("https://" + u))}
+    same_flat = {(addr_key(l.get("addr")), l.get("price")) for l in existing if l.get("addr") and "non indicato" not in str(l.get("addr"))}
     counts = {"cards": len(cards), "auction": 0, "other_zone": 0, "other_type": 0, "no_price": 0, "out_of_budget": 0,
-              "on_site": 0, "removed": 0, "done_before": 0}
+              "on_site": 0, "duplicate": 0, "removed": 0, "done_before": 0}
     todo = []
     for c in cards:
         if c["auction"]:
@@ -395,6 +403,8 @@ def discover(client, existing, removed_urls, seen, today=None, now=None, max_exa
             counts["out_of_budget"] += 1
         elif c["id"] in known:
             counts["on_site"] += 1
+        elif c["addr"] and (addr_key(c["addr"]), c["price"]) in same_flat:
+            counts["duplicate"] += 1                    # same address and price as a listing already on the site (another portal's copy)
         elif c["id"] in removed:
             counts["removed"] += 1
         elif is_done(seen.get(c["id"], [])):
