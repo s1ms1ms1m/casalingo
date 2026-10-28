@@ -34,6 +34,7 @@ jobs:
           python scripts/test_scoring.py
           python scripts/test_search.py
           python scripts/test_availability.py
+          python scripts/test_immobiliare.py
           python scripts/test_netlify_ignore.py
           python scripts/test_deploy_pages.py
 
@@ -55,10 +56,13 @@ jobs:
           SEARCH_REPORT: ${{ steps.search.outputs.search_report }}
           REJECTED_LINKS: ${{ steps.search.outputs.rejected_links }}
           UNREADABLE: ${{ steps.search.outputs.unreadable }}
+          IMMOBILIARE_REPORT: ${{ steps.search.outputs.immobiliare_report }}
         run: |
           git config user.name  "Casalingo Bot"
           git config user.email "casalingo-bot@auto.update"
           git add index.html
+          # ads examined today (added or rejected): committed together with the site, so they are not read again tomorrow
+          if [ -f scripts/immobiliare_seen.txt ]; then git add scripts/immobiliare_seen.txt; fi
           if git diff --cached --quiet; then
             echo "No changes to commit."
             echo "pushed=false" >> "$GITHUB_OUTPUT"
@@ -77,6 +81,7 @@ jobs:
             echo "$SUBJECT"
             if [ "$NEW_COUNT" != "0" ]; then echo; echo "$SUMMARY"; fi
             if [ "${PROMOTED_COUNT:-0}" != "0" ]; then echo; echo "Promoted to Top: $PROMOTED_SUMMARY"; fi
+            if [ -n "$IMMOBILIARE_REPORT" ]; then echo; echo "$IMMOBILIARE_REPORT"; fi
             if [ -n "$SEARCH_REPORT" ]; then echo; echo "Search: $SEARCH_REPORT"; fi
             if [ -n "$REJECTED_LINKS" ]; then echo; echo "Rejected links (not a single-ad URL): $REJECTED_LINKS"; fi
             if [ -n "$UNREADABLE" ]; then echo; echo "Could not be read by the bot, check by hand: $UNREADABLE"; fi
@@ -95,6 +100,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: bash scripts/deploy_pages.sh "${{ github.event.repository.default_branch }}"
+
+      - name: Fail if immobiliare.it could not be read
+        # The run above continued with the other portals; this makes the problem visible (red run, ::error:: line)
+        # instead of looking like "no new listings". Runs after the commit and deploy so nothing else is held up.
+        if: ${{ !cancelled() && steps.search.outputs.immobiliare_error != '' }}
+        env:
+          IMMOBILIARE_ERROR: ${{ steps.search.outputs.immobiliare_error }}
+        run: |
+          echo "::error title=immobiliare.it could not be read::$IMMOBILIARE_ERROR"
+          exit 1
 
       - name: Summary
         # Still written when only the deploy failed; skipped if the search itself failed (it has no numbers then).

@@ -13,6 +13,9 @@ try:
 except ImportError:
     sys.modules["anthropic"] = types.SimpleNamespace(__version__="stub", Anthropic=object)
 import update_listings as ul
+# The tests of the web-search side must never read immobiliare.it (or use the network): a stub answers "nothing found".
+EMPTY_IMM = {"listings": [], "seen_rows": [], "report": "immobiliare.it read live: stub", "details": [], "tokens": 0}
+ul.immobiliare.discover = lambda *a, **k: dict(EMPTY_IMM)
 
 C1 = {"id": "v20", "addr": "Via Nuova 1", "url": "https://immobiliare.it/a"}
 C2 = {"id": "s9", "addr": "Via Altra 2", "url": "https://idealista.it/b"}
@@ -176,11 +179,13 @@ assert len({pair(q) for q in q1 + q2}) == len(ul.SEARCH_PORTALS) * len(ul.SEARCH
 prompt = ul.SEARCH_PROMPT.format(existing_json="[]", today="2026-10-24", queries="\n".join(f"- {q}" for q in q1))
 assert all(q in prompt for q in q1) and "180,000" in prompt and "200,000" not in prompt and "{queries}" not in prompt
 assert "nuda proprietà" in prompt and "FOR SALE" in prompt
+assert "Sources to search: idealista.it, wikicasa.it, casa.it." in prompt and all("immobiliare" not in q for q in q1 + q2), "immobiliare.it is read directly, not searched"
+assert ul.SEARCH_PORTALS == ["idealista.it", "wikicasa.it"]
 
 shutil.copy(FIXTURE, path); open(summ, "w").close(); open(outp, "w").close()
 existing = ul.extract_existing_listings(open(path, encoding="utf-8").read())
 unread = mkc("c91", "Via Illeggibile 4", "https://www.idealista.it/immobile/77777777/"); unread["price"] = 185000
-dead = mkc("c92", "Via Venduta 5", "https://www.immobiliare.it/annunci/88888888/")
+dead = mkc("c92", "Via Venduta 5", "https://www.wikicasa.it/annuncio/88888888")
 def one_search(_):
     ul.LAST_SEARCH.clear(); ul.LAST_SEARCH.update(stop_reason="end_turn", web_searches=1, search_errors=[], result_hosts=[], text_blocks=1,
         text_chars=1, tokens_in=1, tokens_out=1, continuations=0, preview="", result_urls=set())
@@ -212,8 +217,8 @@ assert ul.norm_url("https://www.immobiliare.it/annunci/128608380/") in real and 
 
 shutil.copy(FIXTURE, path); open(summ, "w").close(); open(outp, "w").close()
 existing = ul.extract_existing_listings(open(path, encoding="utf-8").read())
-back = mkc("c93", "Via Tornata 6", "https://www.immobiliare.it/en/annunci/128608380/")          # removed one, different /en spelling
-fresh = mkc("c94", "Via Nuova 7", "https://www.immobiliare.it/annunci/99999991/")
+back = mkc("c93", "Via Tornata 6", "https://www.idealista.it/immobile/35498392/")                  # on the removed list (temp file above), other spelling
+fresh = mkc("c94", "Via Nuova 7", "https://www.idealista.it/immobile/99999991/")
 def removed_search(_):
     ul.LAST_SEARCH.clear(); ul.LAST_SEARCH.update(stop_reason="end_turn", web_searches=1, search_errors=[], result_hosts=[], text_blocks=1,
         text_chars=1, tokens_in=1, tokens_out=1, continuations=0, preview="", result_urls=set())
@@ -221,7 +226,7 @@ def removed_search(_):
 seen_by_verify = []
 def vfy(client, ls):
     seen_by_verify.extend(l["addr"] for l in ls); return ls, [], {"evidence": {}}
-with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=removed_search), \
+with mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=removed_search), mock.patch.object(ul, "REMOVED_PATH", rp), \
      mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), \
      mock.patch.object(ul.availability, "verify", side_effect=vfy), mock.patch.dict(os.environ, env):
     ul.main()
@@ -229,6 +234,67 @@ final = {l["addr"] for l in ul.extract_existing_listings(open(path, encoding="ut
 assert "Via Tornata 6" not in final and "Via Nuova 7" in final and seen_by_verify == ["Via Nuova 7"], (final, seen_by_verify)
 o = dict(line.rstrip("\n").split("=", 1) for line in open(outp))
 assert "1 on the removed list" in o["search_report"], o
+
+# ── 8. immobiliare.it side: merged with the web search, seen file written only when the site is, failure = continue + report
+IMM_L = lambda i, addr, url: {"id": i, "hood": "Vanchiglia", "addr": addr, "floor": "2° piano", "lat": 45.07, "lng": 7.69, "price": 250000, "type": "Trilocale", "m2": 80,
+                              "outdoor": "Balcone", "outdoorType": "balcone", "outdoorNote": "", "naturaNote": "", "desc": "x", "url": url, "img": "", "src": "immobiliare.it",
+                              "top": False, "published": "2026-10-28"}
+imm_result = lambda ls, rows: {"listings": ls, "seen_rows": rows, "report": "immobiliare.it read live: 2/2 search pages, 50 ads; 1 added", "details": ["vanchiglia: 25 ads, live copy (1.0 h old)"], "tokens": 4242}
+tmp = tempfile.mkdtemp(); path = os.path.join(tmp, "index.html"); summ, outp = os.path.join(tmp, "s.md"), os.path.join(tmp, "o.txt"); seen_file = os.path.join(tmp, "seen.txt")
+env = {"ANTHROPIC_API_KEY": "x", "GITHUB_OUTPUT": outp, "GITHUB_STEP_SUMMARY": summ}
+def fresh_site(): shutil.copy(FIXTURE, path); open(summ, "w").close(); open(outp, "w").close(); open(seen_file, "w").close()
+def outputs(): return dict(line.rstrip("\n").split("=", 1) for line in open(outp))
+def run_main(imm, web, verify=None, extra=()):
+    stack = [mock.patch.object(ul, "INDEX_PATH", path), mock.patch.object(ul, "call_claude", side_effect=lambda _: web),
+             mock.patch.object(ul, "check_image_url", side_effect=lambda u: u), mock.patch.object(ul, "REMOVED_PATH", os.path.join(tmp, "none.txt")),
+             mock.patch.object(ul.immobiliare, "SEEN_PATH", seen_file), mock.patch.object(ul.immobiliare, "discover", side_effect=imm if callable(imm) else (lambda *a, **k: imm)),
+             mock.patch.object(ul.availability, "verify", side_effect=verify or (lambda client, ls: (ls, [], {"evidence": {}}))), mock.patch.dict(os.environ, env), *extra]
+    from contextlib import ExitStack
+    with ExitStack() as st:
+        for m in stack: st.enter_context(m)
+        ul.main()
+fresh_site(); existing = ul.extract_existing_listings(open(path, encoding="utf-8").read()); n0 = len(existing)
+imm_l = IMM_L("v50", "Via Immobiliare 1", "https://www.immobiliare.it/annunci/133901445/")
+web_l = mkc("v50", "Via Web 2", "https://www.idealista.it/immobile/12121212/"); web_l["src"] = "idealista.it"             # same id as the immobiliare one
+web_imm = mkc("c95", "Via Dal Web 3", "https://www.immobiliare.it/annunci/133999999/"); web_imm["src"] = "immobiliare.it"   # model returned an immobiliare ad
+web_imm2 = mkc("c96", "Via Dal Web 4", "https://www.idealista.it/immobile/13131313/"); web_imm2["src"] = "Immobiliare.it"   # wrong host, right-looking src
+web_imm3 = mkc("c98", "Via Dal Web 8", "https://www.immobiliare.it/annunci/133888888/"); web_imm3["src"] = "idealista.it"     # right src label, immobiliare link
+run_main(imm_result([imm_l], [("133901445", "2026-10-28", "added", "ok")]), [web_l, web_imm, web_imm2, web_imm3])
+final = ul.extract_existing_listings(open(path, encoding="utf-8").read()); fa = {l["addr"]: l for l in final}
+assert len(final) == n0 + 2 and "Via Immobiliare 1" in fa and "Via Web 2" in fa and "Via Dal Web 3" not in fa and "Via Dal Web 4" not in fa and "Via Dal Web 8" not in fa, [l["addr"] for l in final]
+assert fa["Via Immobiliare 1"]["id"] == "v50" and fa["Via Web 2"]["id"] != "v50" and len({l["id"] for l in final}) == len(final), "ids must stay unique across both sources"
+assert fa["Via Immobiliare 1"]["top"] in (True, False) and fa["Via Immobiliare 1"]["src"] == "immobiliare.it"
+assert "133901445\t2026-10-28\tadded\tok" in open(seen_file).read().splitlines()
+o = outputs(); s = open(summ).read()
+assert o["new_count"] == "2" and o["immobiliare_error"] == "" and o["immobiliare_report"].startswith("immobiliare.it read live: 2/2"), o
+assert "3 immobiliare.it result(s) from the web search ignored" in o["search_report"], o["search_report"]
+assert "### 🏠 immobiliare.it read: ✅" in s and "vanchiglia: 25 ads" in s and "4,242" in s, s
+assert "**0** rejected" in s and "model returned **1** candidate(s)" in s, s          # only the idealista candidate counts as a web-search candidate
+
+# portal could not be read: web search results are still processed, the error is an output (the workflow turns it red), nothing is marked seen
+def imm_down(*a, **k): raise ul.immobiliare.ImmobiliareError("no immobiliare.it search page could be read as a live copy: vanchiglia: not readable (url_not_accessible)")
+fresh_site()
+run_main(imm_down, [mkc("c97", "Via Solo Web 5", "https://www.idealista.it/immobile/14141414/")])
+final = ul.extract_existing_listings(open(path, encoding="utf-8").read())
+assert len(final) == n0 + 1 and any(l["addr"] == "Via Solo Web 5" for l in final), "web search must still work when immobiliare.it is down"
+o = outputs(); s = open(summ).read()
+assert "url_not_accessible" in o["immobiliare_error"] and o["immobiliare_report"] == "" and "\n" not in o["immobiliare_error"], o
+assert "### 🏠 immobiliare.it read: ❌" in s and open(seen_file).read() == "", s
+
+# nothing is marked seen when the run does not reach the write (Top verification fails): tomorrow examines the same ads again
+fresh_site(); before = open(path, "rb").read()
+def bad_verify(*a, **k): raise RuntimeError("promotion check failed")
+try:
+    run_main(imm_result([IMM_L("v60", "Via Perduta 6", "https://www.immobiliare.it/annunci/133901446/")], [("133901446", "2026-10-28", "added", "ok")]), [],
+             extra=[mock.patch.object(ul.scoring, "verify_promotions", side_effect=bad_verify)])
+    raise SystemExit("main() survived a failing promotion check")
+except RuntimeError: pass
+assert open(path, "rb").read() == before and open(seen_file).read() == "", "index.html and the seen file must both stay untouched"
+
+# only immobiliare finds something: counts and the commit summary line include it
+fresh_site()
+run_main(imm_result([IMM_L("v61", "Via Sola 7", "https://www.immobiliare.it/annunci/133901447/")], [("133901447", "2026-10-28", "added", "ok")]), [])
+o = outputs(); assert o["new_count"] == "1" and "Vanchiglia Trilocale €250,000" in o["summary"], o
 
 shutil.rmtree(tmp)
 print("ALL SEARCH TESTS PASSED")

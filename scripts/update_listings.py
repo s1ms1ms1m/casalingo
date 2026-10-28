@@ -16,6 +16,7 @@ import anthropic
 import json5  # handles JS object syntax: unquoted keys, single-quoted strings
 import scoring
 import availability
+import immobiliare
 
 # ── Config ──────────────────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ If you find no new listings, return an empty array: []
 - Rooms: 2 or more (bilocale, trilocale, quadrilocale…)
 - Outdoor space: balcony, terrace or garden — REQUIRED
 - Target neighbourhoods: Vanchiglia, Vanchiglietta, San Salvario, Gran Madre, Cavoretto, Borgo Dora, pre-collina, collina, Corso Casale
-- Sources to search: immobiliare.it, idealista.it, wikicasa.it, casa.it
+- Sources to search: idealista.it, wikicasa.it, casa.it. Do NOT search or return immobiliare.it: a separate step reads that portal directly.
 
 ## SEARCH QUERIES TO RUN (run all of them; today's set, rotated daily so every area gets covered)
 {queries}
@@ -195,7 +196,7 @@ def _tool_stats(content):
     return searches, sorted(errors), hosts, urls
 
 
-SEARCH_PORTALS = ["immobiliare.it", "idealista.it", "wikicasa.it"]      # casa.it only returned results pages (24 Oct diagnosis)
+SEARCH_PORTALS = ["idealista.it", "wikicasa.it"]      # casa.it only returned results pages (24 Oct diagnosis); immobiliare.it is read directly (scripts/immobiliare.py)
 SEARCH_HOODS = ["Vanchiglia", "Vanchiglietta", "San Salvario", "Gran Madre", "Cavoretto"]   # the site's `hood` values
 SEARCH_VARIANTS = [("trilocale", "balcone"), ("appartamento", "terrazzo"), ("bilocale", "giardino"), ("quadrilocale", "balcone")]
 QUERIES_PER_DAY = 8
@@ -384,6 +385,20 @@ def write_search_summary(status: str, funnel=None):
         f.write("\n".join(lines) + "\n\n")
 
 
+def write_immobiliare_summary(result, error=""):
+    """Job-summary section for the immobiliare.it read: pages, filters, every examined ad with its outcome."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path:
+        return
+    clean = lambda x: " ".join(str(x).replace("|", "/").replace("`", "'").split())
+    lines = [f"### 🏠 immobiliare.it read: {'❌ ' + clean(error) if error else '✅ ' + clean(result['report'])}", ""]
+    lines += [f"- {clean(x)}" for x in result.get("details", [])]
+    if result.get("tokens"):
+        lines.append(f"- tokens (input+output, all reads): {result['tokens']:,}")
+    with open(path, "a") as f:
+        f.write("\n".join(lines) + "\n\n")
+
+
 AD_URL = re.compile(r"^https://(?:www\.)?(?:immobiliare\.it|idealista\.it|wikicasa\.it|casa\.it)/"
                     r"(?:en/)?(?:annunci|annuncio|immobile|immobili)/\d{5,}(?:[/?#].*)?$")
 
@@ -449,6 +464,18 @@ def main():
     existing = extract_existing_listings(html)
     print(f"Found {len(existing)} existing listings.")
 
+    # immobiliare.it: read the portal's own search pages (scripts/immobiliare.py). Independent of the web search below:
+    # if the portal cannot be read, the run continues with the other portals and ends RED (workflow step "Fail if
+    # immobiliare.it could not be read"), instead of reporting "no new listings".
+    imm, imm_error = {"listings": [], "seen_rows": [], "report": "", "details": [], "tokens": 0}, ""
+    try:
+        imm = immobiliare.discover(anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"]), existing, load_removed(), immobiliare.load_seen())
+        print(imm["report"])
+    except immobiliare.ImmobiliareError as e:
+        imm_error = str(e)
+        print(f"ERROR: immobiliare.it could not be read: {imm_error}", file=sys.stderr)
+    write_immobiliare_summary(imm, imm_error)
+
     # Ask Claude to find new ones
     print("Searching for new listings via Anthropic API…")
     try:
@@ -458,6 +485,11 @@ def main():
         write_search_summary(f"❌ Search failed: {e}")
         raise
     print(f"Claude returned {len(candidates)} candidate listing(s).")
+    # immobiliare.it results from the web search are not used (stale copies, dead ads): that portal is read directly above.
+    from_imm = [c for c in candidates if immobiliare.ad_id(c.get("url")) or str(c.get("src", "")).lower().startswith("immobiliare")]
+    candidates = [c for c in candidates if c not in from_imm]
+    if from_imm:
+        print(f"  ignored {len(from_imm)} immobiliare.it candidate(s) from the web search (read directly instead)")
 
     # Deduplicate
     new_listings = deduplicate(candidates, existing)
@@ -473,7 +505,7 @@ def main():
     new_listings = [l for l in new_listings if norm_url(l.get("url")) not in removed]
     for l in blocked:
         print(f"  skipped (on the removed list): {l.get('addr')} — {l.get('url')}")
-    renamed = ensure_unique_ids(new_listings, {l.get("id") for l in existing})
+    renamed = ensure_unique_ids(new_listings, {l.get("id") for l in existing} | {l["id"] for l in imm["listings"]})
     for a, b in renamed:
         print(f"  id {a!r} was taken, renamed to {b!r}")
     # Availability: fetch each candidate's page and keep only those that are really up and for sale (fail closed).
@@ -494,6 +526,8 @@ def main():
     for l in new_listings:
         l["top"] = False
     write_search_summary("✅ Search answered", funnel=dict(total=len(candidates), known=known, bad=bad_links, new=new_listings, seen=seen, unavailable=unavailable, evidence=avail_info.get("evidence", {})))
+
+    new_listings = imm["listings"] + new_listings          # immobiliare.it listings were verified by reading the portal itself
 
     # Guard against invented image URLs: an unusable one becomes "" (placeholder on the site)
     for l in new_listings:
@@ -533,6 +567,7 @@ def main():
 
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(updated_html)
+    immobiliare.append_seen(imm["seen_rows"])          # only now: if anything above raised, tomorrow examines the same ads again
 
     summary = "; ".join(
         f"{l.get('hood')} {l.get('type')} €{l.get('price'):,}" for l in new_listings
@@ -546,11 +581,14 @@ def main():
                      f"{len(unavailable)} not available/unverifiable, {len(new_listings)} new"
                      + ("" if seen is None else f", {sum(seen)} of them with link seen in search results") + "); "
                      f"hosts: {', '.join(f'{h} x{n}' for h, n in d.get('result_hosts', [])) or 'none'}")
+    if from_imm:
+        search_report += f"; {len(from_imm)} immobiliare.it result(s) from the web search ignored"
     # The links behind the counts, so they can be read in the commit message without the run logs.
     rejected_links = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l in bad_links)
     unreadable = "; ".join(f"{l.get('addr', '?')} <{l.get('url', '?')}>" for l, why in unavailable
                            if availability.needs_hand_check(why))
     write_outputs(new_count=len(new_listings), summary=summary, search_report=search_report,
+                  immobiliare_report=imm["report"], immobiliare_error=imm_error,
                   promoted_count=len(promoted), promoted_summary=promoted_summary,
                   rejected_links=rejected_links, unreadable=unreadable)
 
@@ -558,7 +596,7 @@ def main():
 def write_outputs(**values):
     """Write step outputs for the workflow. Values are forced to one line: a newline
     in a model-provided string would otherwise inject extra outputs."""
-    limits = {"rejected_links": 1500, "unreadable": 1500}       # lists of links need more room than the one-line summaries
+    limits = {"rejected_links": 1500, "unreadable": 1500, "immobiliare_report": 800, "immobiliare_error": 800}       # lists of links need more room than the one-line summaries
     with open(os.environ.get("GITHUB_OUTPUT", "/dev/null"), "a") as f:
         for k, v in values.items():
             f.write(f"{k}={' '.join(str(v).split())[:limits.get(k, 500)]}\n")
