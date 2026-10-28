@@ -112,7 +112,8 @@ def parse_ad(text):
     t = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text or "")                  # drop image markdown (alt text says "Balcone" for photos)
     t = " ".join(t.split())
     g = lambda pat: (m.group(1) if (m := re.search(pat, t, re.I)) else None)
-    feat = re.search(r"Contratto\s+(\w+)\s+Piano\s+(\S+)(?:\s+Piani edificio\s+(\d+))?(?:\s+Ascensore\s+(Sì|No))?", t)
+    # floor text is free-form: "9", "T", "Piano rialzato", "Piano terra, piano rialzato", "Interrato (-1), 10" (seen on real pages 28 Oct)
+    feat = re.search(r"Contratto\s+(\w+)\s+Piano\s+(.+?)(?=\s+Piani edificio|\s+Ascensore|\s+Superficie|\s+Locali|$)(?:\s+Piani edificio\s+(\d+))?(?:\s+Ascensore\s+(Sì|No))?", t)
     m2 = g(r"Superficie\s+(\d+(?:[.,]\d+)?)\s*m²")
     price = g(r"Informazioni sul prezzo\s+Prezzo\s+€\s?(\d{1,3}(?:\.\d{3})+)")
     yes = lambda label: (None if (v := g(label + r"\s+(Sì|No)\b")) is None else v.lower() == "sì")
@@ -135,15 +136,19 @@ def parse_ad(text):
 
 
 def floor_text(raw, elevator):
-    r = (raw or "").strip().lower()
-    if r.isdigit():
-        base = f"{int(r)}° piano"
-    elif r in ("t", "terra"):
-        base = "Piano terra"
-    elif r in ("r", "rialzato"):
+    """Site wording for the floor. The page text is free-form; a positive number wins ("Interrato (-1), 10" = 10th floor)."""
+    r = re.sub(r"^piano\s+", "", (raw or "").strip().lower())
+    nums = [int(x) for x in re.findall(r"(?<![-\d])\d+", r)]
+    if nums:
+        base = f"{max(nums)}° piano"
+    elif "rialzato" in r and "terra" in r:
+        base = "Piano terra / rialzato"
+    elif "rialzato" in r or r == "r":
         base = "Piano rialzato"
-    elif r in ("s", "s1", "seminterrato"):
+    elif "seminterrato" in r or "interrato" in r or r in ("s", "s1"):
         base = "Seminterrato"
+    elif "terra" in r or r == "t":
+        base = "Piano terra"
     else:
         return "Da verificare"
     return base + ("" if elevator is None else " · ascensore" if elevator else " · senza ascensore")
@@ -194,7 +199,13 @@ def clean_text(s, limit):
     s = " ".join(str(s or "").split())
     if re.search(r"https?://|www\.|@|(?:\+?\d[\s./-]?){9,}", s):
         return ""
-    return s[:limit].rstrip()
+    if len(s) <= limit:
+        return s
+    cut = s[:limit]
+    dot = max(cut.rfind(". "), cut.rfind("."))                         # end at the last full sentence if there is a decent one
+    if dot >= limit // 3:
+        return cut[:dot + 1]
+    return cut[:cut.rfind(" ")].rstrip(",;:") + "…" if " " in cut else cut
 
 
 def parse_texts(texts):
@@ -262,8 +273,8 @@ def _fetch(client, url, prompt, max_tokens):
 SEARCH_PROMPT = "Open __URL__ with the web_fetch tool, then reply with the single word: done"
 AD_PROMPT = """Open this property ad with the web_fetch tool: __URL__
 Using ONLY what the ad page says, reply with ONLY this JSON (Italian text, no markdown):
-{"desc": "1-2 sentences describing the flat for a buyer; no price, no address, no agency, no phone, no e-mail",
- "outdoorNote": "one short sentence about the balcony/terrace/garden, only if the ad says something about it, else \\"\\"",
+{"desc": "at most 2 short sentences (under 250 characters in total) describing the flat for a buyer; no price, no address, no agency, no phone, no e-mail",
+ "outdoorNote": "one short sentence about the balcony/terrace/garden ONLY if the ad gives detail beyond its existence (size, view, exposure, access); otherwise \\"\\"",
  "naturaNote": "one short sentence about parks, river, hills or green areas near the flat, ONLY if the ad text says so (copy any walking time exactly as written), else \\"\\""}"""
 
 

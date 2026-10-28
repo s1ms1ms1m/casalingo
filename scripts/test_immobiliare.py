@@ -113,6 +113,13 @@ check("ad: m2 with decimals rounds", im.parse_ad(ad_page("133901445", m2="82,5 m
 # ── 3. small helpers ────────────────────────────────────────────────────────
 check("floor_text", [im.floor_text("9", True), im.floor_text("2", False), im.floor_text("T", True), im.floor_text("R", None), im.floor_text("3", None), im.floor_text("??", True), im.floor_text(None, None)]
       == ["9° piano · ascensore", "2° piano · senza ascensore", "Piano terra · ascensore", "Piano rialzato", "3° piano", "Da verificare", "Da verificare"])
+check("floor_text: the free-form forms seen on real pages", [im.floor_text("Piano rialzato", True), im.floor_text("Piano terra, piano rialzato", True), im.floor_text("Interrato (-1), 10", True),
+      im.floor_text("Seminterrato", None), im.floor_text("Piano terra", False), im.floor_text("-1", None)]
+      == ["Piano rialzato · ascensore", "Piano terra / rialzato · ascensore", "10° piano · ascensore", "Seminterrato", "Piano terra · senza ascensore", "Da verificare"])
+for raw, want in (("Piano rialzato Piani edificio 3 Ascensore Sì", ("Piano rialzato", True)), ("Interrato (-1), 10 Piani edificio 10 Ascensore Sì", ("Interrato (-1), 10", True)),
+                  ("Piano terra, piano rialzato Piani edificio 3 Ascensore No", ("Piano terra, piano rialzato", False)), ("9 Piani edificio 9 Ascensore Sì", ("9", True))):
+    pa = im.parse_ad(ad_page("133901445", floor="Piano " + raw))
+    check(f"ad: floor span read from the feature line ({raw[:28]})", (pa["floor_raw"], pa["elevator"]) == want, (pa["floor_raw"], pa["elevator"]))
 check("type_of", [im.type_of("Appartamento", 3), im.type_of("Appartamento", 6), im.type_of("Trilocale", 4), im.type_of("", 2), im.type_of("Attico", 4), im.type_of("Appartamento", None)]
       == ["Trilocale", "6 locali", "Trilocale", "Bilocale", "Attico", "Appartamento"])
 pins = {im.pin("Vanchiglia", n) for n in range(133000000, 133000200)}
@@ -120,7 +127,10 @@ check("pin: stays within ~150 m of the neighbourhood centre, spreads out", all(a
 check("pin: deterministic", im.pin("Cavoretto", "133901445") == im.pin("Cavoretto", "133901445"))
 check("next_id continues each prefix, c is shared by Gran Madre and Cavoretto", (im.next_id("Vanchiglia", {"v7", "v10", "vt2", "s3"}), im.next_id("Vanchiglietta", {"v7", "vt2"}), im.next_id("Gran Madre", {"c24", "c5"}), im.next_id("San Salvario", set())) == ("v11", "vt3", "c25", "s1"))
 check("clean_text drops urls, e-mails, phone numbers, long digit runs", [im.clean_text(x, 99) for x in ("vedi https://x.it", "scrivi a a@b.it", "chiama 011 123 4567", "tel +39 333 1234567")] == ["", "", "", ""])
-check("clean_text keeps normal sentences and caps the length", im.clean_text("Bilocale al 3° piano, 62 m².", 99) == "Bilocale al 3° piano, 62 m²." and len(im.clean_text("a" * 500, 50)) == 50)
+check("clean_text keeps normal sentences", im.clean_text("Bilocale al 3° piano, 62 m².", 99) == "Bilocale al 3° piano, 62 m².")
+long = "Primo periodo abbastanza lungo da stare nel limite. Secondo periodo che invece sfora il limite e viene tagliato a metà frase senza pietà."
+check("clean_text over the limit ends at the last full sentence, never mid-word", im.clean_text(long, 90) == "Primo periodo abbastanza lungo da stare nel limite.", im.clean_text(long, 90))
+check("clean_text with no usable sentence end cuts at a word and marks it", im.clean_text("parola " * 40, 50).endswith("…") and not im.clean_text("parola " * 40, 50)[:-1].endswith("paro"), im.clean_text("parola " * 40, 50))
 check("parse_texts takes the last JSON object with 'desc'", im.parse_texts(['ecco: {"x":1}', '{"desc":"ok","outdoorNote":"","naturaNote":""}'])["desc"] == "ok" and im.parse_texts(["niente"]) == {})
 
 # ── 4. examine (one ad page, every rejection path) ──────────────────────────
