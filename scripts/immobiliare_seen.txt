@@ -54,3 +54,48 @@
 133337068	2026-10-28	stale	copy of the ad page is 14 days old
 133328064	2026-10-28	added	read 2026-10-28, updated 08/10/2026
 133291170	2026-10-28	added	read 2026-10-28, updated 12/10/2026
+133988501	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133764808	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133726516	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133701186	2026-10-28	stale	copy of the ad page is 7 days old
+133626664	2026-10-28	stale	copy of the ad page is 9 days old
+133594110	2026-10-28	stale	copy of the ad page is 12 days old
+133559626	2026-10-28	added	read 2026-10-28, updated 15/10/2026
+133487684	2026-10-28	stale	copy of the ad page is 15 days old
+133468132	2026-10-28	mismatch	no contract type on the page (partial copy?)
+133337068	2026-10-28	stale	copy of the ad page is 14 days old
+133290254	2026-10-28	added	read 2026-10-28, updated 13/10/2026
+133275180	2026-10-28	added	read 2026-10-23, updated 19/10/2026
+133251708	2026-10-28	added	read 2026-10-28, updated 05/10/2026
+133241284	2026-10-28	stale	copy of the ad page is 20 days old
+133193252	2026-10-28	added	read 2026-10-28, updated 02/10/2026
+133178522	2026-10-28	stale	copy of the ad page is 25 days old
+133155568	2026-10-28	added	read 2026-10-25, updated 01/10/2026
+133152834	2026-10-28	added	read 2026-10-28, updated 07/10/2026
+133099594	2026-10-28	stale	copy of the ad page is 25 days old
+133016288	2026-10-28	stale	copy of the ad page is 23 days old
+133011616	2026-10-28	added	read 2026-10-22, updated 29/09/2026
+132941474	2026-10-28	added	read 2026-10-28, updated 30/09/2026
+132939890	2026-10-28	stale	copy of the ad page is 24 days old
+132915968	2026-10-28	stale	copy of the ad page is 29 days old
+132885620	2026-10-28	added	read 2026-10-28, updated 30/09/2026
+132885352	2026-10-28	added	read 2026-10-28, updated 28/09/2026
+132862030	2026-10-28	added	read 2026-10-25, updated 25/09/2026
+132737464	2026-10-28	stale	copy of the ad page is 15 days old
+132733474	2026-10-28	stale	copy of the ad page is 25 days old
+132660788	2026-10-28	added	read 2026-10-28, updated 07/10/2026
+132533738	2026-10-28	stale	copy of the ad page is 15 days old
+132525260	2026-10-28	added	read 2026-10-25, updated 18/09/2026
+132420722	2026-10-28	stale	copy of the ad page is 42 days old
+132379098	2026-10-28	added	read 2026-10-28, updated 23/10/2026
+132203210	2026-10-28	stale	copy of the ad page is 15 days old
+132084208	2026-10-28	added	read 2026-10-28, updated 27/10/2026
+132021130	2026-10-28	mismatch	no contract type on the page (partial copy?)
+132019990	2026-10-28	stale	copy of the ad page is 22 days old
+131869026	2026-10-28	added	read 2026-10-25, updated 12/10/2026
+131552652	2026-10-28	added	read 2026-10-28, updated 05/08/2026
+131548644	2026-10-28	stale	copy of the ad page is 15 days old
+131080142	2026-10-28	stale	copy of the ad page is 42 days old
+131029356	2026-10-28	mismatch	no contract type on the page (partial copy?)
+130982482	2026-10-28	added	read 2026-10-28, updated 15/09/2026
+130766584	2026-10-28	added	read 2026-10-28, updated 10/07/2026
