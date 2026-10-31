@@ -41,7 +41,7 @@ MODEL_JSON = json.dumps({"desc": "Trilocale luminoso al nono piano.", "outdoorNo
 class Fake:
     """Fake Anthropic client. pages: {url-or-ad-id: (text, retrieved_at)} | {key: "error"} | {key: "raise"}."""
     def __init__(self, pages, model_text=MODEL_JSON):
-        self.pages, self.model_text, self.calls = pages, model_text, []
+        self.pages, self.model_text, self.calls, self.urls = pages, model_text, [], []
         self.beta = NS(messages=NS(create=self._create))
     def _create(self, **kw):
         prompt = kw["messages"][0]["content"]; self.calls.append(kw)
@@ -52,6 +52,9 @@ class Fake:
         if hit is None and not m:                                    # search page: match on the zone slug (+ page)
             for k, v in self.pages.items():
                 if not k.isdigit() and k in url and (("pag=2" in url) == ("pag=2" in k)): hit = v; break
+        if isinstance(hit, list):                                    # one answer per URL variant: [plain, +cb, price floor shifted]
+            hit = hit[0 if "cb=" not in url else 1 if "prezzoMinimo=180000" in url else 2]
+        self.urls.append(url)
         if hit == "raise": raise RuntimeError("boom")
         blocks = [NS(type="server_tool_use", name="web_fetch", input={"url": url})]
         if hit is None or hit == "error":
@@ -253,6 +256,37 @@ r, _ = disc(pages_for("133901445", extra={"133803572": "raise", "133948517": "ra
 check("discover: one failing ad does not stop the others (and is not recorded: it is tried again tomorrow)", [l["url"].split("/")[-2] for l in r["listings"]] == ["133901445"] and {x[0] for x in r["seen_rows"]} == {"133901445"}, r["seen_rows"])
 r, _ = disc(pages_for("133901445", extra={"133803572": "error", "133948517": (GONE, iso(hours=1))}))
 check("discover: unreadable / gone ads are recorded with their status", dict((x[0], x[2]) for x in r["seen_rows"]) == {"133901445": "added", "133803572": "unreadable", "133948517": "gone"}, r["seen_rows"])
+
+# ── 5b. stale stored copies: the same page is re-requested under other URLs (29 Oct 2026: all 5 pages were 1.7 days old)
+OLD = iso(days=1.7)
+fresh_p = lambda ids: search_page(card("133901445", "€ 195.000", "Trilocale corso Belgio 24, Vanchiglia, Torino"))
+SS = pages_for("133901445")["san-salvario"]
+def cached(*variants):
+    return {"vanchiglia": list(variants), "san-salvario": SS}
+V_OLD = (fresh_p(0), OLD); V_NEW = (fresh_p(0), iso(hours=1))
+for name, variants, tries in (("2nd try (extra parameter)", [V_OLD, V_NEW, V_NEW], 2), ("3rd try (price floor shifted)", [V_OLD, V_OLD, V_NEW], 3)):
+    pg = pages_for("133901445"); pg["vanchiglia"] = list(variants)
+    r, fake = disc(pg)
+    vu = [u for u in fake.urls if "vanchiglia" in u]
+    check(f"stale copy, live on the {name}: page used, listing found, report says how many tries", len(r["listings"]) >= 1 and f"after {tries} tries (first stale copy" in " ".join(r["details"]) and len(vu) == tries and "2/2 search pages" in r["report"], (r["report"], r["details"][:2], vu))
+pg = pages_for("133901445"); pg["vanchiglia"] = ["error", "error", V_NEW]
+r, fake = disc(pg)
+check("unreadable twice, live on the 3rd try: used", any(x.startswith("vanchiglia: 1 ads, live copy") for x in r["details"]) and any("first not readable" in x for x in r["details"]), r["details"][:2])
+pg = pages_for("133901445"); pg["vanchiglia"] = [V_OLD, V_OLD, V_OLD]
+r, fake = disc(pg)
+check("stale under every variant: page not used, 3 tries made, every reason reported; the other page still works", len([u for u in fake.urls if "vanchiglia" in u]) == 3 and any("stale copy" in x and "same after 3 tries" in x for x in r["details"]) and "1/2 search pages" in r["report"], r["details"][:2])
+try:
+    disc({"vanchiglia": [V_OLD] * 3, "san-salvario": [V_OLD] * 3}); check("all pages stale under every variant -> ImmobiliareError", False)
+except im.ImmobiliareError as e:
+    check("all pages stale under every variant -> ImmobiliareError naming the cause", "stale copy" in str(e) and "after 3 tries" in str(e), str(e)[:200])
+r, fake = disc(pages_for("133901445"))
+check("a live plain URL costs exactly one fetch per page (no needless retries)", [u for u in fake.urls if "annunci" not in u and "cb=" in u] == [] and len([u for u in fake.urls if "vanchiglia" in u]) == 1)
+us = im.page_urls("vanchiglia", 1, NOW); us2 = im.page_urls("vanchiglia", 2, NOW)
+check("page_urls: 3 distinct URLs, first is the plain one", len(set(us)) == 3 and us[0] == im.BASE.format(slug="vanchiglia") and us[1].startswith(us[0] + "&cb=") and "cb=" not in us[0], us)
+check("page_urls: 3rd variant lowers the price floor by 1-97 euros; the budget filter in code still drops anything under 180,000", re.search(r"prezzoMinimo=(\d+)", us[2]) and 179903 <= int(re.search(r"prezzoMinimo=(\d+)", us[2]).group(1)) <= 179999 and "prezzoMassimo=700000" in us[2] and "localiMinimo=2" in us[2], us[2])
+check("page_urls: page 2 keeps &pag=2 in every variant; variants change with the time", all("pag=2" in u for u in us2) and im.page_urls("vanchiglia", 1, NOW + datetime.timedelta(seconds=5)) != us)
+under = search_page(card("133555551", "€ 179.950", "Trilocale via Po 2, Vanchiglia, Torino"))
+check("an ad priced just under the floor (possible on the shifted URL) is still filtered out", im.parse_cards(under)[0]["price"] == 179950 and not (im.PRICE_MIN <= 179950 <= im.PRICE_MAX))
 
 # ── 6. seen file ────────────────────────────────────────────────────────────
 with tempfile.TemporaryDirectory() as d:

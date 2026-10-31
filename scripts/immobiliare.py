@@ -295,34 +295,55 @@ Using ONLY what the ad page says, reply with ONLY this JSON (Italian text, no ma
  "naturaNote": "one short sentence about parks, river, hills or green areas near the flat, ONLY if the ad text says so (copy any walking time exactly as written), else \\"\\""}"""
 
 
+def page_urls(slug, page, now):
+    """The URLs to try for one search page, in order. The fetcher caches pages by URL and serves stored copies (29 Oct: all 5
+    pages were 1.7 days old, the exact minute of the first test fetch, because every run asked for the same URLs). A different
+    URL is a different cache entry, so after the plain URL come two variants the portal answers identically:
+    an extra query parameter, then a price floor lowered by a few euros (ads under 180,000 are dropped by the code anyway)."""
+    stamp = int(now.timestamp())
+    plain = BASE.format(slug=slug) + (f"&pag={page}" if page > 1 else "")
+    shifted = plain.replace("prezzoMinimo=180000", f"prezzoMinimo={180000 - (stamp % 97 + 1)}")
+    return [plain, f"{plain}&cb={stamp}", f"{shifted}&cb={stamp + 1}"]
+
+
 def read_search_pages(client, now, pages=SEARCH_PAGES):
-    """([cards], [page report lines], tokens). A page is used only if it is a live copy with ads; others are reported."""
+    """([cards], [page report lines], tokens, pages ok). A page is used only if it is a live copy (SEARCH_MAX_AGE_H) with ads.
+    A stale or unreadable copy is re-requested under the other URL variants of page_urls(); the report says how many tries it took."""
     cards, report, tokens, ok = {}, [], 0, 0
     for label, slug, page in pages:
-        url = BASE.format(slug=slug) + (f"&pag={page}" if page > 1 else "")
-        try:
-            f, _, tok = _fetch(client, url, SEARCH_PROMPT, 200)
-        except Exception as e:                                           # noqa: BLE001
-            report.append(f"{label}: API error {type(e).__name__}")
-            print(f"  search page {label}: {type(e).__name__}: {str(e)[:200]}", file=sys.stderr)
-            continue
-        tokens += tok
-        age = age_days(f["retrieved_at"], now) if f["fetched"] else None
-        found = parse_cards(f["text"]) if f["fetched"] else []
-        if not f["fetched"]:
-            why = ",".join(f["errors"]) or ("fetch tool not used" if not f["called"] else "empty page")
-            report.append(f"{label}: not readable ({why})")
-        elif age is None:
-            report.append(f"{label}: no retrieval date")
-        elif age * 24 > SEARCH_MAX_AGE_H:
-            report.append(f"{label}: stale copy ({age:.1f} days old), not used")
-        elif not found:
-            report.append(f"{label}: no ads found in the page text")
-        else:
+        tries, problems, used = 0, [], None
+        for url in page_urls(slug, page, now):
+            tries += 1
+            try:
+                f, _, tok = _fetch(client, url, SEARCH_PROMPT, 200)
+            except Exception as e:                                       # noqa: BLE001
+                problems.append(f"API error {type(e).__name__}")
+                print(f"  search page {label} (try {tries}): {type(e).__name__}: {str(e)[:200]}", file=sys.stderr)
+                continue
+            tokens += tok
+            age = age_days(f["retrieved_at"], now) if f["fetched"] else None
+            found = parse_cards(f["text"]) if f["fetched"] else []
+            if not f["fetched"]:
+                why = ",".join(f["errors"]) or ("fetch tool not used" if not f["called"] else "empty page")
+                problems.append(f"not readable ({why})")
+            elif age is None:
+                problems.append("no retrieval date")
+            elif age * 24 > SEARCH_MAX_AGE_H:
+                problems.append(f"stale copy ({age:.1f} days old)")
+            elif not found:
+                problems.append("no ads found in the page text")
+            else:
+                used = (found, age)
+                break
+        if used:
+            found, age = used
             ok += 1
-            report.append(f"{label}: {len(found)} ads, live copy ({age * 24:.1f} h old)")
+            report.append(f"{label}: {len(found)} ads, live copy ({age * 24:.1f} h old)"
+                          + ("" if tries == 1 else f", after {tries} tries (first {problems[0]})"))
             for c in found:
                 cards.setdefault(c["id"], c)
+        else:
+            report.append(f"{label}: {problems[0]}, not used" + ("" if tries == 1 else f" (same after {tries} tries: {'; '.join(dict.fromkeys(problems))})"))
         print(f"  search page {report[-1]}")
     if ok == 0:
         raise ImmobiliareError("no immobiliare.it search page could be read as a live copy: " + "; ".join(report))
