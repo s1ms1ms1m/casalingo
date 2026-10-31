@@ -53,7 +53,7 @@ class Fake:
             for k, v in self.pages.items():
                 if not k.isdigit() and k in url and (("pag=2" in url) == ("pag=2" in k)): hit = v; break
         if isinstance(hit, list):                                    # one answer per URL variant: [plain, +cb, price floor shifted]
-            hit = hit[0 if "cb=" not in url else 1 if "prezzoMinimo=180000" in url else 2]
+            hit = hit[0 if "cb=" not in url else 1 if ("prezzoMinimo=180000" in url or len(hit) == 2) else 2]
         self.urls.append(url)
         if hit == "raise": raise RuntimeError("boom")
         blocks = [NS(type="server_tool_use", name="web_fetch", input={"url": url})]
@@ -184,6 +184,27 @@ try:
 except RuntimeError:
     check("examine: API exception propagates (discover decides what it means)", True)
 
+# ── 4b. ad pages: unreadable or partial copy -> asked once more under a new URL
+PARTIAL = ad_page("133901445").replace("Contratto Vendita ", "Contratto ")                      # right ad, sale details missing
+def ex2(variants, aid="133901445"):
+    fk = Fake({aid: variants}); out = im.examine(fk, C, TODAY, NOW)
+    return out, [u for u in fk.urls if aid in u]
+GOOD = (ad_page("133901445"), iso(hours=1))
+(l_, st_, note_, tok_), urls_ = ex2(GOOD)
+check("ad read: a good page costs one fetch (no retry)", st_ == "added" and len(urls_) == 1 and "cb=" not in urls_[0], urls_)
+(l_, st_, note_, tok_), urls_ = ex2([(PARTIAL, iso(hours=1)), GOOD])
+check("ad read: partial copy on the plain URL, full page on the retry -> added, 2 fetches, listing keeps the clean URL", st_ == "added" and len(urls_) == 2 and "?cb=" in urls_[1] and l_["url"] == C["url"] and tok_ == 2100, (st_, urls_, l_ and l_["url"]))
+(l_, st_, note_, tok_), urls_ = ex2(["error", GOOD])
+check("ad read: unreadable on the plain URL, readable on the retry -> added", st_ == "added" and len(urls_) == 2, (st_, urls_))
+(l_, st_, note_, tok_), urls_ = ex2([(PARTIAL, iso(hours=1)), (PARTIAL, iso(hours=1))])
+check("ad read: partial both times -> mismatch (retried on a later day), exactly 2 fetches", st_ == "mismatch" and len(urls_) == 2 and "no contract type" in note_, (st_, urls_, note_))
+(l_, st_, note_, tok_), urls_ = ex2(["error", "error"])
+check("ad read: unreadable both times -> unreadable, exactly 2 fetches", st_ == "unreadable" and len(urls_) == 2, (st_, urls_))
+(l_, st_, note_, tok_), urls_ = ex2([(GONE, iso(hours=1)), GOOD])
+check("ad read: a 'gone' page is final and is NOT retried", st_ == "gone" and len(urls_) == 1, (st_, urls_))
+(l_, st_, note_, tok_), urls_ = ex2([(ad_page("133901445", canonical="199999999"), iso(hours=1)), GOOD])
+check("ad read: another ad's page (canonical differs) is NOT retried either", st_ == "mismatch" and len(urls_) == 1, (st_, urls_))
+
 # ── 5. discover ─────────────────────────────────────────────────────────────
 P1 = [("vanchiglia", "vanchiglia", 1), ("san-salvario", "san-salvario", 1)]
 def pages_for(*ids, extra=None):
@@ -268,6 +289,7 @@ for name, variants, tries in (("2nd try (extra parameter)", [V_OLD, V_NEW, V_NEW
     pg = pages_for("133901445"); pg["vanchiglia"] = list(variants)
     r, fake = disc(pg)
     vu = [u for u in fake.urls if "vanchiglia" in u]
+    check(f"stale copy, live on the {name}: the summary line counts the retried page", "(1 needed a retry)" in r["report"], r["report"])
     check(f"stale copy, live on the {name}: page used, listing found, report says how many tries", len(r["listings"]) >= 1 and f"after {tries} tries (first stale copy" in " ".join(r["details"]) and len(vu) == tries and "2/2 search pages" in r["report"], (r["report"], r["details"][:2], vu))
 pg = pages_for("133901445"); pg["vanchiglia"] = ["error", "error", V_NEW]
 r, fake = disc(pg)

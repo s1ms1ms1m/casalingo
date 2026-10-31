@@ -354,10 +354,17 @@ def examine(client, card, today, now):
     """Read one ad page. -> (listing dict or None, status, note, tokens). Status is a key of PERMANENT/RETRYABLE or 'added'."""
     try:
         f, texts, tok = _fetch(client, card["url"], AD_PROMPT, 700)
+        ad = parse_ad(f["text"]) if f["fetched"] else None
+        if not f["fetched"] or (ad["canonical_id"] == card["id"] and ad["contract"] is None):
+            # unreadable, or a partial copy (right ad, no sale details): 20 of 105 ad reads on 28-31 Oct. The fetcher caches by URL,
+            # so ask once more under a new URL (the listing keeps the clean one).
+            f2, texts2, tok2 = _fetch(client, f"{card['url']}?cb={int(now.timestamp())}", AD_PROMPT, 700)
+            tok += tok2
+            if f2["fetched"]:
+                f, texts, ad = f2, texts2, parse_ad(f2["text"])
     except Exception as e:                                               # noqa: BLE001
         print(f"  ad {card['id']}: {type(e).__name__}: {str(e)[:200]}", file=sys.stderr)
         raise
-    ad = parse_ad(f["text"]) if f["fetched"] else None
     if not f["fetched"]:
         why = ",".join(f["errors"]) or ("fetch tool not used" if not f["called"] else "empty page")
         return None, "unreadable", f"page not fetchable ({why})", tok
@@ -453,8 +460,9 @@ def discover(client, existing, removed_urls, seen, today=None, now=None, max_exa
         print(f"  ad {lines[-1]}")
     if batch and errors == len(batch):
         raise ImmobiliareError(f"all {errors} ad reads raised an exception (see log); nothing was added")
+    retried = sum(1 for x in page_report if " tries" in x and " live copy" in x)
     skipped = " ".join(f"{k} {v}" for k, v in counts.items() if v and k != "cards")
-    report = (f"immobiliare.it read live: {pages_ok}/{len(pages)} search pages, {counts['cards']} ads"
+    report = (f"immobiliare.it read live: {pages_ok}/{len(pages)} search pages" + (f" ({retried} needed a retry)" if retried else "") + f", {counts['cards']} ads"
               f" ({skipped or 'none filtered'}); {len(todo)} new to examine, {len(batch)} examined today"
               f" ({', '.join(f'{k} {v}' for k, v in sorted(outcome.items())) or 'none'}), {len(listings)} added"
               + (f", {len(todo) - len(batch)} wait for the next run" if len(todo) > len(batch) else ""))

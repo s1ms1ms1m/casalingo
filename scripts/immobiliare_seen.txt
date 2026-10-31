@@ -1,7 +1,6 @@
 # immobiliare.it ads already examined: id<TAB>date<TAB>status<TAB>note. Statuses added/no_outdoor/few_rooms/gone/not_for_sale are final; unreadable/stale/mismatch are retried on up to 3 days. Written by the daily job.
 134002961	2026-10-28	added	read 2026-10-27, updated 27/10/2026
 134002797	2026-10-28	added	read 2026-10-28, updated 27/10/2026
-133988501	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133948517	2026-10-28	added	read 2026-10-28, updated 27/10/2026
 133928639	2026-10-28	no_outdoor	no balcony, terrace or garden stated
 133915885	2026-10-28	added	read 2026-10-28, updated 27/10/2026
@@ -9,7 +8,6 @@
 133904129	2026-10-28	added	read 2026-10-28, updated 27/10/2026
 133901445	2026-10-28	added	read 2026-10-27, updated 26/10/2026
 133891574	2026-10-28	added	read 2026-10-28, updated 26/10/2026
-133988501	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133886182	2026-10-28	no_outdoor	no balcony, terrace or garden stated
 133830966	2026-10-28	added	read 2026-10-28, updated 26/10/2026
 133827774	2026-10-28	no_outdoor	no balcony, terrace or garden stated
@@ -18,12 +16,10 @@
 133790708	2026-10-28	added	read 2026-10-25, updated 23/10/2026
 133770056	2026-10-28	added	read 2026-10-28, updated 21/10/2026
 133768258	2026-10-28	added	read 2026-10-23, updated 21/10/2026
-133764808	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133733220	2026-10-28	added	read 2026-10-25, updated 20/10/2026
 133728870	2026-10-28	added	read 2026-10-28, updated 20/10/2026
 133727810	2026-10-28	added	read 2026-10-26, updated 20/10/2026
 133726910	2026-10-28	added	read 2026-10-28, updated 22/10/2026
-133726516	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133725986	2026-10-28	added	read 2026-10-28, updated 20/10/2026
 133724260	2026-10-28	added	read 2026-10-25, updated 20/10/2026
 133723304	2026-10-28	added	read 2026-10-28, updated 27/10/2026
@@ -47,22 +43,17 @@
 133540708	2026-10-28	no_outdoor	no balcony, terrace or garden stated
 133533786	2026-10-28	added	read 2026-10-23, updated 22/10/2026
 133487684	2026-10-28	stale	copy of the ad page is 15 days old
-133468132	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133402800	2026-10-28	added	read 2026-10-28, updated 09/10/2026
 133384428	2026-10-28	added	read 2026-10-22, updated 08/10/2026
 133366902	2026-10-28	added	read 2026-10-21, updated 12/10/2026
 133337068	2026-10-28	stale	copy of the ad page is 14 days old
 133328064	2026-10-28	added	read 2026-10-28, updated 08/10/2026
 133291170	2026-10-28	added	read 2026-10-28, updated 12/10/2026
-133988501	2026-10-28	mismatch	no contract type on the page (partial copy?)
-133764808	2026-10-28	mismatch	no contract type on the page (partial copy?)
-133726516	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133701186	2026-10-28	stale	copy of the ad page is 7 days old
 133626664	2026-10-28	stale	copy of the ad page is 9 days old
 133594110	2026-10-28	stale	copy of the ad page is 12 days old
 133559626	2026-10-28	added	read 2026-10-28, updated 15/10/2026
 133487684	2026-10-28	stale	copy of the ad page is 15 days old
-133468132	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133337068	2026-10-28	stale	copy of the ad page is 14 days old
 133290254	2026-10-28	added	read 2026-10-28, updated 13/10/2026
 133275180	2026-10-28	added	read 2026-10-23, updated 19/10/2026
@@ -90,21 +81,17 @@
 132379098	2026-10-28	added	read 2026-10-28, updated 23/10/2026
 132203210	2026-10-28	stale	copy of the ad page is 15 days old
 132084208	2026-10-28	added	read 2026-10-28, updated 27/10/2026
-132021130	2026-10-28	mismatch	no contract type on the page (partial copy?)
 132019990	2026-10-28	stale	copy of the ad page is 22 days old
 131869026	2026-10-28	added	read 2026-10-25, updated 12/10/2026
 131552652	2026-10-28	added	read 2026-10-28, updated 05/08/2026
 131548644	2026-10-28	stale	copy of the ad page is 15 days old
 131080142	2026-10-28	stale	copy of the ad page is 42 days old
-131029356	2026-10-28	mismatch	no contract type on the page (partial copy?)
 130982482	2026-10-28	added	read 2026-10-28, updated 15/09/2026
 130766584	2026-10-28	added	read 2026-10-28, updated 10/07/2026
-133764808	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133701186	2026-10-28	no_outdoor	no balcony, terrace or garden stated
 133626664	2026-10-28	no_outdoor	no balcony, terrace or garden stated
 133594110	2026-10-28	added	copy of 2026-10-28 (-0 d old), updated 15/10/2026
 133487684	2026-10-28	added	copy of 2026-10-13 (15 d old), updated 13/10/2026
-133468132	2026-10-28	mismatch	no contract type on the page (partial copy?)
 133337068	2026-10-28	added	copy of 2026-10-14 (14 d old), updated 07/10/2026
 133241284	2026-10-28	added	copy of 2026-10-07 (20 d old), updated 06/10/2026
 133099594	2026-10-28	added	copy of 2026-10-02 (25 d old), updated 30/09/2026
@@ -116,11 +103,7 @@
 132533738	2026-10-28	added	copy of 2026-10-13 (15 d old), updated 23/09/2026
 132420722	2026-10-28	added	copy of 2026-09-15 (42 d old), updated 15/09/2026
 132203210	2026-10-28	added	copy of 2026-10-13 (15 d old), updated 05/09/2026
-132021130	2026-10-28	mismatch	no contract type on the page (partial copy?)
-132019990	2026-10-28	mismatch	ad page price 499000 is not among the card prices [439000]
 131548644	2026-10-28	added	copy of 2026-10-28 (-0 d old), updated 05/08/2026
-131080142	2026-10-28	mismatch	ad page price 299000 is not among the card prices [285000]
-131029356	2026-10-28	mismatch	no contract type on the page (partial copy?)
 130651586	2026-10-28	added	copy of 2026-10-26 (1 d old), updated 06/10/2026
 130490566	2026-10-28	added	copy of 2026-10-28 (0 d old), updated 23/07/2026
 130198066	2026-10-28	added	copy of 2026-10-28 (-0 d old), updated 15/09/2026
@@ -137,6 +120,3 @@
 134053411	2026-10-31	no_outdoor	no balcony, terrace or garden stated
 134003293	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 28/10/2026
 132666338	2026-10-31	added	copy of 2026-10-13 (18 d old), updated 07/10/2026
-132021130	2026-10-31	mismatch	no contract type on the page (partial copy?)
-132019990	2026-10-31	mismatch	ad page price 499000 is not among the card prices [439000]
-131080142	2026-10-31	mismatch	ad page price 299000 is not among the card prices [285000]
