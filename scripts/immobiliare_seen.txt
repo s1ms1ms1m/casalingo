@@ -130,3 +130,13 @@
 128750344	2026-10-28	added	copy of 2026-10-22 (6 d old), updated 15/07/2026
 128426082	2026-10-28	added	copy of 2026-09-16 (42 d old), updated 31/07/2026
 134045907	2026-10-30	added	copy of 2026-10-30 (-0 d old), updated 28/10/2026
+134230089	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 30/10/2026
+134141459	2026-10-31	added	copy of 2026-10-31 (0 d old), updated 30/10/2026
+134126825	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 29/10/2026
+134054761	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 29/10/2026
+134053411	2026-10-31	no_outdoor	no balcony, terrace or garden stated
+134003293	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 28/10/2026
+132666338	2026-10-31	added	copy of 2026-10-13 (18 d old), updated 07/10/2026
+132021130	2026-10-31	mismatch	no contract type on the page (partial copy?)
+132019990	2026-10-31	mismatch	ad page price 499000 is not among the card prices [439000]
+131080142	2026-10-31	mismatch	ad page price 299000 is not among the card prices [285000]
