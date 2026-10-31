@@ -120,3 +120,9 @@
 134053411	2026-10-31	no_outdoor	no balcony, terrace or garden stated
 134003293	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 28/10/2026
 132666338	2026-10-31	added	copy of 2026-10-13 (18 d old), updated 07/10/2026
+133988501	2026-10-31	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
+133764808	2026-10-31	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
+132021130	2026-10-31	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
+132019990	2026-10-31	added	copy of 2026-10-06 (25 d old), updated 05/10/2026, page copy said €499,000, today's card says €439,000: card used
+131080142	2026-10-31	added	copy of 2026-09-16 (45 d old), updated 17/07/2026, page copy said €299,000, today's card says €285,000: card used
+131029356	2026-10-31	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
