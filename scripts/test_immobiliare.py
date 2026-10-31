@@ -167,7 +167,16 @@ rejected(ad_page("133901445", canonical="199999999"), "mismatch")               
 rejected(ad_page("133901445", contract="Affitto"), "not_for_sale")
 rejected(ad_page("133901445"), "stale", when=iso(days=70))
 rejected(ad_page("133901445"), "stale", when="garbage")
-rejected(ad_page("133901445", price="230.000"), "mismatch")                                          # page price not on the card
+rejected(ad_page("133901445", price="300.000"), "mismatch")                                          # page price far from the card (54 %): not trusted
+lp, stp, notep, _ = ex(ad_page("133901445", price="230.000"))                                        # 18 % off: an older copy from before a price change
+check("examine: page copy with an older price (within 25 %) -> listing uses TODAY'S card price and the note says so", stp == "added" and lp["price"] == 195000 and "230,000" in notep and "195,000" in notep, (stp, notep))
+rejected(ad_page("133901445", contract="Vendita | Immobile a reddito"), "not_for_sale")             # rented out with a tenant
+rejected(ad_page("133901445", contract="Vendita | Nuda proprietà"), "not_for_sale")
+rejected(ad_page("133901445", contract="Vendita | Asta"), "not_for_sale")
+lq, stq, noteq, _ = ex(ad_page("133901445", contract="Vendita | Libero"))
+check("examine: an unknown, harmless qualifier after 'Vendita |' does not block the ad", stq == "added" and lq["floor"] == "9° piano · ascensore", (stq, noteq))
+pq = im.parse_ad(ad_page("133901445", contract="Vendita | Immobile a reddito", floor="Piano Piano rialzato Piani edificio 5"))
+check("ad: qualifier after the pipe is read, and the floor/elevator after it still parse", (pq["contract"], pq["contract_note"], pq["floor_raw"]) == ("vendita", "Immobile a reddito", "Piano rialzato"), pq)
 rejected(ad_page("133901445", locali="1"), "few_rooms")
 rejected(ad_page("133901445", balcone="No", terrazzo="No"), "no_outdoor")
 rejected("Pagina senza dati dell'annuncio. canonical: https://www.immobiliare.it/annunci/133901445/", "mismatch")

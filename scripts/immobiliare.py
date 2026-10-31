@@ -41,6 +41,7 @@ SEARCH_PAGES = [                      # (label, slug, page): newest first; Vanch
 ]
 PRICE_MIN, PRICE_MAX = 180_000, 700_000
 SEARCH_MAX_AGE_H = 24                 # a search page must be a live copy; an older one may list sold ads
+PRICE_TOLERANCE = 0.25                # largest page-copy vs card price difference read as "the price changed"
 AD_COPY_MAX_AGE_DAYS = 60             # the fetcher serves stored copies of ad pages (7-42 days old seen on 28 Oct). Liveness is proven by the
                                       # search card read today and the page price must equal the card price, so an old copy only feeds features
 def max_examine_from(value, default=10, ceiling=100):
@@ -57,6 +58,7 @@ MAX_EXAMINE = max_examine_from(os.environ.get("IMMOBILIARE_MAX_EXAMINE"))
 RETRY_LIMIT = 3                       # an ad that could not be read is retried on 3 different days, then dropped
 
 SEEN_PATH = os.path.join(os.path.dirname(__file__), "immobiliare_seen.txt")
+NOT_FOR_LIVING = ("nuda proprietà", "a reddito", "asta")      # sale qualifiers after "Vendita |": bare ownership, rented out with a tenant, auction
 PERMANENT = {"added", "no_outdoor", "few_rooms", "gone", "not_for_sale"}      # never examined again
 RETRYABLE = {"unreadable", "stale", "mismatch"}                                # examined again, up to RETRY_LIMIT times
 
@@ -124,7 +126,8 @@ def parse_ad(text):
     t = " ".join(t.split())
     g = lambda pat: (m.group(1) if (m := re.search(pat, t, re.I)) else None)
     # floor text is free-form: "9", "T", "Piano rialzato", "Piano terra, piano rialzato", "Interrato (-1), 10" (seen on real pages 28 Oct)
-    feat = re.search(r"Contratto\s+(\w+)\s+Piano\s+(.+?)(?=\s+Piani edificio|\s+Ascensore|\s+Superficie|\s+Locali|$)(?:\s+Piani edificio\s+(\d+))?(?:\s+Ascensore\s+(Sì|No))?", t)
+    # "Contratto Vendita Piano 9 ..." or, for some ads, "Contratto Vendita | Immobile a reddito Piano 3 ..." (a qualifier after a pipe: 28-31 Oct)
+    feat = re.search(r"Contratto\s+(\w+)(?:\s*\|\s*(.+?))?\s+Piano\s+(.+?)(?=\s+Piani edificio|\s+Ascensore|\s+Superficie|\s+Locali|$)(?:\s+Piani edificio\s+(\d+))?(?:\s+Ascensore\s+(Sì|No))?", t)
     m2 = g(r"Superficie\s+(\d+(?:[.,]\d+)?)\s*m²")
     price = g(r"Informazioni sul prezzo\s+Prezzo\s+€\s?(\d{1,3}(?:\.\d{3})+)")
     yes = lambda label: (None if (v := g(label + r"\s+(Sì|No)\b")) is None else v.lower() == "sì")
@@ -133,8 +136,9 @@ def parse_ad(text):
     return {
         "canonical_id": g(r"canonical:\s*https://www\.immobiliare\.it/annunci/(\d+)"),
         "contract": feat.group(1).lower() if feat else None,
-        "floor_raw": feat.group(2) if feat else None,
-        "elevator": None if not feat or not feat.group(4) else feat.group(4) == "Sì",
+        "contract_note": (feat.group(2) or "").strip() if feat else "",
+        "floor_raw": feat.group(3) if feat else None,
+        "elevator": None if not feat or not feat.group(5) else feat.group(5) == "Sì",
         "m2": round(float(m2.replace(",", "."))) if m2 else None,
         "rooms": int(locali) if locali else None,
         "price": int(price.replace(".", "")) if price else None,
@@ -376,11 +380,21 @@ def examine(client, card, today, now):
         return None, "mismatch", "no contract type on the page (partial copy?)", tok
     if ad["contract"] != "vendita":
         return None, "not_for_sale", f"contract type {ad['contract']!r}", tok
+    if any(w in ad["contract_note"].lower() for w in NOT_FOR_LIVING):
+        return None, "not_for_sale", f"sale type '{ad['contract_note'][:40]}' (bare ownership, rented out or auction)", tok
     age = age_days(f["retrieved_at"], now)
     if age is None or age > AD_COPY_MAX_AGE_DAYS:
         return None, "stale", f"copy of the ad page is {'of unknown age' if age is None else f'{age:.0f} days old'}", tok
-    if ad["price"] is None or ad["price"] not in card["prices"]:
-        return None, "mismatch", f"ad page price {ad['price']} is not among the card prices {card['prices']}", tok
+    price_note = ""
+    if ad["price"] is None:
+        return None, "mismatch", "no price on the ad page", tok
+    if ad["price"] not in card["prices"]:
+        # The page may be a stored copy from before a price change. The canonical ID already proves it is this ad and the card was
+        # read today, so a moderate difference means "the price changed": the card's price is used. A big one is not trusted.
+        if not card["price"] or abs(ad["price"] - card["price"]) / card["price"] > PRICE_TOLERANCE:
+            return None, "mismatch", f"ad page price {ad['price']} is far from the card prices {card['prices']}", tok
+        price_note = f", page copy said €{ad['price']:,}, today's card says €{card['price']:,}: card used"
+        ad["price"] = card["price"]
     if not (PRICE_MIN <= ad["price"] <= PRICE_MAX):
         return None, "mismatch", f"price {ad['price']} outside the budget", tok
     if ad["rooms"] is None or ad["rooms"] < 2:
@@ -401,7 +415,7 @@ def examine(client, card, today, now):
         "desc": clean_text(model.get("desc"), 320) or fallback, "url": card["url"], "img": ad["image"] or "",
         "src": "immobiliare.it", "top": False, "published": today,
     }
-    return listing, "added", f"copy of {str(f['retrieved_at'])[:10]} ({age:.0f} d old), updated {ad['updated'] or '?'}", tok
+    return listing, "added", f"copy of {str(f['retrieved_at'])[:10]} ({age:.0f} d old), updated {ad['updated'] or '?'}{price_note}", tok
 
 
 def discover(client, existing, removed_urls, seen, today=None, now=None, max_examine=MAX_EXAMINE, pages=SEARCH_PAGES):

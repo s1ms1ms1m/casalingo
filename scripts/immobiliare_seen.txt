@@ -120,9 +120,3 @@
 134053411	2026-10-31	no_outdoor	no balcony, terrace or garden stated
 134003293	2026-10-31	added	copy of 2026-10-31 (-0 d old), updated 28/10/2026
 132666338	2026-10-31	added	copy of 2026-10-13 (18 d old), updated 07/10/2026
-133988501	2026-10-31	mismatch	no contract type on the page (partial copy?)
-133764808	2026-10-31	mismatch	no contract type on the page (partial copy?)
-132021130	2026-10-31	mismatch	no contract type on the page (partial copy?)
-132019990	2026-10-31	mismatch	ad page price 499000 is not among the card prices [439000]
-131080142	2026-10-31	mismatch	ad page price 299000 is not among the card prices [285000]
-131029356	2026-10-31	mismatch	no contract type on the page (partial copy?)
