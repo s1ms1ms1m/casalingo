@@ -157,3 +157,7 @@
 134557669	2026-11-09	added	copy of 2026-11-09 (-0 d old), updated 09/11/2026
 134473001	2026-11-09	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
 133721052	2026-11-09	added	copy of 2026-10-22 (18 d old), updated 20/10/2026
+134580157	2026-11-10	added	copy of 2026-11-10 (-0 d old), updated 10/11/2026
+134577765	2026-11-10	added	copy of 2026-11-09 (1 d old), updated 09/11/2026
+134569157	2026-11-10	added	copy of 2026-11-09 (1 d old), updated 09/11/2026
+134566779	2026-11-10	added	copy of 2026-11-10 (-0 d old), updated 09/11/2026
