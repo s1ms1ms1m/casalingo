@@ -166,3 +166,11 @@
 134610939	2026-11-11	added	copy of 2026-11-11 (0 d old), updated 10/11/2026
 134605475	2026-11-11	added	copy of 2026-11-10 (1 d old), updated 10/11/2026
 134603331	2026-11-11	added	copy of 2026-11-11 (-0 d old), updated 11/11/2026
+134677655	2026-11-12	added	copy of 2026-11-12 (-0 d old), updated 12/11/2026
+134677653	2026-11-12	added	copy of 2026-11-12 (-0 d old), updated 12/11/2026
+134666191	2026-11-12	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
+134665223	2026-11-12	not_for_sale	sale type 'Immobile a reddito' (bare ownership, rented out or auction)
+134663125	2026-11-12	added	copy of 2026-11-12 (-0 d old), updated 12/11/2026
+134644381	2026-11-12	no_outdoor	no balcony, terrace or garden stated
+134639499	2026-11-12	added	copy of 2026-11-12 (-0 d old), updated 12/11/2026
+134504353	2026-11-12	added	copy of 2026-11-12 (-0 d old), updated 12/11/2026
