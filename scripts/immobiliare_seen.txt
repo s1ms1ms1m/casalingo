@@ -199,3 +199,7 @@
 134817117	2026-11-17	added	copy of 2026-11-17 (-0 d old), updated 17/11/2026
 134592649	2026-11-17	added	copy of 2026-11-17 (-0 d old), updated 16/11/2026
 134004413	2026-11-17	added	copy of 2026-11-17 (-0 d old), updated 17/11/2026
+134869249	2026-11-18	added	copy of 2026-11-18 (-0 d old), updated 18/11/2026
+134865141	2026-11-18	no_outdoor	no balcony, terrace or garden stated
+134865001	2026-11-18	no_outdoor	no balcony, terrace or garden stated
+134856267	2026-11-18	added	copy of 2026-11-18 (-0 d old), updated 18/11/2026
