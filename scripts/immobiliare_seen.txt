@@ -206,3 +206,6 @@
 134912865	2026-11-19	added	copy of 2026-11-19 (-0 d old), updated 19/11/2026
 134911165	2026-11-19	added	copy of 2026-11-19 (-0 d old), updated 19/11/2026
 134903817	2026-11-19	added	copy of 2026-11-19 (-0 d old), updated 19/11/2026
+134941631	2026-11-20	added	copy of 2026-11-20 (-0 d old), updated 20/11/2026
+134941505	2026-11-20	added	copy of 2026-11-20 (-0 d old), updated 20/11/2026
+134931519	2026-11-20	added	copy of 2026-11-20 (-0 d old), updated 20/11/2026
