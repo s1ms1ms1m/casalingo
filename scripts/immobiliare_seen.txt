@@ -212,3 +212,9 @@
 134958749	2026-11-21	added	copy of 2026-11-21 (-0 d old), updated 21/11/2026
 134979085	2026-11-22	added	copy of 2026-11-22 (-0 d old), updated 22/11/2026
 134934617	2026-11-22	no_outdoor	no balcony, terrace or garden stated
+135012755	2026-11-23	added	copy of 2026-11-23 (-0 d old), updated 23/11/2026
+135006397	2026-11-23	added	copy of 2026-11-23 (-0 d old), updated 23/11/2026
+135003873	2026-11-23	added	copy of 2026-11-23 (-0 d old), updated 23/11/2026
+134996971	2026-11-23	added	copy of 2026-11-23 (-0 d old), updated 23/11/2026
+134994849	2026-11-23	no_outdoor	no balcony, terrace or garden stated
+134994375	2026-11-23	added	copy of 2026-11-23 (-0 d old), updated 23/11/2026
